@@ -1,0 +1,125 @@
+<div *ngIf="orderStatus == orderStatusEnum.Ordering">
+  <div>
+    <div *ngIf="user.accessLevel == 0">
+      <label>ADMIN ACCESS ONLY</label>
+      <button class="" (click)="openStoreDiscountSettings()">
+        OPEN DISCOUNT SETTINGS FOR CURRENT STORE
+      </button>
+      <button class="" (click)="openStoreCashierSettings()">
+        OPEN CASHIER SETTINGS FOR CURRENT STORE
+      </button>
+      <button class="" (click)="openRestaurantLayoutChangeModal()">
+        CHANGE LAYOUT
+      </button>
+    </div>
+    <div>
+      <label>GENERAL ACCESS</label>
+      <button class="" (click)="openCloseSessionModal()">CLOSE SESSION</button>
+      <button class="" (click)="openGenerateStoreReport()">
+        GENERATE SALES REPORT
+      </button>
+      <button (click)="openFileSelector()">IMPORT OFFLINE ORDERS</button>
+      <input type="file" hidden (change)="handleFileInput($event)" #fileInput />
+    </div>
+  </div>
+  <div *ngIf="mode == 'view'">
+    <div *ngIf="isLoading; else restaurantLoaded">
+      <mat-spinner></mat-spinner>
+    </div>
+    <ng-template #restaurantLoaded>
+      <div class="p-3">
+        <div class="main-container">
+          <!--TABLES HERE-->
+          <div *ngFor="let table of layout.tables; let i = index">
+            <div
+              (click)="showOrderForTable(i)"
+              class="obj-dimensions dark-green"
+              cdkDragBoundary=".p-3"
+              id="table_{{ table.id }}"
+              cdkDrag
+              cdkDragDisabled
+              [ngStyle]="{
+                height: table.height,
+                width: table.width,
+                'top.px': table.location[1],
+                'left.px': table.location[0]
+              }"
+              [cdkDragData]="table"
+            >
+              <!--class="table-dimensions"-->
+              Table {{ table.id }}
+            </div>
+          </div>
+
+          <!-- BARS HERE-->
+          <div *ngFor="let bar of layout.bars; let i = index">
+            <div
+              class="obj-dimensions dark-green"
+              cdkDragBoundary=".p-3"
+              id="bar{{ bar.id }}"
+              cdkDrag
+              cdkDragDisabled
+              [ngStyle]="{
+                height: bar.height,
+                width: bar.width,
+                'top.px': bar.location[1],
+                'left.px': bar.location[0]
+              }"
+              [cdkDragData]="bar"
+            >
+              <!--class="table-dimensions"-->
+              bar {{ bar.id }}
+            </div>
+          </div>
+
+          <!--STOOLS HERE-->
+          <div *ngFor="let stool of layout.stools; let i = index">
+            <div
+              (click)="showOrderForStool(i)"
+              class="obj-dimensions dark-green"
+              cdkDragBoundary=".p-3"
+              id="stool{{ stool.id }}"
+              cdkDrag
+              cdkDragDisabled
+              [ngStyle]="{
+                'height.px': stool.radius * 2,
+                'width.px': stool.radius * 2,
+                'border-radius.px': stool.radius,
+                'top.px': stool.location[1],
+                'left.px': stool.location[0]
+              }"
+              [cdkDragData]="stool"
+            >
+              <!--class="table-dimensions"-->
+              Stool {{ stool.id }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+  <div *ngIf="mode == 'edit'">
+    <app-restaurant-layout-edit></app-restaurant-layout-edit>
+  </div>
+  <div *ngIf="mode == 'order'">
+    <button class="" (click)="returnToLayoutView()">MAIN MAP</button>
+    <div>
+      <label>CURRENTLY SERVING: {{ restaurantServiceLocation }}</label>
+    </div>
+    <div class="restaurant-main-display">
+      <app-current-order class="restaurant-section width40"></app-current-order>
+      <div class="restaurant-section width60">
+        <div *ngIf="happyHourFlag" class="happy-hour-flag">
+          HAPPY HOUR IS CURRENTLY ACTIVE
+        </div>
+        <app-product-list></app-product-list>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="orderStatus == orderStatusEnum.Paying">
+  <app-payment></app-payment>
+</div>
+<div *ngIf="orderStatus == orderStatusEnum.Paid">
+  <app-order-complete></app-order-complete>
+</div>

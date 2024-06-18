@@ -1,0 +1,60 @@
+.clear-button {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+  border: hidden !important;
+}
+
+.POS-main-display {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: stretch;
+  align-content: stretch;
+  padding: 20px;
+  background-color: beige;
+}
+
+.POS-section {
+  padding: 20px;
+  margin: 10px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.happy-hour-flag {
+  color: red;
+  font-weight: bold;
+  padding-bottom: 10px;
+}
+
+.POS-admin-menu {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  align-items: flex-start;
+  align-content: space-around;
+}
+
+.POS-cashier-menu {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-content: space-around;
+}
+.width40 {
+  width: 30%;
+}
+
+.width60 {
+  width: 70%;
+}

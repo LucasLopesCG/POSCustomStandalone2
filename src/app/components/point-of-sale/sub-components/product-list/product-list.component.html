@@ -1,0 +1,92 @@
+<div class="container-fluid">
+  <div *ngIf="isLoading; else ready">
+    <mat-spinner></mat-spinner>
+  </div>
+  <ng-template #ready>
+    <div class="row">
+      <div class="col-md-12 right-side-align">
+        <input
+          type="text"
+          [(ngModel)]="searchString"
+          placeholder="Filter By..."
+          (ngModelChange)="filterProducts()"
+        />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="category-container">
+          <div
+            class="category-card"
+            *ngFor="let category of categories | keyvalue"
+            [class.active]="selectedCategory === category.value"
+            (click)="filterByCategory(category.value)"
+          >
+            <img
+              class="img-responsive"
+              src="assets/images/{{ category.value }}.png"
+            />
+            <span>{{ category.value }}</span>
+          </div>
+          <div
+            class="category-card"
+            [class.active]="selectedCategory === 'ALL'"
+            (click)="filterByCategory('ALL')"
+          >
+            <img class="img-responsive" src="assets/images/AllCategories.png" />
+            <span>All Products</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="product-container">
+          <ng-container *ngFor="let array of filteredProducts">
+            <div
+              class="product-card"
+              *ngIf="
+                array.length < 2 &&
+                array[0] &&
+                array[0].stock &&
+                array[0].stock > 0
+              "
+            >
+              <div (click)="addProductToOrder(array[0])">
+                <img
+                  class="img-responsive"
+                  [src]="sanitizeImage(array[0].image)"
+                  crossorigin="anonymous"
+                  *ngIf="array[0].image != 'false'"
+                />
+                <h4>{{ array[0].name }}</h4>
+                <p>Price: {{ array[0].price | number: "1.2-2" }}</p>
+                <p>Stock: {{ array[0].stock }}</p>
+              </div>
+            </div>
+            <div
+              class="product-card"
+              *ngIf="array.length >= 2 && totalProductCount(array) > 0"
+            >
+              <div
+                (click)="openVariantModal(array)"
+                *ngIf="totalProductCount(array) > 0"
+              >
+                <img
+                  class="img-responsive"
+                  [src]="sanitizeImage(array[0].image)"
+                  crossorigin="anonymous"
+                  *ngIf="array[0].image != 'false'"
+                />
+                <h4>{{ array[0].variantName }}</h4>
+                <p>Total Count: {{ totalProductCount(array) }}</p>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>

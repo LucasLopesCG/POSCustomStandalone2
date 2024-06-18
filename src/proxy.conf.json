@@ -1,0 +1,10 @@
+{
+  "/api/*": {
+    "target": "https://woocommerce-1248616-4474056.cloudwaysapps.com",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api": "https://woocommerce-1248616-4474056.cloudwaysapps.com"
+    }
+  }
+}

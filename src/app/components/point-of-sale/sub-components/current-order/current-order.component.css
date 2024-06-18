@@ -1,0 +1,31 @@
+.order-padding {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.bxgo-product {
+  background-color: chartreuse;
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.coupon-section {
+  padding-top: 5px;
+  -moz-box-shadow: 3px 3px 5px 6px #ccc;
+  -webkit-box-shadow: 3px 3px 5px 6px #ccc;
+  box-shadow: 3px 3px 5px 6px #ccc;
+  border-radius: 4%; /*supported by all latest Browser*/
+  -moz-border-radius: 4%; /*For older Browser*/
+  -webkit-border-radius: 4%; /*For older Browser*/
+  background-color: beige;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-bottom: 10px;
+}

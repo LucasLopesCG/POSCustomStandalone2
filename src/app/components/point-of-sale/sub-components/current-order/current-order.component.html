@@ -1,0 +1,130 @@
+<div *ngIf="currentOrderProducts.length > 0">
+  <div *ngFor="let product of currentOrderGrouped">
+    <div class="order-padding">
+      <div style="text-align: center; margin: auto">
+        {{ product.product.name }}
+        {{ product.product.price | number: "1.2-2" }} X
+        {{ product.count }}
+      </div>
+      <div class="button-group">
+        <button type="button" (click)="increaseItemCount(product.product)">
+          <mat-icon>exposure_plus_1</mat-icon>
+        </button>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="removeItemFromOrder(product)"
+        ></button>
+        <button type="button" (click)="decreaseItemCount(product.product)">
+          <mat-icon>exposure_neg_1</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="bxgoProducts && bxgoProducts.length > 0">
+    <div *ngFor="let extraProduct of bxgoProducts">
+      <div
+        class="order-padding bxgo-product"
+        style="text-align: center; margin: auto"
+      >
+        {{ extraProduct.name }}
+        Happy Hour Buy X Get One
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  *ngIf="
+    currentOrder &&
+    currentOrder.refundedProducts &&
+    currentOrder.refundedProducts.length > 0
+  "
+>
+  <div *ngFor="let refund of currentOrder.refundedProducts">
+    <div
+      class="order-padding bxgo-product"
+      style="text-align: center; margin: auto"
+    >
+      {{ refund.name }}
+      -{{ refund.price }}
+    </div>
+  </div>
+</div>
+<div
+  class="coupon-section"
+  *ngIf="selectedCoupon && selectedCoupon.couponDetail; else noCouponSelected"
+>
+  Selected Coupon:
+  {{ selectedCoupon.couponDetail.description }}
+  <button type="button" class="btn-close" (click)="removeCoupon()"></button>
+</div>
+<ng-template #noCouponSelected></ng-template>
+
+<div class="button-group">
+  <button type="button" (click)="openRefundModal()">
+    REFUND
+    <mat-icon>assignment_return</mat-icon>
+  </button>
+  <button type="button" (click)="openChooseCustomerModal()">
+    CUSTOMER
+    <mat-icon> person_pin</mat-icon>
+    <div *ngIf="this.selectedCustomer && this.selectedCustomer.name">
+      {{ this.selectedCustomer.name }}
+    </div>
+  </button>
+  <button
+    *ngIf="this.selectedCustomer && this.selectedCustomer.name"
+    type="button"
+    (click)="clearSelectedCustomer()"
+  >
+    Clear Customer
+    <mat-icon> person_remove</mat-icon>
+  </button>
+
+  <div *ngIf="this.selectedCustomer && this.selectedCustomer.name">
+    <button type="button" (click)="openChooseCoupon()">
+      COUPONS
+      <mat-icon> money_off</mat-icon>
+    </button>
+  </div>
+</div>
+
+<div>
+  <p>
+    TOTAL PRICE BEFORE TAXES AND COUPONS: {{ totalPrice | number: "1.2-2" }}
+  </p>
+  <p>
+    TOTAL DISCOUNTS GIVEN BY COUPON: {{ totalCouponDiscount | number: "1.2-2" }}
+  </p>
+  <p
+    *ngIf="
+      currentOrder &&
+      currentOrder.refundedProducts &&
+      currentOrder.refundedProducts.length > 0
+    "
+  >
+    TOTAL AMOUNT TO BE REFUNDED(TAX INCLUDED):
+    {{ refundTotal | number: "1.2-2" }}
+  </p>
+  <p>
+    TOTAL FOR THIS ORDER BEFORE TAXES
+    {{ totalPriceAfterDiscounts | number: "1.2-2" }}
+  </p>
+  <p>TAXES FOR THIS ORDER:{{ totalTaxAmount | number: "1.2-2" }}</p>
+  <p>ORDER TOTAL:{{ orderTotal | number: "1.2-2" }}</p>
+  <div>
+    <button
+      type="button"
+      (click)="goToPayment()"
+      [disabled]="
+        currentOrder &&
+        ((currentOrder.refundedProducts &&
+          currentOrder.refundedProducts.length == 0) ||
+          (currentOrder.products && currentOrder.products.length == 0))
+      "
+    >
+      Pay Order
+      <mat-icon> money</mat-icon>
+    </button>
+  </div>
+</div>

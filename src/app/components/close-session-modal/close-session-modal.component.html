@@ -1,0 +1,80 @@
+<div mat-dialog-title class="dialog-title bg-beige text-dark-green p-3">
+  <h2>CLOSE SESSION?</h2>
+  <button
+    mat-icon-button
+    aria-label="close dialog"
+    mat-dialog-close
+    (click)="close()"
+    class="float-right"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+<div mat-dialog-content style="height: 25rem" class="p-3">
+  THIS IS WHERE CASHIER PLACES THE TOTAL AMOUNT OF MONEY IN REGISTER
+  <p>to be implemented (CASHIER CONFIRM MONEY IN DRAWER)</p>
+  <div *ngIf="offlineOrderList.length > 0; else allGreen">
+    <p>WARNING: THERE ARE ORDERS SITTING IN MEMORY NOT YET IN THE SYSTEM.</p>
+    <p>
+      UNABLE TO CLOSE SESSION, PLEASE DOWNLOAD EXPORT OR ATTEMPT TO SEND OUT
+      OFFLINE ORDERS
+    </p>
+    <button (click)="createExport()">OFFLINE ORDER EXPORT</button>
+  </div>
+  <ng-template #allGreen>NO OFFLINE ORDERS</ng-template>
+  <p>TODO: Create a tool to save offline orders as a downloadable file.</p>
+  <p>
+    Create an admin/manager level component that reads data from one of these
+    files and:
+  </p>
+  <p>A:Checks that the orders don't exist already (how?)</p>
+  <p>B:Sends these orders back to "offlineMode Service"</p>
+  <div *ngIf="this.selectedLocation.isRestaurant; else storeOptions">
+    <button
+      mat-icon-button
+      aria-label="close dialog"
+      mat-dialog-close
+      (click)="close()"
+      class="float-right"
+    >
+      CANCEL
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <button
+      mat-icon-button
+      aria-label="close dialog"
+      mat-dialog-close
+      [disabled]="disableButton"
+      (click)="endSessionRestaurant()"
+      class="float-right"
+    >
+      END SESSION
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <ng-template #storeOptions>
+    <button
+      mat-icon-button
+      aria-label="close dialog"
+      mat-dialog-close
+      (click)="close()"
+      class="float-right"
+    >
+      CANCEL
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <button
+      mat-icon-button
+      aria-label="close dialog"
+      mat-dialog-close
+      [disabled]="disableButton"
+      (click)="endSessionStore()"
+      class="float-right"
+    >
+      END SESSION
+      <mat-icon>close</mat-icon>
+    </button>
+  </ng-template>
+</div>

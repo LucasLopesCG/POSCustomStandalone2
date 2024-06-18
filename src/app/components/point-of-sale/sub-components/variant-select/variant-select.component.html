@@ -1,0 +1,44 @@
+<div mat-dialog-title class="dialog-title">
+  <h2>{{ selectedVariantGroup[0].name.split("(")[0] }}</h2>
+  <button
+    mat-icon-button
+    aria-label="close dialog"
+    mat-dialog-close
+    (click)="close()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div mat-dialog-content>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="product-container">
+          <ng-container *ngFor="let product of selectedVariantGroup">
+            <!-- <div (click)="addProductToOrder(product)">
+            <img
+              class="img-responsive"
+              src="assets/images/{{ product.image }}"
+            />
+            <h4>Name: {{ product.price }}</h4>
+            <p>Price: {{ product.price }}</p>
+            <p>Stock: {{ product.stock }}</p>
+          </div> -->
+            <div
+              class="product-card"
+              *ngIf="product && product.stock && product.stock > 0"
+            >
+              <div (click)="addProductToOrder(product)">
+                <img class="img-responsive" src="{{ product.image }}" />
+                <h4>{{ product.name }}</h4>
+                <p>Price: {{ product.price | number: "1.2-2" }}</p>
+                <p>Stock: {{ product.stock }}</p>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

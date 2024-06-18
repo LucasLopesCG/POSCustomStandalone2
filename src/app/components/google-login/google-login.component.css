@@ -1,0 +1,21 @@
+.warning-label {
+  background-color: red;
+  border-radius: 5px;
+  border-width: 1px;
+}
+
+.cardStyle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.img-responsive {
+  width: 100%;
+  height: auto;
+  max-width: 200px;
+  max-height: 200px;
+}

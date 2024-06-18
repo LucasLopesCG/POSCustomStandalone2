@@ -1,0 +1,727 @@
+<div class="modal-layout">
+  <div mat-dialog-title class="dialog-title bg-beige text-dark-green p-3">
+    <h2>DISCOUNTS AND HAPPY HOUR SETTINGS</h2>
+    <button
+      mat-icon-button
+      aria-label="close dialog"
+      mat-dialog-close
+      (click)="close()"
+      class="float-right"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div mat-dialog-content style="height: 25rem" class="p-3">
+    <div *ngIf="mode == 'displayDiscount'">
+      <div *ngIf="storeDiscounts; else noDiscountSettings">
+        <div>
+          <h2>HAPPY HOUR'S</h2>
+          <div
+            *ngFor="let hh of storeDiscounts.happyHour; let i = index"
+            class="mb-4 rounded border shadow-sm p-3"
+          >
+            {{ hh.hhType }} {{ hh.description }}
+            <button
+              type="button"
+              (click)="deleteHappyHour(hh)"
+              class="btn btn-danger ml-2"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+            <button
+              type="button"
+              (click)="editHappyHour(hh, i)"
+              class="btn btn-primary ml-2"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+          <button
+            type="button"
+            (click)="newHappyHour()"
+            class="btn btn-success"
+          >
+            <mat-icon>fiber_new</mat-icon>
+          </button>
+        </div>
+
+        <div>
+          <h2>COUPONS</h2>
+          <div
+            *ngFor="let coupon of storeDiscounts.coupon; let i = index"
+            class="mb-4 rounded border shadow-sm p-3"
+          >
+            {{ coupon.couponDetail?.activationCode }}
+            <button
+              type="button"
+              (click)="deleteCoupon(coupon)"
+              class="btn btn-danger ml-2"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+            <button
+              type="button"
+              (click)="editCoupon(coupon, i)"
+              class="btn btn-primary ml-2"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+          <button type="button" (click)="newCoupon()" class="btn btn-success">
+            <mat-icon>fiber_new</mat-icon>
+          </button>
+        </div>
+      </div>
+      <ng-template #noDiscountSettings>
+        <p class="text-center">ALLOW USER TO CREATE DISCOUNT SETTINGS</p>
+      </ng-template>
+
+      <div>
+        <button
+          mat-icon-button
+          aria-label="cancel edit for discounts"
+          mat-dialog-close
+          (click)="cancelEditDiscounts()"
+          class="btn btn-danger mr-2"
+        >
+          <mat-icon>cancel</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="confirm edits for discount"
+          mat-dialog-close
+          (click)="confirmEditDiscounts()"
+          class="btn btn-success"
+        >
+          <mat-icon>check_circle</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="mode == 'editHappyHour'">
+      <div class="bg-beige p-4 rounded border shadow-sm happy-hour-edit">
+        <div>
+          <label class="text-dark-green">Description</label>
+          <input
+            [(ngModel)]="selectedHappyHour.description"
+            class="form-control"
+          />
+        </div>
+        <div>
+          <label class="text-dark-green">Start Hour</label>
+          <input [(ngModel)]="editHappyHourStartHour" class="form-control" />
+        </div>
+        <div>
+          <label class="text-dark-green">Start Minute</label>
+          <input [(ngModel)]="editHappyHourStartMinute" class="form-control" />
+        </div>
+        <div>
+          <label class="text-dark-green">End Hour</label>
+          <input [(ngModel)]="editHappyHourEndHour" class="form-control" />
+        </div>
+        <div>
+          <label class="text-dark-green">End Minute</label>
+          <input [(ngModel)]="editHappyHourEndMinute" class="form-control" />
+        </div>
+        <div>
+          <h2 class="text-dark-green">HAPPY HOUR TYPE:</h2>
+          <select class="form-control" [(ngModel)]="selectedHappyHour.hhType">
+            <option *ngFor="let option of hhTypeEnum | keyvalue">
+              {{ option.value }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <!--This is the area where the hhDetail object would be modified/added to-->
+          <!--By ALL PRODUCTS-->
+          <div
+            *ngIf="
+              selectedHappyHour.hhType == hhTypeEnum.allProducts &&
+              selectedHappyHour.hhDetail
+            "
+          >
+            <label class="text-dark-green"
+              >Discount Rate for ALL products:</label
+            >
+            <input
+              type="number"
+              [(ngModel)]="selectedHappyHour.hhDetail.happyHourDiscountAll"
+            />
+          </div>
+          <!--By Category-->
+          <div
+            *ngIf="
+              selectedHappyHour.hhType == hhTypeEnum.category &&
+              selectedHappyHour.hhDetail
+            "
+          >
+            <div>
+              <div
+                class="hh-item"
+                *ngFor="
+                  let category of selectedHappyHour.hhDetail
+                    .happyHourCategoryList;
+                  let i = index
+                "
+              >
+                <div class="card mb-3">
+                  <!--This is the wrapper for the whole category-->
+                  <div class="card-body">
+                    <h5 class="card-title">Category {{ i + 1 }}</h5>
+                    <div class="form-group">
+                      <label class="text-dark-green">Pick a Category:</label>
+                      <select class="form-control" [(ngModel)]="category.id">
+                        <option *ngFor="let option of categoryEnum | keyvalue">
+                          {{ option.value }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <!--Set a selector radio button here which makes either discount or priceSet show up-->
+                    <input
+                      type="radio"
+                      value="priceSet"
+                      [checked]="selectedHHDiscountType[i] === 'priceSet'"
+                      id="point1"
+                      (change)="discountTypeSet('priceSet', i, category)"
+                      name="Set Price"
+                    />
+                    <label>Set Price</label>
+                    <input
+                      type="radio"
+                      value="discount"
+                      [checked]="selectedHHDiscountType[i] === 'discount'"
+                      id="point2"
+                      (change)="discountTypeSet('discount', i, category)"
+                      name="Set Discount"
+                    />
+                    <label>Set Discount</label>
+                    <div
+                      *ngIf="
+                        selectedHHDiscountType[i] == 'priceSet';
+                        else discountSet
+                      "
+                    >
+                      <label class="text-dark-green"
+                        >Set a price for category</label
+                      >
+                      <input [(ngModel)]="category.priceSet" />
+                    </div>
+                    <ng-template #discountSet>
+                      <h2>Set a discount percentage for category</h2>
+                      <input [(ngModel)]="category.discount" />
+                    </ng-template>
+                  </div>
+                </div>
+
+                <div>
+                  <button
+                    mat-icon-button
+                    aria-label="Delete Category"
+                    mat-dialog-close
+                    (click)="deleteCategory(category)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <button
+                  mat-icon-button
+                  aria-label="close dialog"
+                  mat-dialog-close
+                  (click)="createNewCategory()"
+                >
+                  <mat-icon>fiber_new</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!--By Specific Item-->
+          <div
+            *ngIf="
+              selectedHappyHour.hhType == hhTypeEnum.bySpecificItem &&
+              selectedHappyHour.hhDetail
+            "
+          >
+            <div>
+              <div
+                *ngFor="
+                  let item of selectedHappyHour.hhDetail.happyHourItemList;
+                  let i = index
+                "
+              >
+                <div>
+                  <!--This is the wrapper for the whole item-->
+                  <table *ngIf="!item.id" (click)="toggleTable(i)">
+                    <tr
+                      *ngFor="
+                        let product of products
+                          | filter
+                            : selectedHappyHour.hhDetail.happyHourItemList
+                            : 'id'
+                      "
+                    >
+                      <td>{{ product.name }}</td>
+                      <td>{{ product.price }}</td>
+                      <td>
+                        <button
+                          (click)="
+                            selectProductForIndividualProductsHappyHour(
+                              product,
+                              i
+                            )
+                          "
+                        >
+                          Select
+                        </button>
+                      </td>
+                    </tr>
+                  </table>
+                  <div *ngIf="item.id">
+                    <label class="text-dark-green"
+                      >Selected Product: {{ item.name }}</label
+                    >
+                    <button (click)="toggleTable(i)">Change Product</button>
+                  </div>
+                  <div>
+                    <!--Set a selector radio button here which makes either discount or priceSet show up-->
+                    <input
+                      type="radio"
+                      value="priceSet"
+                      [checked]="selectedHHDiscountType[i] === 'priceSet'"
+                      id="point1"
+                      (change)="discountTypeSet('priceSet', i, item)"
+                      name="Set Price"
+                    />
+                    <label>Set Price</label>
+                    <input
+                      type="radio"
+                      value="discount"
+                      [checked]="selectedHHDiscountType[i] === 'discount'"
+                      id="point2"
+                      (change)="discountTypeSet('discount', i, item)"
+                      name="Set Discount"
+                    />
+                    <label>Set Discount</label>
+                    <div
+                      *ngIf="
+                        selectedHHDiscountType[i] == 'priceSet';
+                        else discountSet
+                      "
+                    >
+                      <label class="text-dark-green"
+                        >Set a price for item</label
+                      >
+                      <input [(ngModel)]="item.priceSet" />
+                    </div>
+                    <ng-template #discountSet>
+                      <label class="text-dark-green"
+                        >Set a discount percentage for item</label
+                      >
+                      <input [(ngModel)]="item.discount" />
+                    </ng-template>
+                  </div>
+                </div>
+
+                <div>
+                  <button
+                    mat-icon-button
+                    aria-label="Delete Item"
+                    mat-dialog-close
+                    (click)="deleteItem(item)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <button
+                  mat-icon-button
+                  aria-label="close dialog"
+                  mat-dialog-close
+                  (click)="createNewItem()"
+                >
+                  <mat-icon>fiber_new</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!--By BXGO-->
+          <div
+            *ngIf="
+              selectedHappyHour.hhType == hhTypeEnum.bxgo &&
+              selectedHappyHour.hhDetail
+            "
+          >
+            <div *ngIf="selectedHappyHour.hhDetail.happyHourBXGO">
+              <div
+                *ngFor="
+                  let item of selectedHappyHour.hhDetail.happyHourBXGO.products;
+                  let i = index
+                "
+              >
+                <table *ngIf="!item.id" (click)="toggleBXGOTable(i)">
+                  <tr
+                    *ngFor="
+                      let product of products
+                        | filter
+                          : selectedHappyHour.hhDetail.happyHourBXGO.products
+                          : 'id'
+                    "
+                  >
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.price }}</td>
+                    <td>
+                      <button (click)="selectProductForBXGO(product, i)">
+                        Select
+                      </button>
+                    </td>
+                  </tr>
+                </table>
+                <div *ngIf="item.id">
+                  <label class="text-dark-green"
+                    >Selected Product: {{ item.name }}</label
+                  >
+                  <button (click)="toggleBXGOTable(i)">Change Product</button>
+                </div>
+
+                <!--delete button here!-->
+                <div>
+                  <button
+                    mat-icon-button
+                    aria-label="Delete Item"
+                    mat-dialog-close
+                    (click)="deleteBXGOItem(item)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <button
+                mat-icon-button
+                aria-label="close dialog"
+                mat-dialog-close
+                (click)="createNewBXGOItem()"
+              >
+                <mat-icon>fiber_new</mat-icon>
+              </button>
+            </div>
+            <div *ngIf="selectedHappyHour.hhDetail.happyHourBXGO">
+              <label class="text-dark-green"
+                >How many Items to purchase before Free item:</label
+              >
+              <input
+                type="number"
+                [(ngModel)]="
+                  selectedHappyHour.hhDetail.happyHourBXGO.triggerCount
+                "
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <button
+          mat-icon-button
+          aria-label="cancel edit"
+          mat-dialog-close
+          (click)="cancelEditHappyHour()"
+        >
+          <mat-icon>cancel</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="confirm edit"
+          mat-dialog-close
+          (click)="confirmEditHappyHour()"
+        >
+          <mat-icon>check_circle</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!--EDIT COUPON-->
+    <div
+      *ngIf="mode == 'editCoupon'"
+      class="bg-beige p-4 rounded border shadow-sm"
+    >
+      <div class="coupon-edit">
+        <label class="text-dark-green">COUPON TYPE:</label>
+        <select class="form-control" [(ngModel)]="selectedCoupon.couponType">
+          <option *ngFor="let option of couponTypeEnum | keyvalue">
+            {{ option.value }}
+          </option>
+        </select>
+      </div>
+      <div *ngIf="selectedCoupon.couponDetail">
+        <label class="text-dark-green">Activation Code for Coupon</label>
+        <input [(ngModel)]="selectedCoupon.couponDetail.activationCode" />
+      </div>
+      <div *ngIf="selectedCoupon.couponDetail">
+        <label class="text-dark-green">Coupon Description</label>
+        <input [(ngModel)]="selectedCoupon.couponDetail.description" />
+      </div>
+      <!--Amount off order-->
+      <div *ngIf="selectedCoupon.couponType == couponTypeEnum.amountOffOrder">
+        <div *ngIf="selectedCoupon && selectedCoupon.couponDetail">
+          <label class="text-dark-green">Amount Off Order</label>
+          <input
+            type="number"
+            [(ngModel)]="selectedCoupon.couponDetail.setPrice"
+          />
+        </div>
+      </div>
+
+      <!--Discount on Entire Item-->
+      <div
+        *ngIf="
+          selectedCoupon.couponType == couponTypeEnum.discountOnEntireOrder
+        "
+      >
+        <div *ngIf="selectedCoupon && selectedCoupon.couponDetail">
+          <label class="text-dark-green">Discount On Order</label>
+          <input
+            type="number"
+            [(ngModel)]="selectedCoupon.couponDetail.discount"
+          />
+        </div>
+      </div>
+
+      <!--Discount on specific Item-->
+      <div
+        *ngIf="
+          selectedCoupon.couponType == couponTypeEnum.discountOnSpecificItem
+        "
+      >
+        <div *ngIf="selectedCoupon && selectedCoupon.couponDetail">
+          <div class="coupon-edit">
+            <label class="text-dark-green">Applies for Single Product?</label>
+            <input
+              type="checkbox"
+              [(ngModel)]="selectedCoupon.couponDetail.singleItem"
+            />
+          </div>
+          <h2>PRODUCT'S INCLUDED IN THIS COUPON</h2>
+          <div>
+            <div
+              *ngFor="
+                let item of selectedCoupon.couponDetail.product;
+                let i = index
+              "
+            >
+              <div
+                class="product-card"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  margin-bottom: 10px;
+                "
+              >
+                <div (click)="showProductList(i)">{{ item.name }}</div>
+                <button
+                  mat-icon-button
+                  aria-label="Delete Item"
+                  mat-dialog-close
+                  (click)="deleteProductFromCoupon(item)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+              <div
+                *ngIf="isProductListVisible && selectedCouponProductIndex === i"
+              >
+                <table>
+                  <tr>
+                    <th>Product Name</th>
+                  </tr>
+                  <tr
+                    *ngFor="let product of products | tablefilter: searchText"
+                  >
+                    <td (click)="hideProductList(product)">
+                      {{ product.name }}
+                    </td>
+                  </tr>
+                </table>
+                <input
+                  type="text"
+                  [(ngModel)]="searchText"
+                  placeholder="Search by name"
+                />
+              </div>
+            </div>
+            <button
+              mat-icon-button
+              aria-label="close dialog"
+              mat-dialog-close
+              (click)="addNewProductToCoupon()"
+              style="margin-top: 20px"
+            >
+              <mat-icon>fiber_new</mat-icon>
+            </button>
+          </div>
+
+          <div style="margin-top: 20px">
+            <div style="display: flex; flex-direction: column">
+              <div style="display: flex; align-items: center">
+                <input
+                  type="radio"
+                  value="priceSet"
+                  [checked]="selectedCoupon.couponDetail.type === 'priceSet'"
+                  id="point1"
+                  (change)="selectedCouponTypeSet('priceSet')"
+                  name="Set Price"
+                />
+                <label style="margin-right: 20px">Set Price</label>
+                <input
+                  type="radio"
+                  value="discount"
+                  [checked]="selectedCoupon.couponDetail.type === 'discount'"
+                  id="point2"
+                  (change)="selectedCouponTypeSet('discount')"
+                  name="Set Discount"
+                />
+                <label>Set Discount</label>
+              </div>
+              <div style="margin-top: 10px">
+                <div
+                  *ngIf="
+                    selectedCoupon.couponDetail.type == 'priceSet';
+                    else discountSet
+                  "
+                >
+                  <label class="text-dark-green"
+                    >Set Price for category(s)</label
+                  >
+                  <input [(ngModel)]="selectedCoupon.couponDetail.setPrice" />
+                </div>
+                <ng-template #discountSet>
+                  <label class="text-dark-green"
+                    >Set discount for category(s)</label
+                  >
+                  <input [(ngModel)]="selectedCoupon.couponDetail.discount" />
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--discountOnProductCategory-->
+      <div
+        *ngIf="
+          selectedCoupon.couponType == couponTypeEnum.discountOnProductCategory
+        "
+      >
+        <div *ngIf="selectedCoupon.couponDetail && selectedCoupon.couponDetail">
+          <div class="coupon-edit">
+            <label class="text-dark-green">Applies for Single Product?</label>
+            <input
+              type="checkbox"
+              [(ngModel)]="selectedCoupon.couponDetail.singleItem"
+            />
+          </div>
+          <div
+            *ngFor="
+              let category of selectedCoupon.couponDetail.categories;
+              let i = index
+            "
+          >
+            <select
+              *ngIf="
+                selectedCoupon &&
+                selectedCoupon.couponDetail &&
+                selectedCoupon.couponDetail.categories
+              "
+              class="form-control"
+              [(ngModel)]="selectedCoupon.couponDetail.categories[i]"
+            >
+              <option *ngFor="let option of categoryEnum | keyvalue">
+                {{ option.value }}
+              </option>
+            </select>
+            <button
+              type="button"
+              (click)="deleteCategoryForSelectedCoupon(i)"
+              class="btn btn-danger ml-2"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+
+          <button
+            mat-icon-button
+            aria-label="close dialog"
+            mat-dialog-close
+            (click)="createNewCouponCategory()"
+            style="margin-top: 20px"
+          >
+            <mat-icon>fiber_new</mat-icon>
+          </button>
+
+          <div>
+            <input
+              type="radio"
+              value="priceSet"
+              [checked]="selectedCoupon.couponDetail.type === 'priceSet'"
+              id="point1"
+              (change)="selectedCouponTypeSet('priceSet')"
+              name="Set Price"
+            />
+            <label>Set Price</label>
+            <input
+              type="radio"
+              value="discount"
+              [checked]="selectedCoupon.couponDetail.type === 'discount'"
+              id="point2"
+              (change)="selectedCouponTypeSet('discount')"
+              name="Set Discount"
+            />
+            <label>Set Discount</label>
+            <!-- <label class="text-dark-green">Coupon Description</label>
+        <input [(ngModel)]="selectedCoupon.couponDetail.description" /> -->
+            <div
+              *ngIf="
+                selectedCoupon.couponDetail.type == 'priceSet';
+                else discountSet
+              "
+            >
+              <label class="text-dark-green">Set Price for category(s)</label>
+              <input [(ngModel)]="selectedCoupon.couponDetail.setPrice" />
+            </div>
+            <ng-template #discountSet>
+              <label class="text-dark-green"
+                >Set discount for category(s)</label
+              >
+              <input [(ngModel)]="selectedCoupon.couponDetail.discount" />
+            </ng-template>
+          </div>
+        </div>
+      </div>
+      <div>
+        <button
+          mat-icon-button
+          aria-label="cancel edit"
+          mat-dialog-close
+          (click)="cancelEditCoupon()"
+        >
+          <mat-icon>cancel</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="confirm edit"
+          mat-dialog-close
+          (click)="confirmEditCoupon()"
+        >
+          <mat-icon>check_circle</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

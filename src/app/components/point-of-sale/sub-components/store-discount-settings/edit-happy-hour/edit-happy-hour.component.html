@@ -1,0 +1,30 @@
+<div mat-dialog-title class="dialog-title">
+  <h2>Edit Happy Hour SETTINGS</h2>
+  <button
+    mat-icon-button
+    aria-label="close dialog"
+    mat-dialog-close
+    (click)="close()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div mat-dialog-content>
+  <div>
+    <h2>Start Hour</h2>
+    <input [(ngModel)]="editHappyHourStartHour" />
+  </div>
+  <div>
+    <h2>Start Minute</h2>
+    <input [(ngModel)]="editHappyHourStartMinute" />
+  </div>
+  <div>
+    <h2>End Hour</h2>
+    <input [(ngModel)]="editHappyHourEndHour" />
+  </div>
+  <div>
+    <h2>End Minute</h2>
+    <input [(ngModel)]="editHappyHourEndMinute" />
+  </div>
+</div>

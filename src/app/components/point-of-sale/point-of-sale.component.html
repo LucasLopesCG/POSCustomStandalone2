@@ -1,0 +1,47 @@
+<div *ngIf="orderStatus == orderStatusEnum.Ordering">
+  <div>
+    <div>
+      <div class="POS-admin-menu" *ngIf="user.accessLevel == 0">
+        <label>ADMIN ACCESS ONLY</label>
+        <button class="" (click)="openStoreDiscountSettings()">
+          OPEN DISCOUNTS DIALOG FOR CURRENT STORE
+        </button>
+        <button class="" (click)="openStoreCashierSettings()">
+          OPEN CASHIER DIALOG FOR CURRENT STORE
+        </button>
+      </div>
+      <div class="POS-cashier-menu">
+        <label>GENERAL ACCESS</label>
+        <button class="" (click)="openCloseSessionModal()">
+          CLOSE SESSION
+        </button>
+        <button class="" (click)="openGenerateStoreReport()">
+          GENERATE SALES REPORT
+        </button>
+        <button (click)="openFileSelector()">IMPORT OFFLINE ORDERS</button>
+        <input
+          type="file"
+          hidden
+          (change)="handleFileInput($event)"
+          #fileInput
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="POS-main-display">
+    <app-current-order class="POS-section width40"></app-current-order>
+    <div class="POS-section width60">
+      <div *ngIf="happyHourFlag" class="happy-hour-flag">
+        HAPPY HOUR IS CURRENTLY ACTIVE
+      </div>
+      <app-product-list></app-product-list>
+    </div>
+  </div>
+</div>
+<div *ngIf="orderStatus == orderStatusEnum.Paying">
+  <app-payment></app-payment>
+</div>
+<div *ngIf="orderStatus == orderStatusEnum.Paid">
+  <app-order-complete></app-order-complete>
+</div>

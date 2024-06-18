@@ -1,0 +1,163 @@
+<div class="p-3">
+  <div class="main-container bg-beige">
+    <!--TABLES HERE-->
+    <div *ngFor="let table of layout.tables; let i1 = index">
+      <div
+        class="obj-dimensions dark-green"
+        cdkDragBoundary=".main-container"
+        id="table_{{ table.id }}"
+        cdkDrag
+        [ngStyle]="{
+          height: table.height,
+          width: table.width
+        }"
+        [cdkDragData]="table"
+        (cdkDragEnded)="dragTableEnd($event, i1)"
+      >
+        <!--'top.px': table.location[1],
+          'left.px': table.location[0]-->
+        <!--class="table-dimensions"-->
+        Table {{ table.id }}
+        <button
+          mat-icon-button
+          aria-label="Delete Item"
+          mat-dialog-close
+          (click)="deleteTableFromLayout(i1)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- BARS HERE-->
+    <div *ngFor="let bar of layout.bars; let i2 = index">
+      <div
+        class="obj-dimensions dark-green"
+        cdkDragBoundary=".main-container"
+        id="bar{{ bar.id }}"
+        cdkDrag
+        [ngStyle]="{
+          height: bar.height,
+          width: bar.width
+        }"
+        [cdkDragData]="bar"
+        (cdkDragEnded)="dragBarEnd($event, i2)"
+      >
+        <!--'top.px': bar.location[1],
+          'left.px': bar.location[0]-->
+        <!--class="bar-dimensions"-->
+        bar {{ bar.id }}
+        <button
+          mat-icon-button
+          aria-label="Delete Item"
+          mat-dialog-close
+          (click)="deleteBarFromLayout(i2)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!--STOOLS HERE-->
+    <div *ngFor="let stool of layout.stools; let i3 = index">
+      <div
+        class="obj-dimensions dark-green"
+        cdkDragBoundary=".main-container"
+        id="stool{{ stool.id }}"
+        cdkDrag
+        [ngStyle]="{
+          'height.px': stool.radius * 2,
+          'width.px': stool.radius * 2,
+          'border-radius.px': stool.radius
+        }"
+        [cdkDragData]="stool"
+        (cdkDragEnded)="dragStoolEnd($event, i3)"
+      >
+        <!--'top.px': stool.location[1],
+          'left.px': stool.location[0]-->
+        <!--class="table-dimensions"-->
+        Stool {{ stool.id }}
+        <button
+          mat-icon-button
+          aria-label="Delete Item"
+          mat-dialog-close
+          (click)="deleteStoolFromLayout(i3)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!--BUTTONS HERE-->
+    <div>
+      <div>
+        <!-- div that contains the "CREATE inputs"-->
+        <div>
+          <label>Set Height/Width for tables/bars</label>
+          <div>
+            <label>Height:</label>
+            <input type="number" [(ngModel)]="newObjHeight" />
+          </div>
+          <div>
+            <label>Width:</label>
+            <input type="number" [(ngModel)]="newObjWidth" />
+          </div>
+        </div>
+        <div>
+          <label>Set size of stool</label>
+          <input type="number" [(ngModel)]="newObjRadius" />
+        </div>
+        <button
+          mat-icon-button
+          aria-label="close dialog"
+          mat-dialog-close
+          (click)="addNewTableToLayout(newObjWidth, newObjHeight)"
+        >
+          NEW TABLE
+          <mat-icon>fiber_new</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="close dialog"
+          mat-dialog-close
+          (click)="addNewBarToLayout(newObjWidth, newObjHeight)"
+        >
+          NEW BAR
+          <mat-icon>fiber_new</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="close dialog"
+          mat-dialog-close
+          (click)="addNewStoolToLayout(newObjRadius)"
+        >
+          NEW STOOL
+          <mat-icon>fiber_new</mat-icon>
+        </button>
+      </div>
+      <div>
+        <!--div that contains the accept/cancel changes inputs-->
+
+        <button
+          mat-icon-button
+          aria-label="close dialog"
+          mat-dialog-close
+          (click)="cancelLayoutChanges()"
+        >
+          CANCEL CHANGES
+          <mat-icon>fiber_new</mat-icon>
+        </button>
+
+        <button
+          mat-icon-button
+          aria-label="close dialog"
+          mat-dialog-close
+          (click)="saveLayoutChanges()"
+        >
+          SAVE CHANGES
+          <mat-icon>fiber_new</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

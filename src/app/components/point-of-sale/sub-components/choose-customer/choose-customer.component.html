@@ -1,0 +1,133 @@
+<div style="min-width: 900px; max-height: 600px">
+  <div mat-dialog-title>
+    <h2>Customer Information Modal</h2>
+    <button aria-label="close dialog" mat-dialog-close (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div mat-dialog-content>
+    <div
+      *ngIf="noDetails && displayMode == 'all'"
+      style="display: flex; flex-direction: column"
+    >
+      <div *ngIf="availableCustomers.length > 0; else noCustomersOnFile">
+        <div *ngFor="let customer of availableCustomers" class="customer-card">
+          <div (click)="selectCustomer(customer)">
+            <div>Name: {{ customer.name }}</div>
+            <div>Address: {{ customer.address }}</div>
+            <div>
+              Contact: <mat-icon>alternate_email</mat-icon>{{ customer.email }}
+            </div>
+            <div><mat-icon>phone</mat-icon>{{ customer.phone }}</div>
+            <div><mat-icon>phonelink_ring</mat-icon>{{ customer.mobile }}</div>
+          </div>
+          <button type="button" (click)="showCustomerDetail(customer)">
+            <mat-icon>details</mat-icon> DETAILS
+          </button>
+        </div>
+      </div>
+      <ng-template #noCustomersOnFile>
+        THERE ARE NO CUSTOMERS? THIS SHOULD NOT HAPPEN?
+      </ng-template>
+      <div>
+        <button
+          type="button"
+          color="primary"
+          class="create-customer-button"
+          (click)="createCustomer()"
+        >
+          <mat-icon>person_add</mat-icon> Create Customer
+        </button>
+      </div>
+    </div>
+    <div
+      *ngIf="
+        showDetailsCustomer &&
+        showDetailsCustomer.name &&
+        !noDetails &&
+        displayMode == 'detail'
+      "
+      class="customer-card"
+    >
+      Name: {{ showDetailsCustomer.name }} Address:
+      {{ showDetailsCustomer.address }} Contact:
+      <mat-icon>alternate_email</mat-icon>{{ showDetailsCustomer.email }}
+      <mat-icon>phone</mat-icon>{{ showDetailsCustomer.phone }}
+      <mat-icon>phonelink_ring</mat-icon>{{ showDetailsCustomer.mobile }} NOTES:
+      {{ showDetailsCustomer.notes }};
+      <button type="button" (click)="selectCustomer(showDetailsCustomer)">
+        <mat-icon>check_circle</mat-icon> SELECT CUSTOMER
+      </button>
+      <button type="button" (click)="cancelShowCustomerDetail()">
+        <mat-icon>cancel</mat-icon> CANCEL
+      </button>
+    </div>
+    <div *ngIf="displayMode == 'create'" class="create-customer-form">
+      <div>
+        <label>Name *</label>
+        <input
+          matInput
+          [(ngModel)]="newCustomer.name"
+          required
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </div>
+      <div>
+        <label>Email *</label>
+        <input
+          matInput
+          [(ngModel)]="newCustomer.email"
+          required
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </div>
+      <div>
+        <label>Phone</label>
+        <input
+          matInput
+          [(ngModel)]="newCustomer.phone"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </div>
+      <div>
+        <label>Mobile</label>
+        <input
+          matInput
+          [(ngModel)]="newCustomer.mobile"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </div>
+      <div>
+        <label>Address</label>
+        <input
+          matInput
+          [(ngModel)]="newCustomer.address"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </div>
+      <div>
+        <label>Notes</label>
+        <input
+          matInput
+          [(ngModel)]="newCustomer.notes"
+          [ngModelOptions]="{ standalone: true }"
+        />
+      </div>
+      <button
+        type="button"
+        (click)="saveCustomer()"
+        [disabled]="
+          !newCustomer.name ||
+          !newCustomer.email ||
+          (!newCustomer.phone && !newCustomer.mobile)
+        "
+      >
+        SAVE CUSTOMER
+      </button>
+      <button type="button" (click)="cancelShowCustomerDetail()">
+        CANCEL CUSTOMER CREATION
+      </button>
+    </div>
+  </div>
+</div>

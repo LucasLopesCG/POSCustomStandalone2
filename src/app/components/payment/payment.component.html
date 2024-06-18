@@ -1,0 +1,35 @@
+<div class="container">
+  <div class="header">
+    <button (click)="backToOrder()">BACK TO ORDER</button>
+  </div>
+  <div class="left">
+    <div class="total">
+      <p>Total: {{ totalCost | number: "1.2-2" }}</p>
+      <p>Paid: {{ paid | number: "1.2-2" }}</p>
+      <p>Change: {{ change | number: "1.2-2" }}</p>
+    </div>
+    <div class="actions">
+      <button>Exact Amount</button>
+      <button>Paid with Card</button>
+    </div>
+    <div class="money">
+      <div *ngFor="let money of moneyOptions">
+        <button (click)="decreaseMoneyCount(money)">-</button>
+        {{ money.name }}: {{ money.count }}
+        <button (click)="increaseMoneyCount(money)">+</button>
+      </div>
+    </div>
+    <button (click)="submitPayment()" [disabled]="paid < totalCost">
+      Submit Payment
+    </button>
+  </div>
+  <div class="middle"></div>
+  <div class="right">
+    <div *ngFor="let product of groupedProducts">
+      {{ product.product.name }} ({{ product.count }}) x ${{
+        product.product.price
+      }}
+      = ${{ product.product.price * product.count }}
+    </div>
+  </div>
+</div>

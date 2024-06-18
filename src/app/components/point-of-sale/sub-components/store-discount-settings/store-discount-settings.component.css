@@ -1,0 +1,53 @@
+.mat-mdc-dialog-surface {
+  overflow-y: scroll;
+}
+
+.modal-layout {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.bg-beige {
+  background-color: #f5f5dc;
+}
+
+.text-dark-green {
+  color: #2e865f;
+}
+
+.bg-beige {
+  background-color: #f5f5dc;
+}
+
+.text-dark-green {
+  color: #2e865f;
+}
+
+.happy-hour-edit .hh-item .card {
+  border: 1px solid #2e865f;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.happy-hour-edit .hh-item .card-body {
+  padding: 20px;
+}
+
+.coupon-edit {
+  padding: 20px;
+}
+
+.coupon-edit .form-group {
+  margin-bottom: 20px;
+}
+
+.product-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,32 @@
+<div class="d-flex justify-content-center flex-column">
+  <div class="centered-spinner" *ngIf="isLoading; else userLoaded">
+    <mat-spinner></mat-spinner>
+  </div>
+  <ng-template #userLoaded>
+    <div *ngIf="availableLocations && this.selectedLocation == 'NONE'">
+      <div class="d-flex justify-content-between">
+        <div></div>
+        <h2 class="">Choose from one of your stores</h2>
+        <div>
+          <button (click)="Logout()">LogOut <mat-icon>logout</mat-icon></button>
+        </div>
+      </div>
+      <div *ngFor="let storeLoc of availableLocations">
+        <div>
+          {{ storeLoc.location }}
+          <button (click)="selectLocation(storeLoc)">Login</button>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>
+<div *ngIf="this.selectedLocation != 'NONE'">
+  <div *ngIf="this.selectedLocation.isRestaurant; else store">
+    <!-- <app-restaurant-table-selector></app-restaurant-table-selector> -->
+    <app-restaurant-layout-view></app-restaurant-layout-view>
+  </div>
+
+  <ng-template #store>
+    <app-point-of-sale></app-point-of-sale>
+  </ng-template>
+</div>

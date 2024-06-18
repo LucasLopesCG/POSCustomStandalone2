@@ -1,0 +1,141 @@
+<div style="min-width: 900px; max-height: 600px">
+  <div mat-dialog-title class="dialog-title bg-beige text-dark-green p-3">
+    <h2>Modify Cashier(s)</h2>
+    <button
+      mat-icon-button
+      aria-label="close dialog"
+      mat-dialog-close
+      (click)="close()"
+      class="float-right"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div mat-dialog-content style="height: 25rem" class="p-3">
+    <div *ngIf="displayMode == 'Display'">
+      <div *ngFor="let user of userList">
+        <div>
+          <div><label>User:</label> {{ user.email }}</div>
+          <div><label>Access Level</label>{{ user.access_level }}</div>
+          <div><label>Stores:</label>{{ user.stores }}</div>
+          <button
+            *ngIf="user.access_level != 'ADMIN'"
+            type="button"
+            (click)="deleteUserConfirmation(user)"
+            class="btn btn-danger ml-2"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+          <button
+            type="button"
+            (click)="startUserEdit(user)"
+            class="btn btn-primary ml-2"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+      </div>
+      <button type="button" (click)="newUser()" class="btn btn-success">
+        <mat-icon>fiber_new</mat-icon>
+      </button>
+    </div>
+    <!--EDIT MODE-->
+    <div *ngIf="displayMode == 'edit'">
+      <div>
+        <label>User email: </label>
+        <input type="email" [(ngModel)]="currentEditUser.email" />
+      </div>
+      <div>
+        <label>Access Level: </label>
+
+        <select class="form-control" [(ngModel)]="currentEditUser.access_level">
+          <option *ngFor="let option of accessLevel | keyvalue">
+            {{ option.value }}
+          </option>
+        </select>
+      </div>
+      <div>
+        <label
+          >Stores (separate multiple stores using ",". Type in "ALL" for all
+          stores)
+        </label>
+        <input type="text" [(ngModel)]="currentEditUser.stores" />
+      </div>
+      <button
+        mat-icon-button
+        aria-label="confirm edit"
+        mat-dialog-close
+        (click)="editUser()"
+      >
+        <mat-icon>check_circle</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="cancel edit for user"
+        mat-dialog-close
+        (click)="cancelEditMode()"
+        class="btn btn-danger mr-2"
+      >
+        <mat-icon>cancel</mat-icon>
+      </button>
+    </div>
+    <!--NEW USER MODE-->
+    <div *ngIf="displayMode == 'new'">
+      <div>
+        <label>User email: </label>
+        <input type="email" [(ngModel)]="newUserObject.email" />
+      </div>
+      <div>
+        <label>Access Level: </label>
+
+        <select class="form-control" [(ngModel)]="newUserObject.access_level">
+          <option *ngFor="let option of accessLevel | keyvalue">
+            {{ option.value }}
+          </option>
+        </select>
+      </div>
+      <div>
+        <label
+          >Stores (separate multiple stores using ",". Type in "ALL" for all
+          stores)
+        </label>
+        <input type="text" [(ngModel)]="newUserObject.stores" />
+      </div>
+      <button type="button" (click)="createUser()" class="btn btn-success">
+        <mat-icon>fiber_new</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="cancel new user Addition"
+        mat-dialog-close
+        (click)="cancelNewMode()"
+        class="btn btn-danger mr-2"
+      >
+        <mat-icon>cancel</mat-icon>
+      </button>
+    </div>
+    <!--DELETE USER MODE-->
+    <div *ngIf="displayMode == 'delete'">
+      <label
+        >ARE YOU SURE YOU WISH TO DELETE {{ currentEditUser.email }}? THIS
+        CANNOT BE UNDONE</label
+      >
+      <button
+        type="button"
+        (click)="deleteUser(currentEditUser)"
+        class="btn btn-success"
+      >
+        <mat-icon>check_circle</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="cancel new user Addition"
+        mat-dialog-close
+        (click)="cancelNewMode()"
+        class="btn btn-danger mr-2"
+      >
+        <mat-icon>cancel</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

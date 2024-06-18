@@ -1,0 +1,32 @@
+.container {
+  display: flex;
+  height: 100vh;
+}
+.left {
+  flex: 1;
+}
+.middle {
+  background-color: grey;
+  width: 1px;
+}
+.right {
+  flex: 1;
+}
+.header {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.header button {
+  background-color: #4caf50;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.header button:hover {
+  background-color: #3e8e41;
+}

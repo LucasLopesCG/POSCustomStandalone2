@@ -1,0 +1,42 @@
+<div style="min-width: 900px">
+  <div mat-dialog-title class="dialog-title">
+    <h2>CHOOSE A COUPON FOR ORDER</h2>
+    <button
+      mat-icon-button
+      aria-label="close dialog"
+      mat-dialog-close
+      (click)="close()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div mat-dialog-content>
+    <div *ngIf="availableCoupons.length > 0; else noCoupons">
+      <div *ngIf="!HHDiscountFlag; else noCouponsForHH">
+        <div *ngIf="!selectedCoupon.couponDetail; else removeCouponFirst">
+          <div *ngFor="let coupon of availableCoupons" class="coupon-card">
+            <div
+              *ngIf="
+                coupon &&
+                coupon.couponDetail &&
+                coupon.couponDetail.activationCode
+              "
+            >
+              <div (click)="selectCoupon(coupon)">
+                Activation Code: {{ coupon.couponDetail.activationCode }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <ng-template #removeCouponFirst>
+          Coupon already selected, please remove coupon from order first!
+        </ng-template>
+      </div>
+      <ng-template #noCouponsForHH>
+        You cannot have coupons while ordering Happy Hour Products!
+      </ng-template>
+    </div>
+    <ng-template #noCoupons> no available coupons </ng-template>
+  </div>
+</div>

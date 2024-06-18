@@ -1,0 +1,50 @@
+.container {
+  width: 250px;
+  height: 50px;
+  background: darkblue;
+  position: relative;
+}
+.element {
+  width: 50px;
+  height: 50px;
+  background: darkgreen;
+  position: absolute;
+  top: 0;
+}
+element-center {
+  right: 50%;
+  transform: translate(50%, 0);
+}
+.element-right {
+  right: 0;
+}
+
+#container {
+  width: 250px;
+  height: 50px;
+  background: darkblue;
+  position: relative;
+}
+#element-1,
+#element-2 {
+  width: 50px;
+  height: 50px;
+  background: darkgreen;
+  position: absolute;
+  top: 0;
+}
+#element-1 {
+  right: 50%;
+  transform: translate(50%, 0);
+}
+#element-2 {
+  right: 0;
+}
+.centered-spinner {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  align-content: stretch;
+}

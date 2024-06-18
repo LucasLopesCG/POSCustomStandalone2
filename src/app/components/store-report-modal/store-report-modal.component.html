@@ -1,0 +1,23 @@
+<div mat-dialog-title class="dialog-title bg-beige text-dark-green p-3">
+  <h2>Modify Cashier(s)</h2>
+  <button
+    mat-icon-button
+    aria-label="close dialog"
+    mat-dialog-close
+    (click)="close()"
+    class="float-right"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div mat-dialog-content style="height: 25rem" class="p-3">
+  <p>This component needs to connect to ODOO (and offlineOrders Service)</p>
+  <p>
+    Pulls all sales inside of offlineOrdersService and all orders from odoo for
+    the current location since 00:01AM
+  </p>
+  <p>
+    Displays this information in a pdf document for the user to download/print
+  </p>
+</div>
