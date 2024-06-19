@@ -145,7 +145,7 @@ export class PointOfSaleComponent {
         //console.log(this.fileContents);
         var importedOrders = JSON.parse(this.fileContents);
         importedOrders.forEach((order) => {
-          this.odooService.sendNewOrder(order, false);
+          this.odooService.sendNewOrder(order, 0, false);
         });
         //console.log(importedOrders);
       };
