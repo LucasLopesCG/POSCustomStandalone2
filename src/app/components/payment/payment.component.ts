@@ -161,7 +161,7 @@ export class PaymentComponent {
     this.currentOrder.status = orderStatusEnum.Paid;
     this.currentOrder.total = this.totalCost;
     this.storeService.submitOrder(this.currentOrder);
-    this.odooService.saveNewOrder(this.currentOrder);
+    this.odooService.sendNewOrder(this.currentOrder);
     this.currentOrderService.goToDoneStatus();
     this.userService.addOrderToSessionData(this.currentOrder);
   }
