@@ -72,11 +72,8 @@ export class GoogleLogInComponent implements OnInit {
           //Pass something here that shows user that they did not succeed in checking in!
           this.notGuru = true;
         }
-        //console.log(this.socialUser);
       },
-      (bad) => {
-        //console.log(bad);
-      },
+      (bad) => {},
     );
   }
   loginWithGoogle(): void {
@@ -87,42 +84,4 @@ export class GoogleLogInComponent implements OnInit {
     this.isLoggedin = false;
     this.socialAuthService.signOut();
   }
-  //   signInWithGoogle(): void {
-  //     this.socialAuthService
-  //       .signIn(GoogleLoginProvider.PROVIDER_ID)
-  //       .then((user) => {
-  //         console.log(user);
-  //       })
-  //       .catch((error) => {
-  //         console.error(error);
-  //       });
-  //   }
 }
-
-// @NgModule({
-//   declarations: [GoogleLoginButtonDirective],
-//   exports: [],
-//   providers: [
-//     {
-//       provide: "SocialAuthServiceConfig",
-//       useValue: {
-//         autoLogin: false,
-//         providers: [
-//           {
-//             id: GoogleLoginProvider.PROVIDER_ID,
-//             provider: new GoogleLoginProvider(
-//               "857908989278-pi76j5ssnbllatmj931pd693dkmqijou.apps.googleusercontent.com",
-//               {
-//                 oneTapEnabled: false,
-//               },
-//             ),
-//           },
-//         ],
-//         onError: (err) => {
-//           console.error(err);
-//         },
-//       } as SocialAuthServiceConfig,
-//     },
-//   ],
-// })
-// export class GoogleLogInComponentModule {}

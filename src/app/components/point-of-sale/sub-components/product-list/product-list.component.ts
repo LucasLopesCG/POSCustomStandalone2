@@ -59,6 +59,7 @@ export class ProductListComponent {
   stockFilter: string = "";
   @ViewChild(MatSort) sort?: MatSort;
   categories = categoryEnum;
+  filteredCat: Array<categoryEnum> = [];
   selectedCategory: categoryEnum | string = "ALL";
   categoryIconList: Array<string> = [];
   availableDiscounts: any = {};
@@ -78,26 +79,6 @@ export class ProductListComponent {
     private odooService: OdooService,
     private sanitizer: DomSanitizer,
   ) {
-    // odooService.odooProducts$.subscribe((val) => {
-    //   this.isProductLoading = true;
-    //   this.isLoading = true;
-    //   //console.log("following data needs to be combined with other data");
-    //   //console.log(val);
-    //   if (val && val.length > 0) {
-    //     var newVal: Array<any> = [];
-    //     val.forEach((product) => {
-    //       var splitName = product.display_name.split("] ");
-    //       var nameItself = splitName[1];
-    //       if (nameItself) {
-    //         var finalName = nameItself.split("(")[0];
-    //         product.display_name = finalName;
-    //       }
-    //       newVal.push(product);
-    //     });
-    //     this.odooProducts = newVal;
-    //     this.odooService.getStocks();
-    //   }
-    // });
     odooService.testImageSub$.subscribe((val) => {
       this.sampleImage = val;
     });
@@ -108,7 +89,7 @@ export class ProductListComponent {
         this.determineLoadingStatus();
         this.separateCouponsAndHappyHour();
         this.createVariantGroups();
-        this.odooService.TESTIMAGE();
+        this.determineAvailableCategories();
       }
     });
     storeService.enableOdooCalls$.subscribe((val) => {
@@ -121,6 +102,7 @@ export class ProductListComponent {
         this.determineLoadingStatus();
         this.separateCouponsAndHappyHour();
         this.createVariantGroups();
+        this.determineAvailableCategories();
       }
     });
     storeService.discountsForCurrentStore$.subscribe((val) => {
@@ -150,25 +132,6 @@ export class ProductListComponent {
         }
       }
     });
-    // odooService.odooStocks$.subscribe((val) => {
-    //   if (val && val.length > 0) {
-    //     this.odooStocks = val;
-    //     var filtered: Array<any> = [];
-    //     val.forEach((stock) => {
-    //       if (stock.display_name == this.stockFilter) filtered.push(stock);
-    //     });
-    //     this.odooStocks = filtered;
-    //     this.odooService.getPriceListValues();
-    //   }
-    // });
-    // odooService.odooPriceListValues$.subscribe((val) => {
-    //   if (val && val.length > 0) {
-    //     this.combineStockWithPriceList(val);
-    //     this.combineOdooDataSets(this.odooProducts, this.odooStocks);
-    //     this.isProductLoading = false;
-    //     this.determineLoadingStatus();
-    //   }
-    // });
 
     storeService.dataSelectedStoreLocation$.subscribe((val) => {
       this.selectedLocation = val;
@@ -186,6 +149,28 @@ export class ProductListComponent {
     if (typeof imageUrl == "string")
       return this.sanitizer.bypassSecurityTrustUrl(imageUrl);
     return "";
+  }
+
+  determineAvailableCategories() {
+    var newCat: Array<categoryEnum> = [];
+    const values = Object.values(this.categories);
+    values.forEach((element) => {
+      var foundCat: Array<any> = [];
+      this.productsSeparatedIntoVariants.forEach((productGroup) => {
+        productGroup.forEach((product) => {
+          if (
+            product.category &&
+            product.category.length > 0 &&
+            product.category.includes(this.categories[element])
+          )
+            foundCat.push(product);
+        });
+      });
+      if (foundCat && foundCat.length > 0) {
+        newCat.push(this.categories[element]);
+      }
+    });
+    this.filteredCat = newCat;
   }
 
   filterProducts(): void {
@@ -244,9 +229,6 @@ export class ProductListComponent {
   combineOdooDataSets(products, stock) {
     var odooProductFinal: Array<product> = [];
     if (products.length > 0 && stock.length > 0) {
-      console.log(products);
-      console.log(stock);
-      console.log("NOW TO COMBINE THEM");
       stock.forEach((stockProduct) => {
         products.forEach((productProduct) => {
           if (stockProduct.product_id[0] == productProduct.id) {

@@ -93,10 +93,6 @@ export class ChooseLocationComponent implements OnInit {
     });
     wordpressService.wordpressStoreList$.subscribe((val) => {
       if (this.selectedLocation != null) {
-        console.log(val);
-        console.log(
-          "find the discounts for selected store and call store service to set discounts for the store",
-        );
         val.forEach((store) => {
           if (store.name == this.selectedLocation.location) {
             var discounts = JSON.parse(store.discounts);
@@ -125,8 +121,6 @@ export class ChooseLocationComponent implements OnInit {
   determineAvailableLocations(val: any) {
     val.forEach((element) => {
       if (element.email == this.currentUser.email) {
-        //console.log("FOUND MATCH!");
-
         var updateUser: User = {
           id: element.id,
           name: this.currentUser.name,

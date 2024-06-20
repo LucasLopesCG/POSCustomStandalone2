@@ -76,6 +76,5 @@ export class OrderCompleteComponent implements OnInit {
     const blob = doc.output("blob");
     const url = URL.createObjectURL(blob);
     this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-    //console.log(this.pdfSrc);
   }
 }

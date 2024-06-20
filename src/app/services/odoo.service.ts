@@ -414,41 +414,12 @@ export class OdooService implements OnInit {
     amountPaid: number = 0,
     offlineOrder: boolean = false,
   ) {
-    console.log(order);
     // if (this.session_data == null) {
     //   this.getAuth();
     // }
     const odooUrl =
       "https://phpstack-1248616-4634628.cloudwaysapps.com/api/order-line"; // Replace with your Odoo instance URL
-    //console.log(order);
-    /*
 
-  {
-    "amount_tax": 10.0,
-    "amount_total": 37.80,
-    "amount_paid": 50.0,
-    "amount_return": 12.20,
-    "session_id": "599",
-    "name": "Order 2",
-    "cashier": "LDL POS_Custom Cashier2",
-    "lines": [
-        {
-            "product_id": 19248,
-            "product_name": "Black Truffle (Pre-Roll)",
-            "quantity": 2,
-            "total_price": 27.80
-        },
-        {
-            "product_id": 19739,
-            "product_name": "Truffle Burger (OZ)",
-            "quantity": 2,
-            "total_price": 40.80
-        }
-    ]
-}
-
-
-    */
     var lines: Array<any> = [];
     var total = order.total as number;
     var taxRate = order.taxRate as number;
@@ -475,7 +446,7 @@ export class OdooService implements OnInit {
       cashier: order.cashier,
       lines: lines,
     };
-
+    console.log(odooStyleOrder);
     const body = JSON.stringify(odooStyleOrder);
 
     this.http.put(odooUrl, body).subscribe(

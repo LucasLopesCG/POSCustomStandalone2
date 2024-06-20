@@ -142,12 +142,10 @@ export class PointOfSaleComponent {
       const reader = new FileReader();
       reader.onload = () => {
         this.fileContents = reader.result as string;
-        //console.log(this.fileContents);
         var importedOrders = JSON.parse(this.fileContents);
         importedOrders.forEach((order) => {
           this.odooService.sendNewOrder(order, 0, false);
         });
-        //console.log(importedOrders);
       };
       reader.readAsText(file);
     }

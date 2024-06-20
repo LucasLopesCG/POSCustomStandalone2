@@ -52,19 +52,12 @@ export class PaymentComponent {
     private userService: userService,
     private odooService: OdooService,
   ) {
-    // currentOrderService.productsForCurrentOrder$.subscribe((products) => {
-    //   this.products = products;
-    //   console.log(this.products);
-    //   this.calculateTotalCost();
-    //   this.groupProducts();
-    // });
     currentOrderService.currentOrder$.subscribe((val) => {
       this.currentOrder = val;
       this.products = val.products;
       this.totalCost = val.total;
       //this.calculateTotalCost();
       this.groupProducts();
-      //console.log(this.currentOrder);
     });
   }
 
@@ -138,7 +131,6 @@ export class PaymentComponent {
   }
 
   submitPayment(): void {
-    //console.log("Submit payment");
     this.displayMode = "DONE";
     //call service to submit order here
     //This would ideally cause previous orders to refresh with my previously submitted order.

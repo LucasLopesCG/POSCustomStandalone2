@@ -27,19 +27,9 @@ export class ChooseCouponComponent {
     private currentOrderService: CurrentOrderService,
     private storeService: storeService,
   ) {
-    // currentOrderService.couponsForCurrentOrder$.subscribe(val=>{
-    //   this.currentOrder=val;
-    //   this.determineCurrentOrderGrouped();
-    //   console.log("CURRENT ORDER CONTAINS: ");
-    //   console.log(this.currentOrder)
-    // });
-
     storeService.discountsForCurrentStore$.subscribe((val) => {
       this.availableCoupons = val.coupon;
     });
-    // currentOrderService.selectedCoupon$.subscribe((val) => {
-    //   this.selectedCoupon = val;
-    // });
     currentOrderService.currentOrder$.subscribe((val) => {
       if (val.coupon && val.coupon[0]) {
         this.selectedCoupon = val.coupon[0];
@@ -64,7 +54,6 @@ export class ChooseCouponComponent {
 
   selectCoupon(event) {
     //need to send out a command that adds the coupon to the order
-    //console.log(event);
     this.currentOrderService.selectCoupon(event);
     this.close();
   }

@@ -48,7 +48,6 @@ export class WordPressService {
       .get(this.apiUrl + "/poscustom/v1/users/getallUsers", { headers })
       .subscribe(
         (response) => {
-          console.log(response);
           this.setWordPressUserList(response);
         },
         (error) => {
@@ -76,7 +75,6 @@ export class WordPressService {
       .get(this.apiUrl + "/poscustom/v1/stores/getallstores", { headers })
       .subscribe(
         (response) => {
-          console.log(response);
           this.setWordPressStoreList(response);
         },
         (error) => {
@@ -93,7 +91,6 @@ export class WordPressService {
       .post(this.apiUrl + "/poscustom/v1/users/addUser", newUser)
       .subscribe(
         (response) => {
-          console.log("user list got updated?");
           this.getAllUsers();
         },
         (error) => {
@@ -107,7 +104,6 @@ export class WordPressService {
       .put(this.apiUrl + "/poscustom/v1/users/editUser/" + user.id, user)
       .subscribe(
         (response) => {
-          console.log("user list got updated?");
           this.getAllUsers();
         },
         (error) => {
@@ -121,7 +117,6 @@ export class WordPressService {
       .put(this.apiUrl + "/poscustom/v1/stores/editStore/" + store.id, store)
       .subscribe(
         (response) => {
-          console.log("store got updated?");
           this.getAllStores();
         },
         (error) => {
@@ -135,7 +130,6 @@ export class WordPressService {
       .delete(this.apiUrl + "/poscustom/v1/users/deleteUser/" + user.id, user)
       .subscribe(
         (response) => {
-          console.log("user list got updated?");
           this.getAllUsers();
         },
         (error) => {

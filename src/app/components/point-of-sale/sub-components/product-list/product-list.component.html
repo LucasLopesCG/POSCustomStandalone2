@@ -19,15 +19,15 @@
         <div class="category-container">
           <div
             class="category-card"
-            *ngFor="let category of categories | keyvalue"
-            [class.active]="selectedCategory === category.value"
-            (click)="filterByCategory(category.value)"
+            *ngFor="let category of filteredCat"
+            [class.active]="selectedCategory === category"
+            (click)="filterByCategory(category)"
           >
             <img
               class="img-responsive"
-              src="assets/images/{{ category.value }}.png"
+              src="assets/images/{{ category }}.png"
             />
-            <span>{{ category.value }}</span>
+            <span>{{ category }}</span>
           </div>
           <div
             class="category-card"
