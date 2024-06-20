@@ -478,7 +478,7 @@ export class OdooService implements OnInit {
 
     const body = JSON.stringify(odooStyleOrder);
 
-    this.http.post(odooUrl, body).subscribe(
+    this.http.put(odooUrl, body).subscribe(
       (response) => {
         //this.pas.next(response);
         console.log(response);
