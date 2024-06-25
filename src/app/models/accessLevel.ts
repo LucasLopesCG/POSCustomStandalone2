@@ -1,7 +1,7 @@
 export enum accessLevel {
-    SuperAdmin = 0,
-    Admin = 1,
-    Manager=2,
-    Cashier=3,
-    none=-1
-  };
+  SuperAdmin = "Super",
+  Admin = "Admin",
+  Manager = "Manager",
+  Cashier = "Cashier",
+  none = "None",
+}

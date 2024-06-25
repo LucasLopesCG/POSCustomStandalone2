@@ -15,7 +15,9 @@ import { OdooService } from "../../../../services/odoo.service";
   styleUrl: "./choose-customer.component.css",
 })
 export class ChooseCustomerComponent {
-  newCustomer: customer = { };
+  page: number = 0;
+  maxPageCount: number = 1;
+  newCustomer: customer = {};
   displayMode: string = "all";
   showDetailsCustomer: customer = {};
   availableCustomers: Array<customer> = [];
@@ -28,6 +30,7 @@ export class ChooseCustomerComponent {
   ) {
     customerService.availableCustomers$.subscribe((val) => {
       this.availableCustomers = val;
+      this.maxPageCount = Math.round(this.availableCustomers.length / 50 - 1);
       // (this.availableCustomers);
     });
   }
@@ -66,6 +69,17 @@ export class ChooseCustomerComponent {
     this.odooService.submitNewCustomer(this.newCustomer);
     this.displayMode = "all";
     //console.log("SAVE ATTEMPTED");
+  }
+
+  goToPage(i: number) {
+    this.page = i;
+  }
+
+  beforePage() {
+    return this.page * 50;
+  }
+  afterPage() {
+    return this.page * 50 + 50;
   }
 
   close() {

@@ -22,6 +22,7 @@ import { WordPressService } from "../../services/wordpress.service";
 import { User } from "../../models/user";
 import { OdooService } from "../../services/odoo.service";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { accessLevel } from "../../models/accessLevel";
 
 @Component({
   selector: "app-choose-location",
@@ -136,15 +137,15 @@ export class ChooseLocationComponent implements OnInit {
 
   determineAccessLevel(val: string) {
     if (val.toLowerCase() == "admin") {
-      return 0;
+      return accessLevel.Admin;
     }
     if (val.toLowerCase() == "manager") {
-      return 2;
+      return accessLevel.Manager;
     }
     if (val.toLowerCase() == "cashier") {
-      return 3;
+      return accessLevel.Cashier;
     }
-    return -1;
+    return accessLevel.none;
   }
 
   determineLocations(stores: string) {
@@ -210,6 +211,7 @@ export class ChooseLocationComponent implements OnInit {
     this.currentOrderService.newOrder();
     //this.storeService.getPastOrdersFromStore();
     this.odooService.getPastOrdersForCustomers();
+    this.odooService.getCustomers();
   }
 
   Logout() {

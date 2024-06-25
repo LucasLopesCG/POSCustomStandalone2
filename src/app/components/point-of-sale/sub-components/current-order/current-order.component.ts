@@ -314,7 +314,6 @@ export class CurrentOrderComponent {
   }
 
   openChooseCustomerModal() {
-    this.odooService.getCustomers();
     //this.customerService.getCustomers();
     this.dialog.open(ChooseCustomerComponent, { data: "NONE" });
   }

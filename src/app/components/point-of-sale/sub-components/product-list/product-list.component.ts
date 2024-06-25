@@ -90,6 +90,7 @@ export class ProductListComponent {
         this.separateCouponsAndHappyHour();
         this.createVariantGroups();
         this.determineAvailableCategories();
+        this.filterByCategory(this.selectedCategory);
       }
     });
     storeService.enableOdooCalls$.subscribe((val) => {
@@ -103,6 +104,7 @@ export class ProductListComponent {
         this.separateCouponsAndHappyHour();
         this.createVariantGroups();
         this.determineAvailableCategories();
+        this.filterByCategory(this.selectedCategory);
       }
     });
     storeService.discountsForCurrentStore$.subscribe((val) => {
@@ -142,6 +144,8 @@ export class ProductListComponent {
     storeService.productsForCurrentStore$.subscribe((val) => {
       this.productsForCurrentLocation = val;
       this.createVariantGroups();
+      this.determineAvailableCategories();
+      this.filterByCategory(this.selectedCategory);
     });
   }
 
@@ -170,11 +174,12 @@ export class ProductListComponent {
         newCat.push(this.categories[element]);
       }
     });
+
     this.filteredCat = newCat;
   }
 
   filterProducts(): void {
-    this.selectedCategory = "ALL";
+    if (this.searchString != "") this.selectedCategory = "ALL";
     this.filteredProducts = this.productsSeparatedIntoVariants.filter(
       (array) => {
         if (array && array[0] && array[0].name) {

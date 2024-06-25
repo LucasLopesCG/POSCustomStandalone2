@@ -22,8 +22,10 @@ export class OrderCompleteComponent implements OnInit {
     private sanitizer: DomSanitizer,
   ) {
     this.currentOrderService.currentOrder$.subscribe((order) => {
-      this.order = order;
-      this.generatePdf();
+      if (order && order.orderNumber > 0) {
+        this.order = order;
+        this.generatePdf();
+      }
     });
   }
 

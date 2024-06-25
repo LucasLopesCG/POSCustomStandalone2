@@ -23,6 +23,7 @@ import { PaymentComponent } from "../payment/payment.component";
 import { OrderCompleteComponent } from "../order-complete/order-complete.component";
 import { order } from "../../models/order";
 import { OdooService } from "../../services/odoo.service";
+import { accessLevel } from "../../models/accessLevel";
 
 @Component({
   selector: "app-point-of-sale",
@@ -42,6 +43,7 @@ import { OdooService } from "../../services/odoo.service";
   styleUrl: "./point-of-sale.component.css",
 })
 export class PointOfSaleComponent {
+  public accessLevel = accessLevel;
   @ViewChild("fileInput") fileInput: any;
   fileContents: string = "";
   public orderStatusEnum = orderStatusEnum;
@@ -144,7 +146,7 @@ export class PointOfSaleComponent {
         this.fileContents = reader.result as string;
         var importedOrders = JSON.parse(this.fileContents);
         importedOrders.forEach((order) => {
-          this.odooService.sendNewOrder(order, 0, false);
+          this.odooService.sendNewOrder(order, false);
         });
       };
       reader.readAsText(file);

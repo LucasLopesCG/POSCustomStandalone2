@@ -24,6 +24,7 @@ import { PaymentComponent } from "../payment/payment.component";
 import { OrderCompleteComponent } from "../order-complete/order-complete.component";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { OdooService } from "../../services/odoo.service";
+import { accessLevel } from "../../models/accessLevel";
 
 @Component({
   selector: "app-restaurant-layout-view",
@@ -45,6 +46,7 @@ import { OdooService } from "../../services/odoo.service";
   styleUrl: "./restaurant-layout-view.component.css",
 })
 export class RestaurantLayoutViewComponent {
+  public accessLevel = accessLevel;
   @ViewChild("fileInput") fileInput: any;
   fileContents: string = "";
   sessionData: Array<order> = [];
@@ -331,7 +333,7 @@ export class RestaurantLayoutViewComponent {
         console.log(this.fileContents);
         var importedOrders = JSON.parse(this.fileContents);
         importedOrders.forEach((order) => {
-          this.odooService.sendNewOrder(order, 0, false);
+          this.odooService.sendNewOrder(order, false);
         });
         console.log(importedOrders);
       };

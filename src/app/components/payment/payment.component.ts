@@ -61,6 +61,52 @@ export class PaymentComponent {
     });
   }
 
+  payExactAmount(): void {
+    this.paid = 0;
+    this.moneyOptions.forEach((bill) => {
+      bill.count = 0;
+    });
+    while (this.paid < this.totalCost) {
+      if (this.totalCost - this.paid >= 100) {
+        this.moneyOptions[0].count++;
+        this.paid = this.paid + 100;
+      } else if (this.totalCost - this.paid >= 50) {
+        this.moneyOptions[1].count++;
+        this.paid = this.paid + 50;
+      } else if (this.totalCost - this.paid >= 20) {
+        this.moneyOptions[2].count++;
+        this.paid = this.paid + 20;
+      } else if (this.totalCost - this.paid >= 10) {
+        this.moneyOptions[3].count++;
+        this.paid = this.paid + 10;
+      } else if (this.totalCost - this.paid >= 5) {
+        this.moneyOptions[4].count++;
+        this.paid = this.paid + 5;
+      } else if (this.totalCost - this.paid >= 2) {
+        this.moneyOptions[5].count++;
+        this.paid = this.paid + 2;
+      } else if (this.totalCost - this.paid >= 1) {
+        this.moneyOptions[6].count++;
+        this.paid = this.paid + 1;
+      } else if (this.totalCost - this.paid >= 0.5) {
+        this.moneyOptions[7].count++;
+        this.paid = this.paid + 0.5;
+      } else if (this.totalCost - this.paid >= 0.25) {
+        this.moneyOptions[8].count++;
+        this.paid = this.paid + 0.25;
+      } else if (this.totalCost - this.paid >= 0.1) {
+        this.moneyOptions[9].count++;
+        this.paid = this.paid + 0.1;
+      } else if (this.totalCost - this.paid >= 0.05) {
+        this.moneyOptions[10].count++;
+        this.paid = this.paid + 0.05;
+      } else if (this.totalCost - this.paid >= 0.01) {
+        this.moneyOptions[11].count++;
+        this.paid = this.paid + 0.01;
+      }
+    }
+  }
+
   groupProducts(): void {
     this.groupedProducts = this.products;
   }
@@ -150,6 +196,7 @@ export class PaymentComponent {
     if (!this.currentOrder.refundedProducts) {
       this.currentOrder.refundedProducts = [];
     }
+    this.currentOrder.amountPaid = this.paid;
     this.currentOrder.status = orderStatusEnum.Paid;
     this.currentOrder.total = this.totalCost;
     this.storeService.submitOrder(this.currentOrder);

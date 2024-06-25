@@ -12,18 +12,75 @@
       style="display: flex; flex-direction: column"
     >
       <div *ngIf="availableCustomers.length > 0; else noCustomersOnFile">
-        <div *ngFor="let customer of availableCustomers" class="customer-card">
-          <div (click)="selectCustomer(customer)">
-            <div>Name: {{ customer.name }}</div>
-            <div>Address: {{ customer.address }}</div>
-            <div>
-              Contact: <mat-icon>alternate_email</mat-icon>{{ customer.email }}
+        <div
+          style="display: flex; flex-direction: row; justify-content: center"
+        >
+          <button type="button" (click)="goToPage(0)">
+            {{ 1 }}
+          </button>
+          <button
+            type="button"
+            (click)="goToPage(page - 1)"
+            *ngIf="page - 1 > 0"
+          >
+            Previous Page
+          </button>
+          <button
+            type="button"
+            (click)="goToPage(page + 1)"
+            *ngIf="page + 1 < maxPageCount"
+          >
+            Next Page
+          </button>
+          <button type="button" (click)="goToPage(maxPageCount)">
+            {{ maxPageCount }}
+          </button>
+        </div>
+
+        <div *ngFor="let customer of availableCustomers; let i = index">
+          <div
+            *ngIf="beforePage() <= i && i < afterPage()"
+            class="customer-card"
+          >
+            <div (click)="selectCustomer(customer)">
+              <div>Name: {{ customer.name }}</div>
+              <div>Address: {{ customer.address }}</div>
+              <div>
+                Contact: <mat-icon>alternate_email</mat-icon
+                >{{ customer.email }}
+              </div>
+              <div><mat-icon>phone</mat-icon>{{ customer.phone }}</div>
+              <div>
+                <mat-icon>phonelink_ring</mat-icon>{{ customer.mobile }}
+              </div>
             </div>
-            <div><mat-icon>phone</mat-icon>{{ customer.phone }}</div>
-            <div><mat-icon>phonelink_ring</mat-icon>{{ customer.mobile }}</div>
+            <button type="button" (click)="showCustomerDetail(customer)">
+              <mat-icon>details</mat-icon> DETAILS
+            </button>
           </div>
-          <button type="button" (click)="showCustomerDetail(customer)">
-            <mat-icon>details</mat-icon> DETAILS
+        </div>
+        <div
+          style="display: flex; flex-direction: row; justify-content: center"
+        >
+          <button type="button" (click)="goToPage(0)">
+            {{ 1 }}
+          </button>
+          <button
+            type="button"
+            (click)="goToPage(page - 1)"
+            *ngIf="page - 1 > 0"
+          >
+            Previous Page
+          </button>
+          <button
+            type="button"
+            (click)="goToPage(page + 1)"
+            *ngIf="page + 1 < maxPageCount"
+          >
+            Next Page
+          </button>
+          <button type="button" (click)="goToPage(maxPageCount)">
+            {{ maxPageCount }}
           </button>
         </div>
       </div>

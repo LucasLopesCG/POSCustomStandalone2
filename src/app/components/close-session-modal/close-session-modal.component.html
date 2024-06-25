@@ -22,13 +22,6 @@
     <button (click)="createExport()">OFFLINE ORDER EXPORT</button>
   </div>
   <ng-template #allGreen>NO OFFLINE ORDERS</ng-template>
-  <p>TODO: Create a tool to save offline orders as a downloadable file.</p>
-  <p>
-    Create an admin/manager level component that reads data from one of these
-    files and:
-  </p>
-  <p>A:Checks that the orders don't exist already (how?)</p>
-  <p>B:Sends these orders back to "offlineMode Service"</p>
   <div *ngIf="this.selectedLocation.isRestaurant; else storeOptions">
     <button
       mat-icon-button

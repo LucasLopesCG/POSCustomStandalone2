@@ -289,6 +289,10 @@ export class CurrentOrderService {
     this.currentOrder.next(val);
   }
 
+  public setCurrentOrder(order) {
+    this.currentOrder.next(order);
+  }
+
   public goToPaymentStatus() {
     this.orderStatus.next(orderStatusEnum.Paying);
   }

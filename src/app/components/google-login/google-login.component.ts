@@ -51,27 +51,27 @@ export class GoogleLogInComponent implements OnInit {
   ngOnInit(): void {
     this.socialAuthService.authState.subscribe(
       (user) => {
-        if (user.email.includes("@chronicguru.com")) {
-          this.isLoggedin = user != null;
-          this.socialUser = user;
+        //if (user.email.includes("@chronicguru.com")) {
+        this.isLoggedin = user != null;
+        this.socialUser = user;
 
-          var testUser: User = {};
-          testUser.id = user.id;
-          testUser.name = user.name;
-          testUser.email = user.email;
-          // testUser.locationAccess = [
-          //   { location: storeLocationEnum.Apopka, isRestaurant: false },
-          //   { location: storeLocationEnum.DeLand, isRestaurant: true },
-          // ];
-          // testUser.accessLevel = accessLevel.SuperAdmin;
-          //NEW SESSION!
-          this.userService.setCurrentUser(testUser);
-          this.userService.newSession();
-        } else {
-          this.socialAuthService.signOut();
-          //Pass something here that shows user that they did not succeed in checking in!
-          this.notGuru = true;
-        }
+        var testUser: User = {};
+        testUser.id = user.id;
+        testUser.name = user.name;
+        testUser.email = user.email;
+        // testUser.locationAccess = [
+        //   { location: storeLocationEnum.Apopka, isRestaurant: false },
+        //   { location: storeLocationEnum.DeLand, isRestaurant: true },
+        // ];
+        // testUser.accessLevel = accessLevel.SuperAdmin;
+        //NEW SESSION!
+        this.userService.setCurrentUser(testUser);
+        this.userService.newSession();
+        //} else {
+        //  this.socialAuthService.signOut();
+        //Pass something here that shows user that they did not succeed in checking in!
+        //  this.notGuru = true;
+        //}
       },
       (bad) => {},
     );

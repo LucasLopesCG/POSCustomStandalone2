@@ -9,8 +9,8 @@
       <p>Change: {{ change | number: "1.2-2" }}</p>
     </div>
     <div class="actions">
-      <button>Exact Amount</button>
-      <button>Paid with Card</button>
+      <button (click)="payExactAmount()">Exact Amount</button>
+      <!-- <button>Paid with Card NOT IMPLEMENTED</button> -->
     </div>
     <div class="money">
       <div *ngFor="let money of moneyOptions">

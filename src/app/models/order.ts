@@ -15,6 +15,7 @@ export class order {
   receiptNumber?: string;
   cashier?: string;
   total?: number;
+  amountPaid?: number;
   customer?: customer;
   status?: orderStatusEnum;
   date?: Date;

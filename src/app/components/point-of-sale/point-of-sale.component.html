@@ -1,7 +1,13 @@
 <div *ngIf="orderStatus == orderStatusEnum.Ordering">
   <div>
     <div>
-      <div class="POS-admin-menu" *ngIf="user.accessLevel == 0">
+      <div
+        class="POS-admin-menu"
+        *ngIf="
+          user.accessLevel == accessLevel.Admin ||
+          user.accessLevel == accessLevel.SuperAdmin
+        "
+      >
         <label>ADMIN ACCESS ONLY</label>
         <button class="" (click)="openStoreDiscountSettings()">
           OPEN DISCOUNTS DIALOG FOR CURRENT STORE

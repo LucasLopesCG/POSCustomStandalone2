@@ -1,5 +1,8 @@
 <div class="container-fluid">
-  <div *ngIf="isLoading; else ready">
+  <div
+    *ngIf="isLoading; else ready"
+    style="display: flex; align-items: center; justify-content: center"
+  >
     <mat-spinner></mat-spinner>
   </div>
   <ng-template #ready>
@@ -37,6 +40,14 @@
             <img class="img-responsive" src="assets/images/AllCategories.png" />
             <span>All Products</span>
           </div>
+          <!-- <div
+            class="category-card"
+            [class.active]="selectedCategory === 'New'"
+            (click)="filterByCategory('New')"
+          >
+            <img class="img-responsive" src="assets/images/NewCategory.png" />
+            <span>All Products</span>
+          </div> -->
         </div>
       </div>
     </div>
@@ -55,6 +66,7 @@
               "
             >
               <div (click)="addProductToOrder(array[0])">
+                <div><label>photo address: </label>{{ array[0].image }}</div>
                 <img
                   class="img-responsive"
                   [src]="sanitizeImage(array[0].image)"
@@ -74,6 +86,7 @@
                 (click)="openVariantModal(array)"
                 *ngIf="totalProductCount(array) > 0"
               >
+                <div><label>photo address: </label>{{ array[0].image }}</div>
                 <img
                   class="img-responsive"
                   [src]="sanitizeImage(array[0].image)"

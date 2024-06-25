@@ -4,6 +4,12 @@
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
+  border-width: 2px;
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
 .bxgo-product {
@@ -28,4 +34,18 @@
   padding-left: 5px;
   padding-right: 5px;
   margin-bottom: 10px;
+}
+
+.current-order-product-list {
+  min-height: 20rem;
+  padding-bottom: 10px;
+  box-sizing: border-box;
+  border: black;
+  border-radius: 5px;
+  border-width: 2px;
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  cursor: pointer;
 }
