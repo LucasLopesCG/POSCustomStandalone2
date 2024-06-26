@@ -16,6 +16,7 @@ import { OdooService } from "../../../../services/odoo.service";
 })
 export class ChooseCustomerComponent {
   searchString: string = "";
+  createCustomerMessage: string = "";
   page: number = 0;
   maxPage: number = 1;
   maxPageCount: number = 1;
@@ -86,11 +87,77 @@ export class ChooseCustomerComponent {
     };
   }
   saveCustomer() {
+    this.createCustomerMessage = "";
+    if (this.noRepeatData()) {
+      //console.log();
+      this.customerService.addNewCustomer(this.newCustomer); //This service will be deleted? Maybe for just setting currentCustomer?
+      this.odooService.submitNewCustomer(this.newCustomer);
+      this.displayMode = "all";
+    } else {
+    }
     //this.availableCustomers.push(structuredClone(this.newCustomer));
-    this.customerService.addNewCustomer(this.newCustomer); //This service will be deleted? Maybe for just setting currentCustomer?
-    this.odooService.submitNewCustomer(this.newCustomer);
-    this.displayMode = "all";
     //console.log("SAVE ATTEMPTED");
+  }
+
+  noRepeatData(): boolean {
+    var output: boolean = false;
+    if (this.newCustomer.email == "") {
+      this.createCustomerMessage = "An email is required";
+      return false;
+    }
+    if (this.newCustomer.phone == "" && this.newCustomer.mobile == "") {
+      this.createCustomerMessage = "A mobile or phone number is required";
+      return false;
+    }
+    var findInstances = this.availableCustomers.filter((customer) => {
+      if (customer) {
+        var customerEmail = "";
+        if (customer.email) {
+          customerEmail = customer.email.toLowerCase() as string;
+          if (customerEmail == this.newCustomer.email) {
+            this.createCustomerMessage = "Email Already exists!";
+            return true;
+          }
+        }
+        var customerPhone = "";
+        if (customer.phone) {
+          customerPhone = customer.phone.toLowerCase() as string;
+          if (
+            customerPhone == this.newCustomer.phone ||
+            customerPhone == this.newCustomer.mobile
+          ) {
+            this.createCustomerMessage =
+              "Phone/Mobile already exists in system";
+            return true;
+          }
+        }
+        var customerMobile = "";
+        if (customer.mobile) {
+          customerMobile = customer.mobile.toLowerCase() as string;
+          if (
+            customerMobile == this.newCustomer.mobile ||
+            customerMobile == this.newCustomer.phone
+          ) {
+            this.createCustomerMessage =
+              "Phone/Mobile already exists in system";
+            return true;
+          }
+        }
+        return false;
+      } else {
+        //const searchString = this.searchString.toLowerCase();
+        return false;
+      }
+    });
+    if (findInstances.length > 0) {
+      findInstances.forEach((instance) => {
+        console.log(instance);
+        console.log("WAS FOUND TO HAVE MATCHING DATA TO");
+        console.log(this.newCustomer);
+      });
+      return false;
+    }
+    return true;
   }
 
   goToPage(i: number) {

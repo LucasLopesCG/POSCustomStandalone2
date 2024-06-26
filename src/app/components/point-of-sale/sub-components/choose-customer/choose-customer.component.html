@@ -132,6 +132,10 @@
       </button>
     </div>
     <div *ngIf="displayMode == 'create'" class="create-customer-form">
+      <div *ngIf="createCustomerMessage != ''">
+        <!--Error message div, need to make classes for it-->
+        {{ createCustomerMessage }}
+      </div>
       <div>
         <label>Name *</label>
         <input
