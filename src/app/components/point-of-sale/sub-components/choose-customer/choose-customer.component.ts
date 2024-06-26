@@ -15,12 +15,15 @@ import { OdooService } from "../../../../services/odoo.service";
   styleUrl: "./choose-customer.component.css",
 })
 export class ChooseCustomerComponent {
+  searchString: string = "";
   page: number = 0;
+  maxPage: number = 1;
   maxPageCount: number = 1;
   newCustomer: customer = {};
   displayMode: string = "all";
   showDetailsCustomer: customer = {};
   availableCustomers: Array<customer> = [];
+  filteredCustomerList: Array<customer> = [];
   noDetails: boolean = true;
   constructor(
     private customerService: customerService,
@@ -31,6 +34,9 @@ export class ChooseCustomerComponent {
     customerService.availableCustomers$.subscribe((val) => {
       this.availableCustomers = val;
       this.maxPageCount = Math.round(this.availableCustomers.length / 50 - 1);
+      this.maxPage = this.maxPageCount;
+
+      this.filterProducts();
       // (this.availableCustomers);
     });
   }
@@ -50,6 +56,22 @@ export class ChooseCustomerComponent {
   selectCustomer(event) {
     this.customerService.setCurrentCustomer(event);
     this.close();
+  }
+
+  filterProducts(): void {
+    if (this.searchString != "")
+      this.filteredCustomerList = this.availableCustomers;
+    this.filteredCustomerList = this.availableCustomers.filter((customer) => {
+      if (customer && customer.name) {
+        const customerName = customer.name.toLowerCase();
+        const searchString = this.searchString.toLowerCase();
+        return customerName.includes(searchString);
+      } else {
+        //const searchString = this.searchString.toLowerCase();
+        return false;
+      }
+    });
+    this.maxPage = Math.round(this.filteredCustomerList.length / 50 - 1);
   }
 
   createCustomer() {

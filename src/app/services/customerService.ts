@@ -55,7 +55,7 @@ export class customerService {
     this.selectedCustomer.next(this.customer);
   }
 
-  public setCustomers(val){
+  public setCustomers(val) {
     this.availableCustomers.next(val);
   }
 
@@ -80,6 +80,10 @@ export class customerService {
   }
   public addNewCustomer(val: customer) {
     this.availableCustomersList.push(val);
+    this.availableCustomers.next(this.availableCustomersList);
+  }
+  public updateLastCustomer(id: number) {
+    this.availableCustomersList[this.availableCustomersList.length - 1].id = id;
     this.availableCustomers.next(this.availableCustomersList);
   }
 }

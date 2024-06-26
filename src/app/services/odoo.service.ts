@@ -129,13 +129,31 @@ export class OdooService implements OnInit {
   }
 
   submitNewCustomer(newCustomer: any) {
-    var body: any = { data: "blah" };
-    this.http
-      .put(this.middleManUrl + "/makeNewCustomer", body)
-      .subscribe((s) => {
-        console.log(s);
-        this.customers.next(s);
-      });
+    const odooUrl =
+      "https://phpstack-1248616-4634628.cloudwaysapps.com/api/createcustomer"; // Replace with your Odoo instance URL
+
+    var odooCustomer: any = {
+      name: "John Doe Tic Tac Toe",
+      email: "john.doe@example.com",
+      phone: "123456789",
+      mobile: "4448675309",
+      street: "123 Main St",
+      city: "New York",
+      country_id: 1, // Assuming country_id is an integer representing the country in Odoo
+    };
+    console.log(odooCustomer);
+    const body = JSON.stringify(odooCustomer);
+
+    this.http.put(odooUrl, body).subscribe(
+      (response) => {
+        //this.pas.next(response);
+        console.log(response);
+        // update the customer on local side to have this newly created id, saving a get call
+      },
+      (error) => {
+        console.error(error);
+      },
+    );
   }
 
   getCombinedProductData(stockFilter: string) {
@@ -240,41 +258,6 @@ export class OdooService implements OnInit {
   getCustomersByPhone(phone: number) {}
 
   getCustomersByName(name: string) {}
-
-  saveNewCustomer(newCust: customer) {
-    const xml = `
-  <?xml version="1.0"?>
-  <methodCall>
-    <methodName>execute_kw</methodName>
-    <params>
-      <param><value><string>your_database_name</string></value></param>
-      <param><value><string>your_username</string></value></param>
-      <param><value><string>your_password</string></value></param>
-      <param><value><string>res.partner</string></value></param>
-      <param><value><string>create</string></value></param>
-      <param><value><struct>
-        <member><name>name</name><value><string>John Doe</string></value></member>
-        <member><name>email</name><value><string>johndoe@example.com</string></value></member>
-        <member><name>phone</name><value><string>1234567890</string></value></member>
-      </struct></value></param>
-    </params>
-  </methodCall>
-`;
-
-    this.http
-      .post(this.odooUrl + "/xmlrpc/2/object", xml, {
-        headers: this.headers,
-        responseType: "text",
-      })
-      .subscribe(
-        (response) => {
-          console.log("Customer created:", response);
-        },
-        (error) => {
-          console.log("Error:", error);
-        },
-      );
-  }
 
   /**
    *

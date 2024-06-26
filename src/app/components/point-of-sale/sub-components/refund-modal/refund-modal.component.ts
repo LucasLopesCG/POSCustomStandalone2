@@ -17,6 +17,9 @@ import { product } from "../../../../models/product";
   styleUrl: "./refund-modal.component.css",
 })
 export class RefundModalComponent implements AfterViewInit {
+  page: number = 0;
+  maxPage: number = 1;
+  maxPageCount: number = 1;
   filteredOrders: Array<order> = [];
   currentOrder: order = {};
   currentMode: string = "all orders";
@@ -35,6 +38,10 @@ export class RefundModalComponent implements AfterViewInit {
     storeService.pastOrdersFromStore$.subscribe((val) => {
       this.previousOrders = val;
       this.pristinePreviousOrders = structuredClone(val);
+      this.maxPageCount = Math.round(
+        this.pristinePreviousOrders.length / 50 - 1,
+      );
+      this.maxPage = this.maxPageCount;
       this.filterOrders();
       // (this.previousOrders);
     });
@@ -124,20 +131,42 @@ export class RefundModalComponent implements AfterViewInit {
     if (this.searchString == "") this.filteredOrders = this.previousOrders;
     else {
       this.filteredOrders = this.previousOrders.filter((order) => {
-        if (order && order.customer && order.customer.name) {
-          const orderCustomer = order.customer.name.toLowerCase();
-          const orderNumber = order.orderNumber?.toString();
+        if (order) {
+          const orderCustomer = order.customer?.name?.toLowerCase() as string;
+          const orderNumber = order.orderNumber
+            ?.toString()
+            .toLowerCase() as string;
           const searchString = this.searchString.toLowerCase();
-          return (
-            orderCustomer.includes(searchString) ||
-            orderNumber?.includes(searchString)
-          );
+
+          if (orderCustomer && orderNumber) {
+            return (
+              orderCustomer.includes(searchString) ||
+              orderNumber.includes(searchString)
+            );
+          } else if (orderCustomer) {
+            return orderCustomer.includes(searchString);
+          } else {
+            return orderNumber.includes(searchString);
+          }
         } else {
           //const searchString = this.searchString.toLowerCase();
           return false;
         }
       });
     }
+    this.maxPage = Math.round(this.filteredOrders.length / 50 - 1);
+    console.log(this.filteredOrders);
+  }
+
+  goToPage(i: number) {
+    this.page = i;
+  }
+
+  beforePage() {
+    return this.page * 50;
+  }
+  afterPage() {
+    return this.page * 50 + 50;
   }
 
   close() {

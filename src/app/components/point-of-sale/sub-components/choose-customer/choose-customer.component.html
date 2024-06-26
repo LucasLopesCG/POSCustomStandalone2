@@ -12,6 +12,17 @@
       style="display: flex; flex-direction: column"
     >
       <div *ngIf="availableCustomers.length > 0; else noCustomersOnFile">
+        <!--FILTER GOES HERE-->
+        <div class="row">
+          <div class="col-md-12 right-side-align">
+            <input
+              type="text"
+              [(ngModel)]="searchString"
+              placeholder="Filter By..."
+              (ngModelChange)="filterProducts()"
+            />
+          </div>
+        </div>
         <div
           style="display: flex; flex-direction: row; justify-content: center"
         >
@@ -28,16 +39,16 @@
           <button
             type="button"
             (click)="goToPage(page + 1)"
-            *ngIf="page + 1 < maxPageCount"
+            *ngIf="page + 1 < maxPage"
           >
             Next Page
           </button>
-          <button type="button" (click)="goToPage(maxPageCount)">
-            {{ maxPageCount }}
+          <button type="button" (click)="goToPage(maxPage)" *ngIf="maxPage > 0">
+            {{ maxPage }}
           </button>
         </div>
 
-        <div *ngFor="let customer of availableCustomers; let i = index">
+        <div *ngFor="let customer of filteredCustomerList; let i = index">
           <div
             *ngIf="beforePage() <= i && i < afterPage()"
             class="customer-card"
@@ -75,12 +86,12 @@
           <button
             type="button"
             (click)="goToPage(page + 1)"
-            *ngIf="page + 1 < maxPageCount"
+            *ngIf="page + 1 < maxPage"
           >
             Next Page
           </button>
-          <button type="button" (click)="goToPage(maxPageCount)">
-            {{ maxPageCount }}
+          <button type="button" (click)="goToPage(maxPage)" *ngIf="maxPage > 0">
+            {{ maxPage }}
           </button>
         </div>
       </div>

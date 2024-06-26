@@ -19,8 +19,38 @@
             />
           </div>
         </div>
-        <div *ngFor="let order of filteredOrders" class="order-card">
-          <div (click)="showOrderDetail(order)">
+
+        <div
+          style="display: flex; flex-direction: row; justify-content: center"
+        >
+          <button type="button" (click)="goToPage(0)">
+            {{ 1 }}
+          </button>
+          <button
+            type="button"
+            (click)="goToPage(page - 1)"
+            *ngIf="page - 1 > 0"
+          >
+            Previous Page
+          </button>
+          <button
+            type="button"
+            (click)="goToPage(page + 1)"
+            *ngIf="page + 1 < maxPage"
+          >
+            Next Page
+          </button>
+          <button type="button" (click)="goToPage(maxPage)" *ngIf="maxPage > 0">
+            {{ maxPage }}
+          </button>
+        </div>
+
+        <div *ngFor="let order of filteredOrders; let i = index">
+          <div
+            (click)="showOrderDetail(order)"
+            *ngIf="beforePage() <= i && i < afterPage()"
+            class="order-card"
+          >
             <div><label>Date:</label>{{ order.date }}</div>
             <div><label>Receipt Number:</label> {{ order.receiptNumber }}</div>
             <div><label>Order number:</label>{{ order.orderNumber }}</div>
@@ -32,6 +62,30 @@
             <div><label>Total:</label>{{ order.total }}</div>
             <div><label>Status:</label>{{ order.status }}</div>
           </div>
+        </div>
+        <div
+          style="display: flex; flex-direction: row; justify-content: center"
+        >
+          <button type="button" (click)="goToPage(0)">
+            {{ 1 }}
+          </button>
+          <button
+            type="button"
+            (click)="goToPage(page - 1)"
+            *ngIf="page - 1 > 0"
+          >
+            Previous Page
+          </button>
+          <button
+            type="button"
+            (click)="goToPage(page + 1)"
+            *ngIf="page + 1 < maxPage"
+          >
+            Next Page
+          </button>
+          <button type="button" (click)="goToPage(maxPage)" *ngIf="maxPage > 0">
+            {{ maxPage }}
+          </button>
         </div>
       </div>
       <ng-template #noPreviousOrders>
