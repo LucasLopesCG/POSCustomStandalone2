@@ -8,6 +8,7 @@ import { customer } from "../models/customer";
 import { odooInfo } from "../models/odooInfo";
 import { storeService } from "./storeService";
 import { CurrentOrderService } from "./current-order.service";
+import { couponTypeEnum } from "../models/couponTypeEnum";
 
 @Injectable({
   providedIn: "root",
@@ -391,6 +392,26 @@ export class OdooService implements OnInit {
         lines.push(newLine);
       });
     }
+    if (
+      order.coupon &&
+      order.customer &&
+      order.coupon[0].couponType == couponTypeEnum.singleUsePerCustomer
+    ) {
+      var customerId = { customer_id: order.customer.id, tag_id: 1 };
+      const odooTagUrl =
+        "https://phpstack-1248616-4634628.cloudwaysapps.com/api/addTagToCustomer";
+      const body2 = JSON.stringify(customerId);
+      //send out order here to update the customer with the FREEBIE tag.
+      this.http.post(odooTagUrl, body2).subscribe(
+        (response) => {
+          console.log(response);
+          console.log("customer should now have FREEBIE tag.");
+        },
+        (error) => {
+          console.error(error);
+        },
+      );
+    }
     var odooStyleOrder: any = {
       amount_tax: amountTaxed,
       amount_total: total,
@@ -415,7 +436,11 @@ export class OdooService implements OnInit {
         var responseVal = response as unknown;
         order.orderNumber = responseVal as number;
         this.currentOrderService.setCurrentOrder(order);
-        this.sendProducts(order, offlineOrder);
+        var amount = order.amountPaid as number;
+        var total = order.total as number;
+        var change = total - amount;
+        //this.sendProducts(order, offlineOrder, amount);
+        //this.sendProducts(order, offlineOrder, change);
         this.offlineMode.removeOrderFromList(order);
         if (this.offlineMode.orderListArray.length > 0) {
           this.sendNewOrder(this.offlineMode.orderListArray[0], true);
@@ -429,14 +454,14 @@ export class OdooService implements OnInit {
     );
   }
 
-  sendProducts(order, offlineOrder) {
+  sendProducts(order, offlineOrder, amount) {
     const odooUrl =
       "https://phpstack-1248616-4634628.cloudwaysapps.com/api/order-pay"; // Replace with your Odoo instance URL
 
     var odooStyleOrder: any = {
       config_id: 1,
       paymentMethodId: 1,
-      amount: 0.0,
+      amount: amount,
       orderId: order.orderNumber,
     };
     console.log(odooStyleOrder);
@@ -451,7 +476,7 @@ export class OdooService implements OnInit {
         var responseVal = response as unknown;
         order.orderNumber = responseVal as number;
         this.currentOrderService.setCurrentOrder(order);
-        this.sendProducts(order, offlineOrder);
+        this.sendProducts(order, offlineOrder, order.amountPaid);
         this.offlineMode.removeOrderFromList(order);
         if (this.offlineMode.orderListArray.length > 0) {
           this.sendNewOrder(this.offlineMode.orderListArray[0], true);

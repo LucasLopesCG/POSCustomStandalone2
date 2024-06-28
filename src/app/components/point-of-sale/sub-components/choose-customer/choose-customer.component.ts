@@ -56,6 +56,7 @@ export class ChooseCustomerComponent {
 
   selectCustomer(event) {
     this.customerService.setCurrentCustomer(event);
+    console.log(event);
     this.close();
   }
 

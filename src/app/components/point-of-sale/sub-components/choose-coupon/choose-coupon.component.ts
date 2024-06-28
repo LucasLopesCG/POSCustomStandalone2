@@ -8,6 +8,9 @@ import { coupon } from "../../../../models/coupon";
 import { CurrentOrderService } from "../../../../services/current-order.service";
 import { storeService } from "../../../../services/storeService";
 import { product } from "../../../../models/product";
+import { couponTypeEnum } from "../../../../models/couponTypeEnum";
+import { categoryEnum } from "../../../../models/categoryEnum";
+import { customerService } from "../../../../services/customerService";
 
 @Component({
   selector: "app-choose-coupon",
@@ -17,6 +20,7 @@ import { product } from "../../../../models/product";
   styleUrl: "./choose-coupon.component.css",
 })
 export class ChooseCouponComponent {
+  selectedCustomer:any={};
   availableCoupons: Array<coupon> = [];
   HHDiscountFlag: boolean = false;
   selectedCoupon: coupon = {};
@@ -26,7 +30,11 @@ export class ChooseCouponComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private currentOrderService: CurrentOrderService,
     private storeService: storeService,
+    private customerService: customerService,
   ) {
+    customerService.selectedCustomer$.subscribe((val) => {
+      this.selectedCustomer = val;
+    });
     storeService.discountsForCurrentStore$.subscribe((val) => {
       this.availableCoupons = val.coupon;
     });
@@ -55,6 +63,25 @@ export class ChooseCouponComponent {
   selectCoupon(event) {
     //need to send out a command that adds the coupon to the order
     this.currentOrderService.selectCoupon(event);
+    this.close();
+  }
+
+  selectFreebie() {
+    var freebie: coupon = {
+      couponType: couponTypeEnum.singleUsePerCustomer,
+      couponDetail: {
+        description: "FREEBIE",
+        activationCode: "FREEBIE",
+        categories: [categoryEnum.PreRoll],
+        singleItem: true,
+        type: "priceSet",
+        setPrice: 0,
+        discount: 50,
+      },
+    };
+
+    //set currentOrderService coupon to be "freebie"
+    this.currentOrderService.selectCoupon(freebie);
     this.close();
   }
 

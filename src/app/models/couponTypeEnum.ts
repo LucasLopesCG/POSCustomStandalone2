@@ -3,4 +3,5 @@ export enum couponTypeEnum {
   discountOnSpecificItem = "Discount on Specific Item",
   discountOnProductCategory = "Discount on Product Category",
   amountOffOrder = "Amount Off Order",
+  singleUsePerCustomer = "Single Use Per Customer",
 }

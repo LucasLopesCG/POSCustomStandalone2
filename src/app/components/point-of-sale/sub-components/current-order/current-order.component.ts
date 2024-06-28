@@ -66,13 +66,6 @@ export class CurrentOrderComponent {
     customerService.selectedCustomer$.subscribe((val) => {
       this.selectedCustomer = val;
     });
-    // currentOrderService.selectedCoupon$.subscribe((val) => {
-    //   this.totalPrice = 0;
-    //   this.totalCouponDiscount = 0;
-    //   this.selectedCoupon = val;
-    //   this.calculateFinalPrice();
-    //   //I need some logic here to calculate what coupons are doing to the final price
-    // });
     storeService.taxRateForStore$.subscribe((val) => {
       this.taxRate = val;
     });
@@ -91,6 +84,7 @@ export class CurrentOrderComponent {
     odooService.odooCustomerList$.subscribe((val) => {
       if (val && val.length > 0) {
         val.forEach((customer) => {
+          customer.category_id = customer.category_id;
           customer.name = customer.complete_name;
           customer.address = customer.contact_address;
         });
@@ -183,6 +177,14 @@ export class CurrentOrderComponent {
 
           break;
         case couponTypeEnum.discountOnSpecificItem:
+          //step 1: sort products so cheapest is at the top, ensuring discount applies to cheapest product
+          this.currentOrderProducts.sort(function (a, b) {
+            var aprice = a.price as number;
+            var bprice = b.price as number;
+            var aprice2 = aprice.toString();
+            var bprice2 = bprice.toString();
+            return parseFloat(aprice2) - parseFloat(bprice2);
+          });
           //logic here... scan through each product in the detail of the coupon.
           //see if any of the id's there match what is on the order, add the necessary details
           var onlyOnce: boolean = false;
@@ -239,6 +241,34 @@ export class CurrentOrderComponent {
           }
 
           break;
+        case couponTypeEnum.singleUsePerCustomer:
+          if (
+            this.selectedCoupon.couponDetail.activationCode == "FREEBIE" &&
+            this.selectedCoupon.couponDetail.categories != undefined &&
+            this.selectedCoupon.couponDetail.categories.includes(
+              categoryEnum.PreRoll,
+            )
+          ) {
+            //Freebie is being used!
+            if (this.currentOrderProducts.length > 0) {
+              this.currentOrderProducts.sort(function (a, b) {
+                var aprice = a.price as number;
+                var bprice = b.price as number;
+                var aprice2 = aprice.toString();
+                var bprice2 = bprice.toString();
+                return parseFloat(aprice2) - parseFloat(bprice2);
+              });
+              var discountApplied: boolean = false;
+              this.currentOrderProducts.forEach((product) => {
+                if (product.name?.includes("Pre-Roll") && !discountApplied) {
+                  discountApplied = true;
+                  var price = product.price as number;
+                  this.totalCouponDiscount = this.totalCouponDiscount + price;
+                  product.price = 0;
+                }
+              });
+            }
+          }
       }
     }
     //STEP 3: Scan for refund products and add it to total

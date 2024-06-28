@@ -28,6 +28,17 @@
               </div>
             </div>
           </div>
+          <div
+            (click)="selectFreebie()"
+            class="coupon-card"
+            *ngIf="
+              selectedCustomer &&
+              (selectedCustomer.category_id == null ||
+                !selectedCustomer.category_id.includes(1))
+            "
+          >
+            Single Use Per Customer Coupon: Freebie
+          </div>
         </div>
         <ng-template #removeCouponFirst>
           Coupon already selected, please remove coupon from order first!

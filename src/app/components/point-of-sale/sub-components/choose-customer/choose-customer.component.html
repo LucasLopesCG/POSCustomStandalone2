@@ -132,7 +132,7 @@
       </button>
     </div>
     <div *ngIf="displayMode == 'create'" class="create-customer-form">
-      <div *ngIf="createCustomerMessage != ''">
+      <div *ngIf="createCustomerMessage != ''" class="customer-card red-card">
         <!--Error message div, need to make classes for it-->
         {{ createCustomerMessage }}
       </div>

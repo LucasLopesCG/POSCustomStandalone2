@@ -148,6 +148,14 @@ button mat-icon {
   background-color: #f5f5dc; /* Beige background */
 }
 
+.red-card {
+  background-color: red !important; /* Beige background */
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+}
+
 .customer-card > div {
   flex-basis: 100%;
 }
