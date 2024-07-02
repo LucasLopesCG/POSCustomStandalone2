@@ -212,6 +212,24 @@ export class ChooseLocationComponent implements OnInit {
     //this.storeService.getPastOrdersFromStore();
     this.odooService.getPastOrdersForCustomers();
     this.odooService.getCustomers();
+    var stockFilter: string = "";
+    var location2: any = location;
+    switch (location2.location) {
+      case "Apopka":
+        stockFilter = "APS/Stock";
+        break;
+      case "DeLand":
+        stockFilter = "DL/Stock";
+        break;
+      case "Orlando":
+        stockFilter = "ORL/Stock";
+        break;
+      case "Sanford":
+        stockFilter = "SANFO/Stock";
+        break;
+    }
+    this.odooService.wipeProductData();
+    this.odooService.getCombinedProductData(stockFilter);
   }
 
   Logout() {

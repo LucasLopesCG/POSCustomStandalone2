@@ -1,4 +1,5 @@
 import {
+  AfterContentInit,
   Component,
   inject,
   Injectable,
@@ -46,7 +47,7 @@ import { DomSanitizer } from "@angular/platform-browser";
   templateUrl: "./product-list.component.html",
   styleUrl: "./product-list.component.css",
 })
-export class ProductListComponent {
+export class ProductListComponent implements AfterContentInit {
   sampleImage: any = {};
   odooProducts: Array<any> = [];
   odooStocks: Array<any> = [];
@@ -114,24 +115,6 @@ export class ProductListComponent {
         this.availableDiscounts = val;
         this.isDiscountLoading = false;
         this.determineLoadingStatus();
-        switch (this.selectedLocation.location) {
-          case "Apopka":
-            this.stockFilter = "APS/Stock";
-            break;
-          case "DeLand":
-            this.stockFilter = "DL/Stock";
-            break;
-          case "Orlando":
-            this.stockFilter = "ORL/Stock";
-            break;
-          case "Sanford":
-            this.stockFilter = "SANFO/Stock";
-            break;
-        }
-        if (!this.odooRequest) {
-          this.odooRequest = true;
-          this.odooService.getCombinedProductData(this.stockFilter);
-        }
       }
     });
 
@@ -147,6 +130,10 @@ export class ProductListComponent {
       this.determineAvailableCategories();
       this.filterByCategory(this.selectedCategory);
     });
+  }
+  ngAfterContentInit(): void {
+    // if()
+    // this.determineLoadingStatus();
   }
 
   sanitizeImage(imageUrl: string | undefined) {

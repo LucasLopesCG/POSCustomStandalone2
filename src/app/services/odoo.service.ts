@@ -157,6 +157,10 @@ export class OdooService implements OnInit {
     );
   }
 
+  wipeProductData() {
+    this.combinedProductData.next([]);
+  }
+
   getCombinedProductData(stockFilter: string) {
     let headers = new HttpHeaders();
     headers.append("Content-Type", "application/json");
@@ -360,23 +364,33 @@ export class OdooService implements OnInit {
     var amountTaxed = total - total / (1 + taxRate);
     var config_id: number = 0;
     var fiscal_position_id: number = 0;
+    var paymentMethodId: number = 0;
+    var sessionId: number = 0;
 
     if (this.selectedLocation) {
       if (this.selectedLocation.location == storeLocationEnum.Apopka) {
         config_id = 1;
         fiscal_position_id = 2;
+        paymentMethodId = 1;
+        sessionId = 599;
       }
       if (this.selectedLocation.location == storeLocationEnum.DeLand) {
         config_id = 4;
         fiscal_position_id = 4;
+        paymentMethodId = 7;
+        sessionId = 622;
       }
       if (this.selectedLocation.location == storeLocationEnum.Orlando) {
         config_id = 3;
         fiscal_position_id = 5;
+        paymentMethodId = 8;
+        sessionId = 579;
       }
       if (this.selectedLocation.location == storeLocationEnum.Sanford) {
         config_id = 2;
         fiscal_position_id = 1;
+        paymentMethodId = 5;
+        sessionId = 599;
       }
     }
     if (order && order.products && order.products.length > 0) {
@@ -392,9 +406,12 @@ export class OdooService implements OnInit {
         lines.push(newLine);
       });
     }
+    //CHECK TO SEE IF FREEBIE WAS USED: SEND OUT TAG!
     if (
       order.coupon &&
       order.customer &&
+      order.coupon &&
+      order.coupon[0] &&
       order.coupon[0].couponType == couponTypeEnum.singleUsePerCustomer
     ) {
       var customerId = { customer_id: order.customer.id, tag_id: 1 };
@@ -412,12 +429,14 @@ export class OdooService implements OnInit {
         },
       );
     }
+
+    //SEND OUT ORDER PROPER
     var odooStyleOrder: any = {
       amount_tax: amountTaxed,
       amount_total: total,
       amount_paid: amountPaid,
       amount_return: amountPaid - total,
-      session_id: 599,
+      session_id: sessionId,
       name: "POS_CUSTOM_ORDER",
       cashier: order.cashier,
       config_id: config_id,
@@ -440,7 +459,8 @@ export class OdooService implements OnInit {
         var total = order.total as number;
         var change = total - amount;
         //this.sendProducts(order, offlineOrder, amount);
-        //this.sendProducts(order, offlineOrder, change);
+        this.sendProducts(order, change, lines, config_id, paymentMethodId);
+        //this.validateOrder(order);
         this.offlineMode.removeOrderFromList(order);
         if (this.offlineMode.orderListArray.length > 0) {
           this.sendNewOrder(this.offlineMode.orderListArray[0], true);
@@ -454,13 +474,14 @@ export class OdooService implements OnInit {
     );
   }
 
-  sendProducts(order, offlineOrder, amount) {
+  sendProducts(order, amount, lines, config_id, paymentMethodId) {
+    var pickingLineIds: Array<number> = [];
     const odooUrl =
       "https://phpstack-1248616-4634628.cloudwaysapps.com/api/order-pay"; // Replace with your Odoo instance URL
 
     var odooStyleOrder: any = {
-      config_id: 1,
-      paymentMethodId: 1,
+      config_id: config_id,
+      paymentMethodId: paymentMethodId,
       amount: amount,
       orderId: order.orderNumber,
     };
@@ -471,21 +492,124 @@ export class OdooService implements OnInit {
       (response) => {
         //this.pas.next(response);
         console.log(response);
-        //since it actually went through, tell offline mode to start dumping orders by recursively calling this function.
-        //TO-DO: FIX THIS FUNCTION SO THAT ORDER KEEPS TRACK OF HOW MUCH WAS PAID TO THE ORDER.
-        var responseVal = response as unknown;
-        order.orderNumber = responseVal as number;
-        this.currentOrderService.setCurrentOrder(order);
-        this.sendProducts(order, offlineOrder, order.amountPaid);
-        this.offlineMode.removeOrderFromList(order);
-        if (this.offlineMode.orderListArray.length > 0) {
-          this.sendNewOrder(this.offlineMode.orderListArray[0], true);
+        // a payment line was created. Now go through each product in the list and create the pickings for each:
+        var locationId: number = 0;
+        var pickingTypeId: number = 0;
+        if (this.selectedLocation) {
+          if (this.selectedLocation.location == storeLocationEnum.Apopka) {
+            locationId = 69;
+            pickingTypeId = 71;
+          }
+          if (this.selectedLocation.location == storeLocationEnum.DeLand) {
+            locationId = 30;
+            pickingTypeId = 24;
+          }
+          if (this.selectedLocation.location == storeLocationEnum.Orlando) {
+            locationId = 44;
+            pickingTypeId = 36;
+          }
+          if (this.selectedLocation.location == storeLocationEnum.Sanford) {
+            locationId = 18;
+            pickingTypeId = 12;
+          }
         }
+        var responseCount = lines.length;
+        var requestCount: number = 0;
+        var lineProductIds: Array<number> = [];
+        var lineQuantities: Array<number> = [];
+        var products: Array<any> = [];
+        lines.forEach((lineData) => {
+          products.push({
+            product_id: lineData.product_id,
+            product_uom_qty: lineData.quantity,
+            product_name: lineData.product_name,
+          });
+        });
+        var pickingData = {
+          location_dest_id: 5, //physical location-user
+          location_id: locationId, //44 ORL/Stock, 30 DL/STOCK,69 APS/STOCK, 18 SANFO/STOCK
+          picking_type_id: pickingTypeId,
+          origin: order.orderNumber,
+          products: products,
+        };
+        const pickingBody = JSON.stringify(pickingData);
+        //now call the service to create the picking and then link it to the order!
+        const odooPickingUrl =
+          "https://phpstack-1248616-4634628.cloudwaysapps.com/api/makeOrderPickings"; // Replace with your Odoo instance URL
+        this.http.put(odooPickingUrl, pickingBody).subscribe(
+          (response) => {
+            console.log("Created a picking: ");
+            console.log(response);
+            pickingLineIds.push(response as number);
+            console.log("Remember the id of this!");
+          },
+          (error) => {
+            var txt = error.error.text;
+            txt = txt.split(": ")[1];
+            txt = txt.replace(/\D/g, "");
+            var pickingLineId: number = +txt;
+            //pickingLineIds.push(pickingLineId);
+            //console.error(error.txt);
+            console.log("Pickings for each product group was created.");
+            console.log(pickingLineIds);
+            const odooPickingLinkUrl =
+              "https://phpstack-1248616-4634628.cloudwaysapps.com/api/linkPickingToOrder";
+            //pickingLineIds.forEach((pickingId) => {
+            var linkingBody = {
+              pickingId: pickingLineId,
+              orderId: order.orderNumber,
+            };
+            const linkBodyJSON = JSON.stringify(linkingBody);
+            this.http.post(odooPickingLinkUrl, linkBodyJSON).subscribe(
+              (val) => {
+                console.log("link made?");
+              },
+              (error) => {
+                console.log("error?");
+                //now take this picking and validate it!
+                const odooPickingValidateLinkUrl =
+                  "https://phpstack-1248616-4634628.cloudwaysapps.com/api/validatePicking";
+                this.http
+                  .post(odooPickingValidateLinkUrl, linkBodyJSON)
+                  .subscribe(
+                    (val) => {
+                      console.log("picking validated?");
+                      //this.validateOrder(order);
+                    },
+                    (error) => {
+                      console.log("picking validated via error?");
+                      this.validateOrder(order);
+                    },
+                  );
+              },
+            );
+            //});
+          },
+        );
+
+        //this.sendProducts(order, offlineOrder, order.amountPaid);
       },
       (error) => {
         console.error(error);
-        //check if server connection is lost, if so, add this order to offlineService(but only if its an order already present in the list )
-        if (!offlineOrder) this.offlineMode.addNewOrder(order);
+      },
+    );
+  }
+
+  validateOrder(order) {
+    const odooUrl =
+      "https://phpstack-1248616-4634628.cloudwaysapps.com/api/validateOrder"; // Replace with your Odoo instance URL
+
+    var odooStyleOrder: any = {
+      orderId: order.orderNumber,
+    };
+    console.log(odooStyleOrder);
+    const body = JSON.stringify(odooStyleOrder);
+    this.http.post(odooUrl, body).subscribe(
+      (val) => {
+        console.log("order set to paid?");
+      },
+      (error) => {
+        console.log("order set to paid? ERROR?");
       },
     );
   }
