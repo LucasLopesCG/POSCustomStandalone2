@@ -1,7 +1,13 @@
 <div class="current-order-product-list">
   <div *ngIf="currentOrderProducts.length > 0">
-    <div *ngFor="let product of currentOrderGrouped">
-      <div class="order-padding">
+    <div *ngFor="let product of productGroupsWithCouponGroups">
+      <div
+        class="order-padding"
+        *ngIf="
+          !product.product.deductCountForCouponEntry;
+          else showProductAndCoupon
+        "
+      >
         <div style="text-align: center; margin: auto">
           {{ product.product.name }}
           {{ product.product.price | number: "1.2-2" }} X
@@ -21,6 +27,57 @@
           </button>
         </div>
       </div>
+      <ng-template #showProductAndCoupon>
+        <div class="order-padding" *ngIf="product.count - 1 > 0">
+          <div style="text-align: center; margin: auto">
+            {{ product.product.name }}
+            {{ product.product.price | number: "1.2-2" }} X
+            {{ product.count - 1 }}
+          </div>
+          <div class="button-group">
+            <button type="button" (click)="increaseItemCount(product.product)">
+              <mat-icon>exposure_plus_1</mat-icon>
+            </button>
+            <button
+              type="button"
+              class="btn-close"
+              (click)="removeItemFromOrder(product)"
+            ></button>
+            <button type="button" (click)="decreaseItemCount(product.product)">
+              <mat-icon>exposure_neg_1</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="order-padding" style="background-color: darkgreen">
+          <div style="text-align: center; margin: auto">
+            Coupon - {{ product.product.name }}
+            {{ product.product.priceAfterCoupon | number: "1.2-2" }} X
+            {{ 1 }}
+          </div>
+          <div class="button-group">
+            <button
+              type="button"
+              (click)="increaseItemCount(product.product)"
+              [disabled]="product.count - 1 > 0"
+            >
+              <mat-icon>exposure_plus_1</mat-icon>
+            </button>
+            <button
+              type="button"
+              class="btn-close"
+              (click)="removeItemFromOrder(product)"
+            ></button>
+            <button
+              type="button"
+              (click)="decreaseItemCount(product.product)"
+              disabled
+            >
+              <mat-icon>exposure_neg_1</mat-icon>
+            </button>
+          </div>
+        </div>
+      </ng-template>
     </div>
     <div *ngIf="bxgoProducts && bxgoProducts.length > 0">
       <div *ngFor="let extraProduct of bxgoProducts">
@@ -113,16 +170,24 @@
     {{ totalPriceAfterDiscounts | number: "1.2-2" }}
   </p>
   <p>TAXES FOR THIS ORDER:{{ totalTaxAmount | number: "1.2-2" }}</p>
-  <p>ORDER TOTAL:{{ orderTotal | number: "1.2-2" }}</p>
+  <p>ORDER TOTAL:{{ orderTotal - refundTotal | number: "1.2-2" }}</p>
   <div>
+    <div *ngIf="currentOrder && currentOrder.refundedProducts">
+      DEBUG refund count: {{ currentOrder.refundedProducts.length }}
+    </div>
+    <div *ngIf="currentOrder && currentOrder.products">
+      DEBUG product count: {{ currentOrder.products.length }}
+    </div>
     <button
       type="button"
       (click)="goToPayment()"
       [disabled]="
         currentOrder &&
-        ((currentOrder.refundedProducts &&
-          currentOrder.refundedProducts.length == 0) ||
-          (currentOrder.products && currentOrder.products.length == 0))
+        !(
+          (currentOrder.refundedProducts &&
+            currentOrder.refundedProducts.length > 0) ||
+          (currentOrder.products && currentOrder.products.length > 0)
+        )
       "
     >
       Pay Order

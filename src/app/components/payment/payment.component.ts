@@ -28,9 +28,13 @@ export class PaymentComponent {
   displayMode: string = "payment";
   products: any = [];
   groupedProducts: any = [];
+  refundProducts: any = [];
+  refundOrderNumber: number = 0;
   totalCost: number = 0;
+  taxAmount: number = 0;
   paid: number = 0;
   currentOrder: order = {};
+  refundTotal: number = 0;
   moneyOptions: Money[] = [
     { name: "$100", count: 0, value: 100 },
     { name: "$50", count: 0, value: 50 },
@@ -55,7 +59,13 @@ export class PaymentComponent {
     currentOrderService.currentOrder$.subscribe((val) => {
       this.currentOrder = val;
       this.products = val.products;
+      this.refundProducts = val.refundedProducts;
+      this.refundOrderNumber = val.refundOrderNumber;
       this.totalCost = val.total;
+      this.refundTotal = val.totalRefund;
+      this.totalCost = this.totalCost - this.refundTotal;
+      this.taxAmount = this.totalCost - this.totalCost / (1 + val.taxRate);
+      this.taxAmount = Number(this.taxAmount.toFixed(2));
       //this.calculateTotalCost();
       this.groupProducts();
     });
@@ -100,10 +110,11 @@ export class PaymentComponent {
       } else if (this.totalCost - this.paid >= 0.05) {
         this.moneyOptions[10].count++;
         this.paid = this.paid + 0.05;
-      } else if (this.totalCost - this.paid >= 0.01) {
+      } else {
         this.moneyOptions[11].count++;
         this.paid = this.paid + 0.01;
       }
+      this.paid = Number(this.paid.toFixed(2));
     }
   }
 
@@ -200,7 +211,18 @@ export class PaymentComponent {
     this.currentOrder.status = orderStatusEnum.Paid;
     this.currentOrder.total = this.totalCost;
     this.storeService.submitOrder(this.currentOrder);
-    this.odooService.sendNewOrder(this.currentOrder);
+    if (this.currentOrder.products && this.currentOrder.products.length > 0)
+      this.odooService.sendNewOrder(this.currentOrder);
+    if (this.currentOrder.refundOrderNumber != undefined) {
+      console.log(
+        "create a new order. This order should have the refunded products within it.",
+      );
+      console.log(
+        "this should basically be the same logic as sendNewOrder, but the location_id and destination id's will be flipped.",
+      );
+      console.log("After that's done, link the 2 orders together");
+      this.odooService.sendRefundOrder(this.currentOrder);
+    }
     this.currentOrderService.goToDoneStatus();
     this.userService.addOrderToSessionData(this.currentOrder);
   }

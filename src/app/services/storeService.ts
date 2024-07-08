@@ -408,8 +408,10 @@ export class storeService {
           if (data.discount != null) {
             var mult = (100 - data.discount) / 100;
             product.price = (product.price as number) * mult;
+            
           } else if (data.newPrice != null) {
             product.price = data.newPrice as number;
+            
           }
           product.happyHourDiscount = true;
         }

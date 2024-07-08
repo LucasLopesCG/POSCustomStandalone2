@@ -25,11 +25,75 @@
   </div>
   <div class="middle"></div>
   <div class="right">
-    <div *ngFor="let product of groupedProducts">
-      {{ product.product.name }} ({{ product.count }}) x ${{
-        product.product.price
-      }}
-      = ${{ product.product.price * product.count }}
+    <div
+      *ngFor="let product of groupedProducts; let i = index"
+      class="payment-lines"
+    >
+      <div
+        *ngIf="
+          !product.product.deductCountForCouponEntry;
+          else showProductAndCouponVariant
+        "
+      >
+        <label>{{ i + 1 }} -- </label>
+        <label
+          >{{ product.product.name }} ({{ product.count }}) x ${{
+            product.product.price | number: "1.2-2"
+          }}
+          = ${{
+            product.product.price * product.count | number: "1.2-2"
+          }}</label
+        >
+      </div>
+      <ng-template #showProductAndCouponVariant>
+        <div *ngIf="product.count - 1 > 0">
+          <label>{{ i + 1 }} -- </label>
+          <label
+            >{{ product.product.name }} ({{ product.count - 1 }}) x ${{
+              product.product.price | number: "1.2-2"
+            }}
+            = ${{
+              product.product.price * product.count | number: "1.2-2"
+            }}</label
+          >
+        </div>
+        <div>
+          <label *ngIf="product.count - 1 > 0; else default"
+            >{{ i + 1 }}B --
+          </label>
+          <ng-template #default>
+            <label>{{ i + 1 }} -- </label>
+          </ng-template>
+          <label>
+            {{ product.product.name }} (1) x ${{
+              product.product.priceAfterCoupon | number: "1.2-2"
+            }}
+            = ${{ product.product.priceAfterCoupon * 1 | number: "1.2-2" }}
+          </label>
+        </div>
+      </ng-template>
+    </div>
+
+    <div
+      *ngFor="let product of refundProducts; let i = index"
+      class="payment-lines"
+    >
+      <div>
+        <label>{{ i + 1 }} -- </label>
+        <label
+          >REFUND: {{ product.name }} (1) x -${{
+            product.price | number: "1.2-2"
+          }}
+          = -${{ product.price | number: "1.2-2" }}</label
+        >
+      </div>
+    </div>
+
+    <div>
+      <label>Tax: </label><label>{{ taxAmount | number: "1.2-2" }}</label>
+    </div>
+    <div>
+      <label>Total: {{ totalCost | number: "1.2-2" }}</label>
     </div>
   </div>
 </div>

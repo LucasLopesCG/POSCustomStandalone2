@@ -115,6 +115,7 @@ export class ProductListComponent implements AfterContentInit {
         this.availableDiscounts = val;
         this.isDiscountLoading = false;
         this.determineLoadingStatus();
+        this.separateCouponsAndHappyHour();
       }
     });
 

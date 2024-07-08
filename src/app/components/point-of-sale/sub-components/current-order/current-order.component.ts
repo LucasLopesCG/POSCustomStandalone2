@@ -18,6 +18,7 @@ import { categoryEnum } from "../../../../models/categoryEnum";
 import { orderStatusEnum } from "../../../../models/orderStatusEnum";
 import { order } from "../../../../models/order";
 import { OdooService } from "../../../../services/odoo.service";
+import { couponDetail } from "../../../../models/couponDetail";
 
 @Component({
   selector: "app-current-order",
@@ -30,6 +31,7 @@ import { OdooService } from "../../../../services/odoo.service";
 export class CurrentOrderComponent {
   private dialog = inject(MatDialog);
   currentOrderProducts: Array<product> = [];
+  productGroupsWithCouponGroups: Array<any> = [];
   bxgoProducts: Array<product> = [];
   currentOrder: order = {};
   currentOrderCouponsApplied: Array<coupon> = [];
@@ -79,6 +81,7 @@ export class CurrentOrderComponent {
       }
       this.totalPrice = 0;
       this.totalCouponDiscount = 0;
+      this.determineCurrentOrderGrouped();
       this.calculateFinalPrice();
     });
     odooService.odooCustomerList$.subscribe((val) => {
@@ -123,6 +126,13 @@ export class CurrentOrderComponent {
 
           break;
         case couponTypeEnum.discountOnProductCategory:
+          this.currentOrderProducts.sort(function (a, b) {
+            var aprice = a.price as number;
+            var bprice = b.price as number;
+            var aprice2 = aprice.toString();
+            var bprice2 = bprice.toString();
+            return parseFloat(aprice2) - parseFloat(bprice2);
+          });
           var onlyOnce: boolean = false;
           if (
             this.selectedCoupon.couponDetail &&
@@ -264,7 +274,7 @@ export class CurrentOrderComponent {
                   discountApplied = true;
                   var price = product.price as number;
                   this.totalCouponDiscount = this.totalCouponDiscount + price;
-                  product.price = 0;
+                  //product.price = 0;
                 }
               });
             }
@@ -288,14 +298,22 @@ export class CurrentOrderComponent {
         ? 0
         : this.totalPrice - this.totalCouponDiscount;
     this.totalTaxAmount = this.totalPriceAfterDiscounts * this.taxRate;
-    this.orderTotal =
-      this.totalPriceAfterDiscounts + this.totalTaxAmount - this.refundTotal;
+    //this.orderTotal = this.totalPriceAfterDiscounts + this.totalTaxAmount - this.refundTotal;
+    this.orderTotal = this.totalPriceAfterDiscounts + this.totalTaxAmount;
+    this.orderTotal = Number(this.orderTotal.toFixed(2));
   }
 
   determineCurrentOrderGrouped() {
+    //TODO: Modify this code so that coupon discounted products are shown as a single product in a group with it's individual name.
+    //TODO: That way, an order has X orderlines, each one with the proper price for each item.
+    //TODO: An extra orderline item called "coupon" (a new product with price 0) is likewise added (modifications to odoo service would be needed.)
     var currentProduct = "";
     var currentProductCountArray: Array<{ product: product; count: number }> =
       [];
+    var couponModifiedCostProductCountArray: Array<{
+      product: product;
+      count: number;
+    }> = [];
     var count = 0;
     var finalProduct: product = {};
     if (this.currentOrderProducts && this.currentOrderProducts.length > 0) {
@@ -315,7 +333,196 @@ export class CurrentOrderComponent {
       // ("GROUPED PRODUCT ORDER: ");
       // (currentProductCountArray);
       this.currentOrderGrouped = currentProductCountArray;
+      this.createProductGroupWithCouponInfo();
     }
+  }
+
+  /**
+   * Function that either modifies
+   * currentOrderGroup's price values or modifies particular sets to have "odooOrderListPrice" value at
+   * the coupon price.
+   *
+   */
+  createProductGroupWithCouponInfo() {
+    //step 1-A: check for product category discount coupon
+    this.productGroupsWithCouponGroups = structuredClone(
+      this.currentOrderGrouped,
+    );
+    var additionalGroups: Array<any> = [];
+    console.log(this.currentOrder.coupon);
+    if (
+      this.currentOrder &&
+      this.currentOrder.coupon &&
+      this.currentOrder.coupon[0] &&
+      this.currentOrder.coupon[0].couponType ==
+        couponTypeEnum.discountOnProductCategory
+    ) {
+      var onlyOnce = false;
+      //step 1-B: Check if coupon is for a single product or for all products on order
+      var couponDetail = this.currentOrder.coupon[0]
+        .couponDetail as couponDetail;
+      if (couponDetail.singleItem) {
+        console.log("Only a single product will be changed");
+        //single use, so add tag into productGroup.product
+        this.productGroupsWithCouponGroups.forEach((productGroup) => {
+          if (productGroup.product.category) {
+            productGroup.product.category.forEach((category) => {
+              if (
+                couponDetail.categories &&
+                couponDetail.categories.includes(category) &&
+                !onlyOnce
+              ) {
+                onlyOnce = true;
+                console.log(
+                  "Product to be changed: " + productGroup.product.name,
+                );
+                //Step 1-C: Now check the coupon discount/setprice value
+                //now check to see if it's a discount or set price
+                // and modify productGroup.product.odooOrderListPrice;
+                if (couponDetail.type == "discount" && couponDetail.discount) {
+                  console.log("GIVE A " + couponDetail.discount + "% discount");
+                  console.log("to the product: " + productGroup.product.name);
+                  console.log("because it has the category: " + category);
+                  var mult = (100 - couponDetail.discount) / 100;
+                  // productGroup.product.odooOrderListPrice =
+                  //   (productGroup.product.price as number) * mult;
+
+                  productGroup.product.priceAfterCoupon =
+                    (productGroup.product.price as number) * mult;
+                  //productGroup.count--;
+                  productGroup.product.deductCountForCouponEntry = true;
+                } else {
+                  console.log("SET PRICE TO: " + couponDetail.setPrice);
+                  console.log("to the product: " + productGroup.product.name);
+                  console.log("because it has the category: " + category);
+                  // productGroup.product.odooOrderListPrice =
+                  //   couponDetail.setPrice as number;
+
+                  productGroup.product.priceAfterCoupon =
+                    couponDetail.setPrice as number;
+
+                  productGroup.product.deductCountForCouponEntry = true;
+                  //productGroup.count--;
+                }
+              }
+            });
+          }
+        });
+      } else {
+        console.log("All items that match coupon parameters will be changed");
+        //all cases, so modify the productGroup.product.price value
+        this.productGroupsWithCouponGroups.forEach((productGroup) => {
+          if (productGroup.product.category) {
+            productGroup.product.category.forEach((category) => {
+              if (
+                couponDetail.categories &&
+                couponDetail.categories.includes(category)
+              ) {
+                //now check to see if it's a discount or set price
+                // and modify productGroup.product.odooOrderListPrice;
+                if (couponDetail.type == "discount" && couponDetail.discount) {
+                  console.log("GIVE A " + couponDetail.discount + "% discount");
+                  console.log("to the product: " + productGroup.product.name);
+                  console.log("because it has the category: " + category);
+                  var mult = (100 - couponDetail.discount) / 100;
+                  productGroup.product.price =
+                    (productGroup.product.price as number) * mult;
+                } else {
+                  console.log("SET PRICE TO: " + couponDetail.setPrice);
+                  console.log("to the product: " + productGroup.product.name);
+                  console.log("because it has the category: " + category);
+                  productGroup.product.price = couponDetail.setPrice as number;
+                }
+              }
+            });
+          }
+        });
+      }
+    }
+    //step 2: check for specific product discount coupon
+    if (
+      this.currentOrder &&
+      this.currentOrder.coupon &&
+      this.currentOrder.coupon[0] &&
+      this.currentOrder.coupon[0].couponType ==
+        couponTypeEnum.discountOnSpecificItem &&
+      this.currentOrder.coupon[0].couponDetail &&
+      this.currentOrder.coupon[0].couponDetail.product
+    ) {
+      var onlyOnce = false;
+      var couponDetail = this.currentOrder.coupon[0]
+        .couponDetail as couponDetail;
+      if (couponDetail.singleItem) {
+        console.log("Only a single product will be changed");
+        this.productGroupsWithCouponGroups.forEach((productGroup) => {
+          if (couponDetail.product) {
+            couponDetail.product.forEach((hhItem) => {
+              if (productGroup.product.id == hhItem.id && !onlyOnce) {
+                onlyOnce = true;
+                console.log(
+                  "Product to be changed: " + productGroup.product.name,
+                );
+                if (couponDetail.type == "discount" && couponDetail.discount) {
+                  console.log("GIVE A " + couponDetail.discount + "% discount");
+                  console.log("to the product: " + productGroup.product.name);
+                  console.log(
+                    "because it was found to be inside the product list of the coupon",
+                  );
+                  var mult = (100 - couponDetail.discount) / 100;
+                  // productGroup.product.odooOrderListPrice =
+                  //   (productGroup.product.price as number) * mult;
+
+                  productGroup.product.priceAfterCoupon =
+                    (productGroup.product.price as number) * mult;
+                  productGroup.product.deductCountForCouponEntry = true;
+                } else {
+                  console.log("SET PRICE TO: " + couponDetail.setPrice);
+                  console.log("to the product: " + productGroup.product.name);
+                  console.log(
+                    "because it was found to be inside the product list of the coupon",
+                  );
+                  productGroup.product.priceAfterCoupon =
+                    couponDetail.setPrice as number;
+                  productGroup.product.deductCountForCouponEntry = true;
+                }
+              }
+            });
+          }
+        });
+      } else {
+        console.log(
+          "all products that fit into coupon product list will be changed",
+        );
+
+        this.productGroupsWithCouponGroups.forEach((productGroup) => {
+          if (couponDetail.product) {
+            couponDetail.product.forEach((hhItem) => {
+              if (productGroup.product.id == hhItem.id) {
+                if (couponDetail.type == "discount" && couponDetail.discount) {
+                  console.log("GIVE A " + couponDetail.discount + "% discount");
+                  console.log("to the product: " + productGroup.product.name);
+                  console.log(
+                    "because it was found to be inside the product list of the coupon",
+                  );
+                  var mult = (100 - couponDetail.discount) / 100;
+                  productGroup.product.price =
+                    (productGroup.product.price as number) * mult;
+                } else {
+                  console.log("SET PRICE TO: " + couponDetail.setPrice);
+                  console.log("to the product: " + productGroup.product.name);
+                  console.log(
+                    "because it was found to be inside the product list of the coupon",
+                  );
+                  productGroup.product.price = couponDetail.setPrice as number;
+                }
+              }
+            });
+          }
+        });
+      }
+    }
+    console.log("Final result:");
+    console.log(this.productGroupsWithCouponGroups);
   }
 
   removeItemFromOrder(event) {
@@ -359,11 +566,13 @@ export class CurrentOrderComponent {
   }
 
   goToPayment() {
-    this.currentOrder.products = this.currentOrderGrouped;
+    this.currentOrder.products = this.productGroupsWithCouponGroups;
     this.currentOrder.bxgoProducts = this.bxgoProducts;
     this.currentOrder.customer = this.selectedCustomer;
     this.currentOrder.taxRate = this.taxRate;
     this.currentOrder.total = this.orderTotal;
+    this.currentOrder.totalCouponDiscount = this.totalCouponDiscount;
+    this.currentOrder.totalRefund = this.refundTotal;
     this.currentOrderService.goToPaymentStatus();
   }
 }

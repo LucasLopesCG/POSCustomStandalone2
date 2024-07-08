@@ -17,6 +17,11 @@ export class OdooService implements OnInit {
   odooPastOrderArray: any = [];
   odooPastOrderLineArray: any = [];
 
+  private orderPlaced = new BehaviorSubject<boolean>(false);
+  private paymentPlaced = new BehaviorSubject<boolean>(false);
+  private pickingsForOrder = new BehaviorSubject<boolean>(false);
+  private pickingsLinkedToOrder = new BehaviorSubject<boolean>(false);
+  private orderInOdoo = new BehaviorSubject<any>({});
   private odooProducts = new BehaviorSubject<any>({});
   private customers = new BehaviorSubject<any>({});
   private pastOrders = new BehaviorSubject<any>({});
@@ -29,6 +34,11 @@ export class OdooService implements OnInit {
   private combinedProductData = new BehaviorSubject<any>({});
   private testImageSub = new BehaviorSubject<any>({});
 
+  orderPlaced$ = this.orderPlaced.asObservable();
+  paymentPlaced$ = this.paymentPlaced.asObservable();
+  pickingsForOrder$ = this.pickingsForOrder.asObservable();
+  pickingsLinkedToOrder$ = this.pickingsLinkedToOrder.asObservable();
+  orderInOdoo$ = this.orderInOdoo.asObservable();
   odooProducts$ = this.odooProducts.asObservable();
   customers$ = this.customers.asObservable();
   pastOrders$ = this.pastOrders.asObservable();
@@ -111,14 +121,6 @@ export class OdooService implements OnInit {
   }
   stocksLoaded() {
     this.stockLoadComplete.next(true);
-  }
-
-  getPastOrdersFromMiddleMan() {
-    var body: any = { data: "blah" };
-    this.http.get(this.middleManUrl + "/getPastOrders").subscribe((s) => {
-      console.log(s);
-      this.pastOrders.next(s);
-    });
   }
 
   getCustomersFromMiddleMan() {
@@ -344,6 +346,22 @@ export class OdooService implements OnInit {
     this.storeService.setPastOrdersForStore(output);
   }
 
+  orderWithinSystem(boolean) {
+    this.orderPlaced.next(true);
+  }
+  paymentWithinSystem(boolean) {
+    this.paymentPlaced.next(true);
+  }
+  pickingsCreated(boolean) {
+    this.pickingsForOrder.next(true);
+  }
+  pickingsLinked(boolean) {
+    this.pickingsLinkedToOrder.next(true);
+  }
+  orderComplete(value) {
+    this.orderInOdoo.next(value);
+  }
+
   /**
    *
    * @param order order object containing products,refunds,customer information,cashier information,etc
@@ -396,14 +414,44 @@ export class OdooService implements OnInit {
     if (order && order.products && order.products.length > 0) {
       order.products.forEach((product) => {
         var price = product.product.price as number;
-        var newLine: any = {
-          product_id: product.product.id,
-          product_name: product.product.name,
-          quantity: product.count,
-          price_unit: price,
-          total_price: price * product.count,
-        };
-        lines.push(newLine);
+        if (!product.product.deductCountForCouponEntry) {
+          var count: number = 0;
+          while (count < product.count) {
+            var newLine: any = {
+              product_id: product.product.id,
+              product_name: product.product.name,
+              quantity: 1,
+              price_unit: price,
+              total_price: price * product.count,
+            };
+            count++;
+            lines.push(newLine);
+          }
+        } else {
+          if (product.count - 1 > 0) {
+            var count: number = 0;
+            while (count < product.count - 1) {
+              var newLine: any = {
+                product_id: product.product.id,
+                product_name: product.product.name,
+                quantity: 1,
+                price_unit: price,
+                total_price: price * product.count,
+              };
+              count++;
+              lines.push(newLine);
+            }
+          }
+          var couponPrice = product.product.priceAfterCoupon as number;
+          var couponLine: any = {
+            product_id: product.product.id,
+            product_name: product.product.name,
+            quantity: 1,
+            price_unit: couponPrice,
+            total_price: couponPrice,
+          };
+          lines.push(couponLine);
+        }
       });
     }
     //CHECK TO SEE IF FREEBIE WAS USED: SEND OUT TAG!
@@ -434,7 +482,7 @@ export class OdooService implements OnInit {
     var odooStyleOrder: any = {
       amount_tax: amountTaxed,
       amount_total: total,
-      amount_paid: amountPaid,
+      amount_paid: total,
       amount_return: amountPaid - total,
       session_id: sessionId,
       name: "POS_CUSTOM_ORDER",
@@ -451,15 +499,33 @@ export class OdooService implements OnInit {
         //this.pas.next(response);
         console.log(response);
         //since it actually went through, tell offline mode to start dumping orders by recursively calling this function.
-        //TO-DO: FIX THIS FUNCTION SO THAT ORDER KEEPS TRACK OF HOW MUCH WAS PAID TO THE ORDER.
+        //fire off event to let display know order is now in system.
+        this.orderWithinSystem(true);
         var responseVal = response as unknown;
         order.orderNumber = responseVal as number;
         this.currentOrderService.setCurrentOrder(order);
         var amount = order.amountPaid as number;
         var total = order.total as number;
         var change = total - amount;
-        //this.sendProducts(order, offlineOrder, amount);
-        this.sendProducts(order, change, lines, config_id, paymentMethodId);
+        //this.PayAndDeductProducts(order, offlineOrder, amount);
+        this.PayAndDeductProducts(
+          order,
+          amountPaid,
+          lines,
+          config_id,
+          paymentMethodId,
+          true,
+        );
+        if (change < 0) {
+          this.PayAndDeductProducts(
+            order,
+            change,
+            lines,
+            config_id,
+            paymentMethodId,
+            false,
+          );
+        }
         //this.validateOrder(order);
         this.offlineMode.removeOrderFromList(order);
         if (this.offlineMode.orderListArray.length > 0) {
@@ -474,7 +540,81 @@ export class OdooService implements OnInit {
     );
   }
 
-  sendProducts(order, amount, lines, config_id, paymentMethodId) {
+  /**
+   * Works similar to sendNewOrder, but will only grab the products within refundedProducts array.
+   * Will create an order whose's name is the same as the order that is being refunded (with "REFUND" added to end of it)
+   * Will create pickings and payments in the same line as sendNewOrder, but will use the refund values instead.
+   * Also adds links to the "refunded_order_ids" field (the value of refundOrderNumber field)
+   * Once that is done, i need to grab the order.lines for the refunded order.
+   * Then check each one to see if that was an order.line that was refunded. If so, create link to the appropriate line.
+   *
+   * @param order
+   * @param offlineOrder
+   */
+  sendRefundOrder(order: order, offlineOrder: boolean = false) {
+    var odooStyleOrder: any = {};
+    odooStyleOrder.id = order.refundOrderNumber;
+    odooStyleOrder.cashier = order.cashier;
+    odooStyleOrder.refundAmount = order.totalRefund as number;
+    odooStyleOrder.refundAmount = odooStyleOrder.refundAmount * -1;
+    odooStyleOrder.products = [];
+    if (order && order.refundedProducts) {
+      order.refundedProducts?.forEach((product) => {
+        odooStyleOrder.products.push(product.id);
+      });
+    }
+    const body = JSON.stringify(odooStyleOrder);
+    const odooUrl =
+      "https://phpstack-1248616-4634628.cloudwaysapps.com/api/createRefundOrder"; // Replace with your Odoo instance URL
+    this.http.put(odooUrl, body).subscribe(
+      (response) => {
+        console.log("Success? This actually should not happen?");
+      },
+      (error) => {
+        console.log("refund order error?");
+        console.log("Refund order created... now validate the picking");
+        var txt = error.error.text;
+        var txt2 = txt.split("}]")[0];
+        var eachVar = txt2.split(",");
+        var pickingId: number = +eachVar[0].split(":")[1];
+        var orderId: number = +eachVar[1].split(":")[1];
+
+        /*
+
+        "[{\"pickingId\":25208,\"orderId\":14922}]
+        */
+
+        var linkingBody = {
+          pickingId: pickingId,
+          orderId: orderId,
+          orderNumber: orderId,
+        };
+        const linkBodyJSON = JSON.stringify(linkingBody);
+
+        const odooPickingValidateLinkUrl =
+          "https://phpstack-1248616-4634628.cloudwaysapps.com/api/validatePicking";
+        this.http.post(odooPickingValidateLinkUrl, linkBodyJSON).subscribe(
+          (val) => {
+            console.log("picking for refund validated?");
+            this.validateOrder(linkingBody);
+          },
+          (error) => {
+            console.log("picking validated via error?");
+            this.validateOrder(linkingBody);
+          },
+        );
+      },
+    );
+  }
+
+  PayAndDeductProducts(
+    order,
+    amount,
+    lines,
+    config_id,
+    paymentMethodId,
+    createPickings: boolean = false,
+  ) {
     var pickingLineIds: Array<number> = [];
     const odooUrl =
       "https://phpstack-1248616-4634628.cloudwaysapps.com/api/order-pay"; // Replace with your Odoo instance URL
@@ -493,101 +633,114 @@ export class OdooService implements OnInit {
         //this.pas.next(response);
         console.log(response);
         // a payment line was created. Now go through each product in the list and create the pickings for each:
-        var locationId: number = 0;
-        var pickingTypeId: number = 0;
-        if (this.selectedLocation) {
-          if (this.selectedLocation.location == storeLocationEnum.Apopka) {
-            locationId = 69;
-            pickingTypeId = 71;
+        if (createPickings) {
+          console.log(
+            "Actual payment processed, now create pickings for order",
+          );
+          this.paymentWithinSystem(true);
+          var locationId: number = 0;
+          var pickingTypeId: number = 0;
+          if (this.selectedLocation) {
+            if (this.selectedLocation.location == storeLocationEnum.Apopka) {
+              locationId = 69;
+              pickingTypeId = 71;
+            }
+            if (this.selectedLocation.location == storeLocationEnum.DeLand) {
+              locationId = 30;
+              pickingTypeId = 24;
+            }
+            if (this.selectedLocation.location == storeLocationEnum.Orlando) {
+              locationId = 44;
+              pickingTypeId = 36;
+            }
+            if (this.selectedLocation.location == storeLocationEnum.Sanford) {
+              locationId = 18;
+              pickingTypeId = 12;
+            }
           }
-          if (this.selectedLocation.location == storeLocationEnum.DeLand) {
-            locationId = 30;
-            pickingTypeId = 24;
-          }
-          if (this.selectedLocation.location == storeLocationEnum.Orlando) {
-            locationId = 44;
-            pickingTypeId = 36;
-          }
-          if (this.selectedLocation.location == storeLocationEnum.Sanford) {
-            locationId = 18;
-            pickingTypeId = 12;
-          }
-        }
-        var responseCount = lines.length;
-        var requestCount: number = 0;
-        var lineProductIds: Array<number> = [];
-        var lineQuantities: Array<number> = [];
-        var products: Array<any> = [];
-        lines.forEach((lineData) => {
-          products.push({
-            product_id: lineData.product_id,
-            product_uom_qty: lineData.quantity,
-            product_name: lineData.product_name,
+          var responseCount = lines.length;
+          var requestCount: number = 0;
+          var lineProductIds: Array<number> = [];
+          var lineQuantities: Array<number> = [];
+          var products: Array<any> = [];
+          lines.forEach((lineData) => {
+            var count: number = 0;
+            while (count < lineData.quantity) {
+              products.push({
+                product_id: lineData.product_id,
+                product_uom_qty: 1,
+                product_name: lineData.product_name,
+              });
+              count++;
+            }
           });
-        });
-        var pickingData = {
-          location_dest_id: 5, //physical location-user
-          location_id: locationId, //44 ORL/Stock, 30 DL/STOCK,69 APS/STOCK, 18 SANFO/STOCK
-          picking_type_id: pickingTypeId,
-          origin: order.orderNumber,
-          products: products,
-        };
-        const pickingBody = JSON.stringify(pickingData);
-        //now call the service to create the picking and then link it to the order!
-        const odooPickingUrl =
-          "https://phpstack-1248616-4634628.cloudwaysapps.com/api/makeOrderPickings"; // Replace with your Odoo instance URL
-        this.http.put(odooPickingUrl, pickingBody).subscribe(
-          (response) => {
-            console.log("Created a picking: ");
-            console.log(response);
-            pickingLineIds.push(response as number);
-            console.log("Remember the id of this!");
-          },
-          (error) => {
-            var txt = error.error.text;
-            txt = txt.split(": ")[1];
-            txt = txt.replace(/\D/g, "");
-            var pickingLineId: number = +txt;
-            //pickingLineIds.push(pickingLineId);
-            //console.error(error.txt);
-            console.log("Pickings for each product group was created.");
-            console.log(pickingLineIds);
-            const odooPickingLinkUrl =
-              "https://phpstack-1248616-4634628.cloudwaysapps.com/api/linkPickingToOrder";
-            //pickingLineIds.forEach((pickingId) => {
-            var linkingBody = {
-              pickingId: pickingLineId,
-              orderId: order.orderNumber,
-            };
-            const linkBodyJSON = JSON.stringify(linkingBody);
-            this.http.post(odooPickingLinkUrl, linkBodyJSON).subscribe(
-              (val) => {
-                console.log("link made?");
-              },
-              (error) => {
-                console.log("error?");
-                //now take this picking and validate it!
-                const odooPickingValidateLinkUrl =
-                  "https://phpstack-1248616-4634628.cloudwaysapps.com/api/validatePicking";
-                this.http
-                  .post(odooPickingValidateLinkUrl, linkBodyJSON)
-                  .subscribe(
-                    (val) => {
-                      console.log("picking validated?");
-                      //this.validateOrder(order);
-                    },
-                    (error) => {
-                      console.log("picking validated via error?");
-                      this.validateOrder(order);
-                    },
-                  );
-              },
-            );
-            //});
-          },
-        );
+          var pickingData = {
+            location_dest_id: 5, //physical location-user
+            location_id: locationId, //44 ORL/Stock, 30 DL/STOCK,69 APS/STOCK, 18 SANFO/STOCK
+            picking_type_id: pickingTypeId,
+            origin: order.orderNumber,
+            products: products,
+          };
+          const pickingBody = JSON.stringify(pickingData);
+          //now call the service to create the picking and then link it to the order!
+          const odooPickingUrl =
+            "https://phpstack-1248616-4634628.cloudwaysapps.com/api/makeOrderPickings"; // Replace with your Odoo instance URL
+          this.http.put(odooPickingUrl, pickingBody).subscribe(
+            (response) => {
+              console.log("Created a picking: ");
+              console.log(response);
+              pickingLineIds.push(response as number);
+              console.log("Remember the id of this!");
+            },
+            (error) => {
+              var txt = error.error.text;
+              txt = txt.split(": ")[1];
+              txt = txt.replace(/\D/g, "");
+              var pickingLineId: number = +txt;
+              //pickingLineIds.push(pickingLineId);
+              //console.error(error.txt);
+              console.log("Pickings for each product group was created.");
+              this.pickingsCreated(true);
+              console.log(pickingLineIds);
+              const odooPickingLinkUrl =
+                "https://phpstack-1248616-4634628.cloudwaysapps.com/api/linkPickingToOrder";
+              //pickingLineIds.forEach((pickingId) => {
+              var linkingBody = {
+                pickingId: pickingLineId,
+                orderId: order.orderNumber,
+              };
+              const linkBodyJSON = JSON.stringify(linkingBody);
+              this.http.post(odooPickingLinkUrl, linkBodyJSON).subscribe(
+                (val) => {
+                  console.log("link made?");
+                },
+                (error) => {
+                  console.log("link made in error statement");
+                  this.pickingsLinked(true);
 
-        //this.sendProducts(order, offlineOrder, order.amountPaid);
+                  //now take this picking and validate it!
+                  const odooPickingValidateLinkUrl =
+                    "https://phpstack-1248616-4634628.cloudwaysapps.com/api/validatePicking";
+                  this.http
+                    .post(odooPickingValidateLinkUrl, linkBodyJSON)
+                    .subscribe(
+                      (val) => {
+                        console.log("picking validated?");
+                        //this.validateOrder(order);
+                      },
+                      (error) => {
+                        console.log("picking validated via error?");
+                        this.validateOrder(order);
+                      },
+                    );
+                },
+              );
+              //});
+            },
+          );
+
+          //this.sendProducts(order, offlineOrder, order.amountPaid);
+        }
       },
       (error) => {
         console.error(error);
@@ -610,6 +763,7 @@ export class OdooService implements OnInit {
       },
       (error) => {
         console.log("order set to paid? ERROR?");
+        this.orderComplete(order);
       },
     );
   }

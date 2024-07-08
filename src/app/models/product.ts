@@ -10,6 +10,8 @@ export class product {
   image?: string;
   happyHourDiscount?: boolean = false;
   bxgo?: number = 0;
+  deductCountForCouponEntry?: boolean = false;
+  priceAfterCoupon?: number = 0;
   constructor(obj) {
     this.id = obj.id;
     this.name = obj.name;

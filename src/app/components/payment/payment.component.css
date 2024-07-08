@@ -35,3 +35,7 @@
 .header button:hover {
   background-color: #3e8e41;
 }
+
+.payment-lines {
+  padding-bottom: 0.3rem;
+}

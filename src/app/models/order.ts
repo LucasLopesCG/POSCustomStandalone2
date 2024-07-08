@@ -9,6 +9,7 @@ export class order {
   comboProducts?: Array<product>;
   refundedProducts?: Array<product>;
   refundOrderNumber?: number;
+  totalRefund?: number = 0;
   taxRate?: number;
   coupon?: Array<coupon>;
   orderNumber?: number;
@@ -19,4 +20,6 @@ export class order {
   customer?: customer;
   status?: orderStatusEnum;
   date?: Date;
+  totalCouponDiscount?: number;
+  refunded_order_ids?: Array<number>;
 }

@@ -230,6 +230,7 @@ export class ChooseLocationComponent implements OnInit {
     }
     this.odooService.wipeProductData();
     this.odooService.getCombinedProductData(stockFilter);
+    this.odooService.orderComplete({});
   }
 
   Logout() {

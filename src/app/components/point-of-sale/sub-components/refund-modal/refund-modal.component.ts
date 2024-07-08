@@ -23,7 +23,7 @@ export class RefundModalComponent implements AfterViewInit {
   filteredOrders: Array<order> = [];
   currentOrder: order = {};
   currentMode: string = "all orders";
-  selectedOrder: order = {};
+  selectedOrder: any = {};
   pristineSelectedOrder: order = {};
   refundItems: Array<product> = [];
   previousOrders: Array<order> = [];
@@ -84,7 +84,7 @@ export class RefundModalComponent implements AfterViewInit {
     this.currentOrder.refundedProducts = this.refundItems;
     //2
     this.refundItems = [];
-    this.currentOrder.refundOrderNumber = this.selectedOrder.orderNumber;
+    this.currentOrder.refundOrderNumber = this.selectedOrder.orderId;
     console.log(this.currentOrder);
     this.selectedOrder = structuredClone(this.pristineSelectedOrder);
     this.previousOrders = structuredClone(this.pristinePreviousOrders);
@@ -121,7 +121,10 @@ export class RefundModalComponent implements AfterViewInit {
     //step 2- find the item group inside of selectedOrder and raise the count
 
     this.selectedOrder.products?.forEach((productGroup) => {
-      if (productGroup.product.id == event.id) {
+      if (
+        productGroup.product.id == event.id &&
+        productGroup.product.price == event.price
+      ) {
         productGroup.count++;
       }
     });
@@ -155,6 +158,11 @@ export class RefundModalComponent implements AfterViewInit {
       });
     }
     this.maxPage = Math.round(this.filteredOrders.length / 50 - 1);
+    this.filteredOrders = this.filteredOrders.filter((order) => {
+      if (order.refunded_order_ids && order.refunded_order_ids.length == 0)
+        return true;
+      return false;
+    });
     console.log(this.filteredOrders);
   }
 

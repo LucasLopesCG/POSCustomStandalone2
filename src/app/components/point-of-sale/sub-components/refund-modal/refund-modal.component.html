@@ -95,7 +95,7 @@
     <div *ngIf="currentMode == 'refund order'">
       <!--This is the list of items in the order-->
       <div>
-        <label>These are the products sold in this order</label>
+        <h3>These are the products sold in this order</h3>
         <div
           *ngFor="let product of pristineSelectedOrder.products; let i = index"
         >
@@ -103,9 +103,9 @@
             *ngIf="
               selectedOrder &&
               selectedOrder.products &&
-              selectedOrder.products[i].count > 0 &&
-              !selectedOrder.products[i].product.happyHourDiscount
+              selectedOrder.products[i].count > 0
             "
+            class="order-card"
           >
             <!--div contains the detail of the item-->
             {{ product.product.name }} X
@@ -127,8 +127,8 @@
       </div>
       <!--This is the list of items that are being refunded!-->
       <div>
-        <label>These are the products being refunded</label>
-        <div *ngFor="let product of refundItems">
+        <h3>These are the products being refunded</h3>
+        <div *ngFor="let product of refundItems" class="order-card">
           <label> {{ product.name }}: {{ product.price }} </label>
           <div>
             <button type="button" (click)="removeItemFromRefund(product)">
