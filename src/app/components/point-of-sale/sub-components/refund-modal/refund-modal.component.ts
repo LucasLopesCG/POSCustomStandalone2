@@ -26,6 +26,7 @@ export class RefundModalComponent implements AfterViewInit {
   selectedOrder: any = {};
   pristineSelectedOrder: order = {};
   refundItems: Array<product> = [];
+  previouslyRefundedItems: Array<any> = [];
   previousOrders: Array<order> = [];
   pristinePreviousOrders: Array<order> = [];
   searchString: string = "";
@@ -36,6 +37,13 @@ export class RefundModalComponent implements AfterViewInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     storeService.pastOrdersFromStore$.subscribe((val) => {
+      var val2;
+      val.forEach((order) => {
+        if (order.orderName && order.orderName.includes("POS") && order.note) {
+          var cashier = order.note.split(":");
+          if (cashier && cashier[2]) order.cashier = cashier[2];
+        }
+      });
       this.previousOrders = val;
       this.pristinePreviousOrders = structuredClone(val);
       this.maxPageCount = Math.round(
@@ -61,14 +69,29 @@ export class RefundModalComponent implements AfterViewInit {
     that allows user to remove an item from this order and into the "refund list" which should behave exactly like current-order
     */
     this.currentMode = "refund order";
-    this.selectedOrder = event;
+    this.selectedOrder = structuredClone(event);
     this.pristineSelectedOrder = structuredClone(event);
     this.refundItems = [];
+    this.previouslyRefundedItems = [];
+    if (
+      this.selectedOrder &&
+      this.selectedOrder.products &&
+      this.selectedOrder.products.length > 0
+    ) {
+      this.selectedOrder.products.forEach((productGroup) => {
+        if (
+          productGroup.product.refund_orderline_ids &&
+          productGroup.product.refund_orderline_ids.length > 0
+        ) {
+          this.previouslyRefundedItems.push(productGroup);
+        }
+      });
+    }
   }
   returnToViewMode() {
     this.currentMode = "all orders";
     this.selectedOrder = structuredClone(this.pristineSelectedOrder);
-    this.previousOrders = structuredClone(this.pristinePreviousOrders);
+    //this.previousOrders = structuredClone(this.pristinePreviousOrders);
   }
 
   goToRefundMode() {

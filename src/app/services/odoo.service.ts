@@ -58,12 +58,7 @@ export class OdooService implements OnInit {
   port: string | null = "";
   secure: boolean = false;
   uid: any = 0;
-  private odooUrl = "https://chronicguru-staging-lucas-12985506.dev.odoo.com"; // replace with your odoo instance URL
-  private middleManUrl =
-    "https://phpstack-1248616-4634628.cloudwaysapps.com/controllers";
-  private db = "chronicguru-staging-lucas-12985506"; // replace with your database name
-  private username = "gary@chronicguru.com"; // replace with your username
-  private password = "0fe534d0cffccd509e8525930f8d7d4ba7439f18"; // replace with your password
+  private middleManUrl = "https://phpstack-1248616-4634628.cloudwaysapps.com";
   headers = new HttpHeaders({
     "Content-Type": "text/xml",
   });
@@ -95,25 +90,24 @@ export class OdooService implements OnInit {
   }
   ngOnInit(): void {}
 
-  TESTIMAGE() {
-    return this.http.get(
-      "https://chronicguru.odoo.com/web/image/5802?unique=3b11c3a2adda4ae6ba4b7bde0816439db38c5854",
-      { responseType: "blob" },
+  createSession(configId, userId, cashStart) {
+    const odooUrl = this.middleManUrl + "/api/createPOSSession"; // Replace with your Odoo instance URL
+    var odooSession: any = {
+      configId: configId,
+      userId: userId,
+      cashStart: cashStart,
+    };
+    const body = JSON.stringify(odooSession);
+    this.http.put(odooUrl, body).subscribe(
+      (response) => {
+        //this.pas.next(response);
+        console.log(response);
+        // update the customer on local side to have this newly created id, saving a get call
+      },
+      (error) => {
+        console.error(error);
+      },
     );
-  }
-
-  getAuth() {}
-  /**
-   * CURRENTLY BUGGED, CORS ISSUE
-   * Retrieves all available product information. This is a test call.
-   */
-
-  getProductsFromMiddleMan() {
-    var body: any = { data: "blah" };
-    this.http.get(this.middleManUrl + "/getProducts").subscribe((s) => {
-      //console.log(s);
-      this.odooProducts.next(s);
-    });
   }
 
   productsLoaded() {
@@ -123,17 +117,8 @@ export class OdooService implements OnInit {
     this.stockLoadComplete.next(true);
   }
 
-  getCustomersFromMiddleMan() {
-    var body: any = { data: "blah" };
-    this.http.get(this.middleManUrl + "/getCustomers").subscribe((s) => {
-      console.log(s);
-      this.customers.next(s);
-    });
-  }
-
   submitNewCustomer(newCustomer: any) {
-    const odooUrl =
-      "https://phpstack-1248616-4634628.cloudwaysapps.com/api/createcustomer"; // Replace with your Odoo instance URL
+    const odooUrl = this.middleManUrl + "/api/createcustomer"; // Replace with your Odoo instance URL
 
     var odooCustomer: any = {
       name: "John Doe Tic Tac Toe",
@@ -171,7 +156,8 @@ export class OdooService implements OnInit {
 
     this.http
       .get(
-        `https://phpstack-1248616-4634628.cloudwaysapps.com/api/combinedProductData?stockFilter=${stockFilter}`,
+        this.middleManUrl +
+          `/api/combinedProductData?stockFilter=${stockFilter}`,
       )
       .subscribe(
         (response) => {
@@ -190,17 +176,15 @@ export class OdooService implements OnInit {
     headers.append("Accept", "application/json");
     headers.append("Origin", "http://localhost:3000");
 
-    this.http
-      .get("https://phpstack-1248616-4634628.cloudwaysapps.com/api/products")
-      .subscribe(
-        (response) => {
-          //console.log("Response:", response);
-          this.odooProducts.next(response);
-        },
-        (error) => {
-          //console.log("Error:", error);
-        },
-      );
+    this.http.get(this.middleManUrl + "/api/products").subscribe(
+      (response) => {
+        //console.log("Response:", response);
+        this.odooProducts.next(response);
+      },
+      (error) => {
+        //console.log("Error:", error);
+      },
+    );
   }
 
   getStocks() {
@@ -209,17 +193,15 @@ export class OdooService implements OnInit {
     headers.append("Accept", "application/json");
     headers.append("Origin", "http://localhost:3000");
 
-    this.http
-      .get("https://phpstack-1248616-4634628.cloudwaysapps.com/api/stocks")
-      .subscribe(
-        (response) => {
-          //console.log("Response:", response);
-          this.odooStocks.next(response);
-        },
-        (error) => {
-          //console.log("Error:", error);
-        },
-      );
+    this.http.get(this.middleManUrl + "/api/stocks").subscribe(
+      (response) => {
+        //console.log("Response:", response);
+        this.odooStocks.next(response);
+      },
+      (error) => {
+        //console.log("Error:", error);
+      },
+    );
   }
 
   getPriceListValues() {
@@ -228,19 +210,15 @@ export class OdooService implements OnInit {
     headers.append("Accept", "application/json");
     headers.append("Origin", "http://localhost:3000");
 
-    this.http
-      .get(
-        " https://phpstack-1248616-4634628.cloudwaysapps.com/api/priceListRule",
-      )
-      .subscribe(
-        (response) => {
-          //console.log("Response:", response);
-          this.odooPriceListValues.next(response);
-        },
-        (error) => {
-          //console.log("Error:", error);
-        },
-      );
+    this.http.get(this.middleManUrl + "/api/priceListRule").subscribe(
+      (response) => {
+        //console.log("Response:", response);
+        this.odooPriceListValues.next(response);
+      },
+      (error) => {
+        //console.log("Error:", error);
+      },
+    );
   }
 
   getCustomers() {
@@ -249,17 +227,15 @@ export class OdooService implements OnInit {
     headers.append("Accept", "application/json");
     headers.append("Origin", "http://localhost:3000");
 
-    this.http
-      .get(" https://phpstack-1248616-4634628.cloudwaysapps.com/api/customers")
-      .subscribe(
-        (response) => {
-          //console.log("Response:", response);
-          this.odooCustomerList.next(response);
-        },
-        (error) => {
-          //console.log("Error:", error);
-        },
-      );
+    this.http.get(this.middleManUrl + "/api/customers").subscribe(
+      (response) => {
+        //console.log("Response:", response);
+        this.odooCustomerList.next(response);
+      },
+      (error) => {
+        //console.log("Error:", error);
+      },
+    );
   }
 
   getCustomersByPhone(phone: number) {}
@@ -278,17 +254,15 @@ export class OdooService implements OnInit {
     headers.append("Accept", "application/json");
     headers.append("Origin", "http://localhost:3000");
 
-    this.http
-      .get("https://phpstack-1248616-4634628.cloudwaysapps.com/api/pastOrders")
-      .subscribe(
-        (response) => {
-          //console.log("Response:", response);
-          this.pastOrders.next(response);
-        },
-        (error) => {
-          //console.log("Error:", error);
-        },
-      );
+    this.http.get(this.middleManUrl + "/api/pastOrders").subscribe(
+      (response) => {
+        //console.log("Response:", response);
+        this.pastOrders.next(response);
+      },
+      (error) => {
+        //console.log("Error:", error);
+      },
+    );
   }
 
   getPastOrderLines() {
@@ -297,19 +271,15 @@ export class OdooService implements OnInit {
     headers.append("Accept", "application/json");
     headers.append("Origin", "http://localhost:3000");
 
-    this.http
-      .get(
-        "https://phpstack-1248616-4634628.cloudwaysapps.com/api/pastOrderLines",
-      )
-      .subscribe(
-        (response) => {
-          //console.log("Response:", response);
-          this.pastOrderLines.next(response);
-        },
-        (error) => {
-          //console.log("Error:", error);
-        },
-      );
+    this.http.get(this.middleManUrl + "/api/pastOrderLines").subscribe(
+      (response) => {
+        //console.log("Response:", response);
+        this.pastOrderLines.next(response);
+      },
+      (error) => {
+        //console.log("Error:", error);
+      },
+    );
   }
 
   combineOdooOrderLines() {
@@ -372,8 +342,7 @@ export class OdooService implements OnInit {
     // if (this.session_data == null) {
     //   this.getAuth();
     // }
-    const odooUrl =
-      "https://phpstack-1248616-4634628.cloudwaysapps.com/api/order-line"; // Replace with your Odoo instance URL
+    const odooUrl = this.middleManUrl + "/api/order-line"; // Replace with your Odoo instance URL
 
     var lines: Array<any> = [];
     var total = order.total as number;
@@ -463,8 +432,7 @@ export class OdooService implements OnInit {
       order.coupon[0].couponType == couponTypeEnum.singleUsePerCustomer
     ) {
       var customerId = { customer_id: order.customer.id, tag_id: 1 };
-      const odooTagUrl =
-        "https://phpstack-1248616-4634628.cloudwaysapps.com/api/addTagToCustomer";
+      const odooTagUrl = this.middleManUrl + "/api/addTagToCustomer";
       const body2 = JSON.stringify(customerId);
       //send out order here to update the customer with the FREEBIE tag.
       this.http.post(odooTagUrl, body2).subscribe(
@@ -564,8 +532,7 @@ export class OdooService implements OnInit {
       });
     }
     const body = JSON.stringify(odooStyleOrder);
-    const odooUrl =
-      "https://phpstack-1248616-4634628.cloudwaysapps.com/api/createRefundOrder"; // Replace with your Odoo instance URL
+    const odooUrl = this.middleManUrl + "/api/createRefundOrder"; // Replace with your Odoo instance URL
     this.http.put(odooUrl, body).subscribe(
       (response) => {
         console.log("Success? This actually should not happen?");
@@ -592,7 +559,7 @@ export class OdooService implements OnInit {
         const linkBodyJSON = JSON.stringify(linkingBody);
 
         const odooPickingValidateLinkUrl =
-          "https://phpstack-1248616-4634628.cloudwaysapps.com/api/validatePicking";
+          this.middleManUrl + "/api/validatePicking";
         this.http.post(odooPickingValidateLinkUrl, linkBodyJSON).subscribe(
           (val) => {
             console.log("picking for refund validated?");
@@ -616,8 +583,7 @@ export class OdooService implements OnInit {
     createPickings: boolean = false,
   ) {
     var pickingLineIds: Array<number> = [];
-    const odooUrl =
-      "https://phpstack-1248616-4634628.cloudwaysapps.com/api/order-pay"; // Replace with your Odoo instance URL
+    const odooUrl = this.middleManUrl + "/api/order-pay"; // Replace with your Odoo instance URL
 
     var odooStyleOrder: any = {
       config_id: config_id,
@@ -683,8 +649,7 @@ export class OdooService implements OnInit {
           };
           const pickingBody = JSON.stringify(pickingData);
           //now call the service to create the picking and then link it to the order!
-          const odooPickingUrl =
-            "https://phpstack-1248616-4634628.cloudwaysapps.com/api/makeOrderPickings"; // Replace with your Odoo instance URL
+          const odooPickingUrl = this.middleManUrl + "/api/makeOrderPickings"; // Replace with your Odoo instance URL
           this.http.put(odooPickingUrl, pickingBody).subscribe(
             (response) => {
               console.log("Created a picking: ");
@@ -703,7 +668,7 @@ export class OdooService implements OnInit {
               this.pickingsCreated(true);
               console.log(pickingLineIds);
               const odooPickingLinkUrl =
-                "https://phpstack-1248616-4634628.cloudwaysapps.com/api/linkPickingToOrder";
+                this.middleManUrl + "/api/linkPickingToOrder";
               //pickingLineIds.forEach((pickingId) => {
               var linkingBody = {
                 pickingId: pickingLineId,
@@ -720,7 +685,7 @@ export class OdooService implements OnInit {
 
                   //now take this picking and validate it!
                   const odooPickingValidateLinkUrl =
-                    "https://phpstack-1248616-4634628.cloudwaysapps.com/api/validatePicking";
+                    this.middleManUrl + "/api/validatePicking";
                   this.http
                     .post(odooPickingValidateLinkUrl, linkBodyJSON)
                     .subscribe(
@@ -749,8 +714,7 @@ export class OdooService implements OnInit {
   }
 
   validateOrder(order) {
-    const odooUrl =
-      "https://phpstack-1248616-4634628.cloudwaysapps.com/api/validateOrder"; // Replace with your Odoo instance URL
+    const odooUrl = this.middleManUrl + "/api/validateOrder"; // Replace with your Odoo instance URL
 
     var odooStyleOrder: any = {
       orderId: order.orderNumber,

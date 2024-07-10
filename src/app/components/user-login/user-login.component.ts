@@ -87,13 +87,11 @@ export class UserLoginComponent implements OnInit {
     return JSON.parse(atob(token.split(".")[1]));
   }
   handleOauthResponse(response) {
-    debugger;
     const responsePayload = this.decodeJWTToken(response.credential);
     console.log(responsePayload);
     sessionStorage.setItem("loggedinUser", JSON.stringify(responsePayload));
     //window.location('/your-desired-place')
     var potentialUser = JSON.stringify(responsePayload);
-    debugger;
     //Changed the above URL where you want user to be redirected
     this.userService.setCurrentUser(JSON.stringify(responsePayload));
   }

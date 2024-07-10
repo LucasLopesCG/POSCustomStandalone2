@@ -1,4 +1,5 @@
 export enum categoryEnum {
+  New = "New",
   Strains = "Strains",
   Edibles = "Edibles",
   PreRoll = "PreRoll",
@@ -8,4 +9,8 @@ export enum categoryEnum {
   DabBar = "Dab Bar",
   Cartridges = "Cartridges",
   Merch = "Merch",
+  Infused = "Infused",
+  WineDown = "Wine Down",
+  HHBeer = "HH Beer",
+  HappyHourMixDrinks = "Happy Hour Mix Drinks",
 }

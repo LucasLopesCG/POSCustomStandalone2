@@ -49,3 +49,8 @@
   border-radius: 10px;
   cursor: pointer;
 }
+
+.small-spinner {
+  max-width: 30px;
+  max-height: 30px;
+}

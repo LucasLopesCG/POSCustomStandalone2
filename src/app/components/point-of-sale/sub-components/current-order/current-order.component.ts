@@ -19,11 +19,12 @@ import { orderStatusEnum } from "../../../../models/orderStatusEnum";
 import { order } from "../../../../models/order";
 import { OdooService } from "../../../../services/odoo.service";
 import { couponDetail } from "../../../../models/couponDetail";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @Component({
   selector: "app-current-order",
   standalone: true,
-  imports: [FormsModule, CommonModule, MatIcon],
+  imports: [FormsModule, CommonModule, MatIcon, MatProgressSpinnerModule],
   templateUrl: "./current-order.component.html",
   styleUrl: "./current-order.component.css",
   providers: [{ provide: MatDialogRef, useValue: {} }],
@@ -45,6 +46,8 @@ export class CurrentOrderComponent {
   taxRate: number = 0;
   totalTaxAmount: number = 0;
   orderTotal: number = 0;
+  customerLoading: boolean = true;
+  pastOrdersLoading: boolean = true;
   orderStatus: orderStatusEnum = orderStatusEnum.Ordering;
   constructor(
     private currentOrderService: CurrentOrderService,
@@ -52,6 +55,11 @@ export class CurrentOrderComponent {
     private customerService: customerService,
     private odooService: OdooService,
   ) {
+    odooService.pastOrders$.subscribe((val) => {
+      if (val && val.length > 0) {
+        this.pastOrdersLoading = false;
+      }
+    });
     currentOrderService.productsForCurrentOrder$.subscribe((val) => {
       this.totalPrice = 0;
       this.totalCouponDiscount = 0;
@@ -86,6 +94,7 @@ export class CurrentOrderComponent {
     });
     odooService.odooCustomerList$.subscribe((val) => {
       if (val && val.length > 0) {
+        this.customerLoading = false;
         val.forEach((customer) => {
           customer.category_id = customer.category_id;
           customer.name = customer.complete_name;

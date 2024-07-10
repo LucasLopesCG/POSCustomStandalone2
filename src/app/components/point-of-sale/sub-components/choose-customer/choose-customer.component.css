@@ -7,12 +7,6 @@
   padding: 16px;
 }
 
-[mat-dialog-title] h2 {
-  font-size: 24px;
-  margin: 0;
-}
-
-/* Style the close button */
 [mat-dialog-title] button {
   width: 40px;
   height: 40px;
@@ -21,14 +15,20 @@
   top: 16px;
 }
 
-[mat-dialog-title] mat-icon {
+[mat-dialog-title] h2 {
   font-size: 24px;
-  margin: auto;
+  margin: 0;
 }
 
 /* Style the dialog content */
 [mat-dialog-content] {
   padding: 16px;
+  padding-bottom: 64px; /* Add padding to the bottom to separate from the create customer button */
+}
+
+.customer-card > div:nth-child(3) {
+  flex-basis: 100%;
+  text-align: right;
 }
 
 /* Style the customer cards */
@@ -40,106 +40,6 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-wrap: wrap;
-}
-
-.customer-card div {
-  margin-bottom: 8px;
-}
-
-.customer-card mat-icon {
-  font-size: 16px;
-  vertical-align: middle;
-  margin-right: 4px;
-}
-
-/* Style the buttons */
-button {
-  margin: 8px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button mat-icon {
-  font-size: 16px;
-  vertical-align: middle;
-  margin-right: 4px;
-}
-
-[mat-dialog-title] button {
-  width: 40px;
-  height: 40px;
-  position: absolute;
-  right: 16px;
-  top: 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Add padding to the dialog content */
-[mat-dialog-content] {
-  padding: 16px;
-  padding-bottom: 64px; /* Add padding to the bottom to separate from the create customer button */
-}
-
-.customer-card > div {
-  flex-basis: 50%;
-}
-
-.customer-card > div:nth-child(3) {
-  flex-basis: 100%;
-  text-align: right;
-}
-
-.customer-card mat-icon {
-  font-size: 16px;
-  vertical-align: middle;
-  margin-right: 4px;
-}
-
-/* Style the buttons */
-button {
-  margin: 8px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
-
-button mat-icon {
-  font-size: 16px;
-  margin-right: 4px;
-}
-
-/* Style the create customer button */
-.create-customer-button {
-}
-[mat-dialog-title] {
-  display: flex;
-  justify-content: space-between;
-  padding: 16px;
-  align-items: center;
-}
-
-[mat-dialog-title] h2 {
-  font-size: 24px;
-  margin: 0;
-}
-
-[mat-dialog-title] button {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Style the customer cards */
-.customer-card {
   padding: 16px;
   margin-bottom: 16px;
   border: 1px solid #ccc;
@@ -158,6 +58,7 @@ button mat-icon {
 
 .customer-card > div {
   flex-basis: 100%;
+  margin-bottom: 8px;
 }
 
 .customer-card button {
@@ -170,11 +71,6 @@ button mat-icon {
   align-items: center;
   background-color: #fff; /* White background for the button */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Raise the button */
-}
-
-.customer-card button mat-icon {
-  font-size: 16px;
-  margin-right: 4px;
 }
 
 .create-customer-form > div {

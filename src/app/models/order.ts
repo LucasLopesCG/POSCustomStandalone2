@@ -13,6 +13,7 @@ export class order {
   taxRate?: number;
   coupon?: Array<coupon>;
   orderNumber?: number;
+  orderId?: number;
   receiptNumber?: string;
   cashier?: string;
   total?: number;

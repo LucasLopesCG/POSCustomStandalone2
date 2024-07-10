@@ -80,11 +80,17 @@ export class ProductListComponent implements AfterContentInit {
     private odooService: OdooService,
     private sanitizer: DomSanitizer,
   ) {
-    odooService.testImageSub$.subscribe((val) => {
-      this.sampleImage = val;
-    });
+    //checks for happy hour being triggered every minute
+    const seconds = 60; // Call function every 60 seconds
+    setInterval(() => {
+      console.log("running minute check");
+      this.separateCouponsAndHappyHour();
+      this.createVariantGroups();
+      this.filterByCategory(this.selectedCategory);
+    }, seconds * 1000);
     odooService.combinedProductData$.subscribe((val) => {
       if (val && val.length > 0) {
+        this.productsForCurrentLocationNoDiscounts = val;
         this.storeService.setProductsForStore(val);
         this.isProductLoading = false;
         this.determineLoadingStatus();
@@ -126,6 +132,7 @@ export class ProductListComponent implements AfterContentInit {
       this.categoryIconList = val;
     });
     storeService.productsForCurrentStore$.subscribe((val) => {
+      console.log(val);
       this.productsForCurrentLocation = val;
       this.createVariantGroups();
       this.determineAvailableCategories();
@@ -150,19 +157,25 @@ export class ProductListComponent implements AfterContentInit {
       var foundCat: Array<any> = [];
       this.productsSeparatedIntoVariants.forEach((productGroup) => {
         productGroup.forEach((product) => {
-          if (
-            product.category &&
-            product.category.length > 0 &&
-            product.category.includes(this.categories[element])
-          )
-            foundCat.push(product);
+          if (product.category && product.category.length > 0) {
+            product.category.forEach((cat) => {
+              cat = categoryEnum[(cat as string).replace(/\s/g, "")];
+            });
+          }
+          if (product.category && product.category.length > 0) {
+            product.category.forEach((cat) => {
+              if (cat.toString() == element.toString()) {
+                foundCat.push(product);
+              }
+            });
+            //includes(this.categories[element]
+          }
         });
       });
       if (foundCat && foundCat.length > 0) {
-        newCat.push(this.categories[element]);
+        newCat.push(this.categories[(element as string).replace(/\s/g, "")]);
       }
     });
-
     this.filteredCat = newCat;
   }
 
@@ -189,6 +202,7 @@ export class ProductListComponent implements AfterContentInit {
   }
 
   filterByCategory(category: string): void {
+    category = category.replace(/\s/g, "");
     this.searchString = "";
     if (category == "ALL") {
       this.selectedCategory = category;
@@ -219,42 +233,6 @@ export class ProductListComponent implements AfterContentInit {
     });
   }
 
-  combineOdooDataSets(products, stock) {
-    var odooProductFinal: Array<product> = [];
-    if (products.length > 0 && stock.length > 0) {
-      stock.forEach((stockProduct) => {
-        products.forEach((productProduct) => {
-          if (stockProduct.product_id[0] == productProduct.id) {
-            var newCompleteProduct: product = {
-              id: productProduct.id,
-              name: stockProduct.product_id[1].split("] ")[1],
-              price: stockProduct.value,
-              category: this.determineCategoryArray(productProduct),
-              stock: stockProduct.quantity + 5,
-              variantName: productProduct.display_name,
-              image: productProduct.image_url,
-              happyHourDiscount: false,
-              bxgo: 0,
-            };
-            odooProductFinal.push(newCompleteProduct);
-          }
-        });
-      });
-      console.log("IS THIS IT?");
-      console.log(odooProductFinal);
-      this.productsForCurrentLocation = odooProductFinal;
-      this.productsForCurrentLocationNoDiscounts =
-        this.productsForCurrentLocation;
-      this.storeService.setProductsForStore(this.productsForCurrentLocation);
-      this.isProductLoading = false;
-      this.determineLoadingStatus();
-      this.separateCouponsAndHappyHour();
-      this.createVariantGroups();
-    } else {
-      console.log("missing data set");
-    }
-  }
-
   dynamicSort(property) {
     var sortOrder = 1;
     if (property[0] === "-") {
@@ -272,6 +250,7 @@ export class ProductListComponent implements AfterContentInit {
   }
 
   determineCategoryArray(odooProduct): Array<categoryEnum> {
+    debugger;
     var output: Array<categoryEnum> = [];
     if (odooProduct && odooProduct.categ_id && odooProduct.categ_id[1]) {
       switch (odooProduct.categ_id[1]) {
@@ -354,7 +333,7 @@ export class ProductListComponent implements AfterContentInit {
 
       this.productsSeparatedIntoVariants = finalOutput;
       this.filteredProducts = finalOutput;
-      console.log(this.productsSeparatedIntoVariants);
+      //console.log(this.productsSeparatedIntoVariants);
       this.filterProducts();
     }
   }
@@ -392,6 +371,8 @@ export class ProductListComponent implements AfterContentInit {
   }
 
   separateCouponsAndHappyHour() {
+    this.productsForCurrentLocation =
+      this.productsForCurrentLocationNoDiscounts;
     this.happyHourFlag = false;
     if (this.availableDiscounts && this.availableDiscounts.happyHour) {
       if (this.availableDiscounts.happyHour.length == 0)

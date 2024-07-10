@@ -193,6 +193,15 @@ export class ChooseLocationComponent implements OnInit {
     this.wordpressService.getAllUsers();
   }
 
+  /**
+   * Called before selectLocation is called. This calls the "create session Modal", which asks user to fill certain information.
+   */
+  createNewSession() {
+    //Step 1: Find the location that was selected.
+    //step 2: call the "Session" api call to get a list of sessions.
+    //step 3: Find a session whose's config ID [1] field includes the
+  }
+
   selectLocation(location: storeLocationEnum) {
     // ("STORE SELECTED");
     // (location);

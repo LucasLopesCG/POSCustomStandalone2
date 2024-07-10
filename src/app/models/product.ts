@@ -12,6 +12,7 @@ export class product {
   bxgo?: number = 0;
   deductCountForCouponEntry?: boolean = false;
   priceAfterCoupon?: number = 0;
+  refund_orderline_ids?: Array<any>;
   constructor(obj) {
     this.id = obj.id;
     this.name = obj.name;

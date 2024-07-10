@@ -17,6 +17,7 @@ import { OdooService } from "../../services/odoo.service";
 export class OrderCompleteComponent implements OnInit {
   order: any;
   pdfSrc: any;
+  pdfRefundSrc: any;
   orderInOdoo: boolean = false;
   generateReceipt: boolean = true;
 
@@ -26,15 +27,25 @@ export class OrderCompleteComponent implements OnInit {
     private odooService: OdooService,
   ) {
     this.currentOrderService.currentOrder$.subscribe((order) => {
-      if (order && order.orderNumber > 0) {
+      if (order) {
         this.order = order;
       }
     });
     this.odooService.orderInOdoo$.subscribe((order) => {
-      if (order && order.orderNumber > 0 && this.generateReceipt) {
-        this.order = order;
+      if (
+        order &&
+        order.orderNumber > 0 &&
+        !order.pickingId &&
+        this.generateReceipt
+      ) {
+        this.order.orderNumber = order.orderNumber;
         this.generateReceipt = false;
-        this.generatePdf();
+        this.generatePdf(true);
+      }
+      if (order && order.orderNumber && order.pickingId) {
+        this.order.orderNumber = order.orderNumber;
+        this.generateReceipt = false;
+        this.generatePdf(false);
       }
     });
   }
@@ -49,7 +60,7 @@ export class OrderCompleteComponent implements OnInit {
     this.generateReceipt = true;
   }
 
-  generatePdf(): void {
+  generatePdf(mainReceipt: boolean = true): void {
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
@@ -72,19 +83,33 @@ export class OrderCompleteComponent implements OnInit {
     let total = 0;
     let y = 60;
     const dots = Array(40).fill(".").join("");
-    for (const product of this.order.products) {
-      doc.text(`${product.product.name} x ${product.count}`, 10, y);
-      doc.text(dots, 10, y);
-      doc.text(`${(product.product.price * product.count).toFixed(2)}`, 100, y);
-      total = total + product.product.price * product.count;
-      y += 10;
-    }
+    if (mainReceipt) {
+      for (const product of this.order.products) {
+        doc.text(`${product.product.name} x ${product.count}`, 10, y);
+        doc.text(dots, 10, y);
+        doc.text(
+          `${(product.product.price * product.count).toFixed(2)}`,
+          100,
+          y,
+        );
+        total = total + product.product.price * product.count;
+        y += 10;
+      }
 
-    for (const bxgoProduct of this.order.bxgoProducts) {
-      doc.text(bxgoProduct.name, 50, y);
-      doc.text(dots, 50, y);
-      doc.text("BXGO Item", 100, y);
-      y += 10;
+      for (const bxgoProduct of this.order.bxgoProducts) {
+        doc.text(bxgoProduct.name, 50, y);
+        doc.text(dots, 50, y);
+        doc.text("BXGO Item", 100, y);
+        y += 10;
+      }
+    } else {
+      for (const product of this.order.refundedProducts) {
+        doc.text(`${product.name} x 1`, 10, y);
+        doc.text(dots, 10, y);
+        doc.text(`${product.price.toFixed(2)}`, 100, y);
+        total = total + product.price;
+        y += 10;
+      }
     }
     const orderAmt = this.order.total / (1 + this.order.taxRate);
     const taxAmt = this.order.total - orderAmt;
@@ -116,6 +141,10 @@ export class OrderCompleteComponent implements OnInit {
 
     const blob = doc.output("blob");
     const url = URL.createObjectURL(blob);
-    this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    if (mainReceipt)
+      this.pdfSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    if (!mainReceipt) {
+      this.pdfRefundSrc = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
   }
 }

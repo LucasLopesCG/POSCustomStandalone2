@@ -6,7 +6,7 @@
     </button>
   </div>
 
-  <div mat-dialog-content>
+  <div mat-dialog-content class="main-modal-padding">
     <div *ngIf="currentMode == 'all orders'">
       <div *ngIf="previousOrders.length > 0; else noPreviousOrders">
         <div class="row">
@@ -51,16 +51,23 @@
             *ngIf="beforePage() <= i && i < afterPage()"
             class="order-card"
           >
-            <div><label>Date:</label>{{ order.date }}</div>
-            <div><label>Receipt Number:</label> {{ order.receiptNumber }}</div>
-            <div><label>Order number:</label>{{ order.orderNumber }}</div>
+            <div><label class="label-info">Date:</label>{{ order.date }}</div>
+            <div>
+              <label class="label-info">Receipt Number:</label>
+              {{ order.receiptNumber }}
+            </div>
+            <div>
+              <label class="label-info">Order number:</label>{{ order.orderId }}
+            </div>
 
             <div *ngIf="order && order.customer && order.customer.name">
               <label>Customer:</label>{{ order.customer.name }}
             </div>
-            <div><label>Cashier:</label>{{ order.cashier }}</div>
-            <div><label>Total:</label>{{ order.total }}</div>
-            <div><label>Status:</label>{{ order.status }}</div>
+            <div>
+              <label class="label-info">Cashier:</label>{{ order.cashier }}
+            </div>
+            <div><label class="label-info">Total:</label>{{ order.total }}</div>
+            <div><label class="label-info">Status:</label>PAID</div>
           </div>
         </div>
         <div
@@ -94,8 +101,17 @@
     </div>
     <div *ngIf="currentMode == 'refund order'">
       <!--This is the list of items in the order-->
-      <div>
-        <h3>These are the products sold in this order</h3>
+      <div
+        *ngIf="
+          pristineSelectedOrder.products &&
+          pristineSelectedOrder.products.length > 0 &&
+          selectedOrder.total != 0
+        "
+        class="product-group"
+      >
+        <h2 class="header-card green-text">
+          These are the products sold in this order
+        </h2>
         <div
           *ngFor="let product of pristineSelectedOrder.products; let i = index"
         >
@@ -103,13 +119,17 @@
             *ngIf="
               selectedOrder &&
               selectedOrder.products &&
-              selectedOrder.products[i].count > 0
+              selectedOrder.products[i].count > 0 &&
+              selectedOrder.products[i].product.refund_orderline_ids &&
+              selectedOrder.products[i].product.refund_orderline_ids.length == 0
             "
             class="order-card"
           >
             <!--div contains the detail of the item-->
             {{ product.product.name }} X
-            {{ selectedOrder.products[i].count }} X{{ product.product.price }}
+            {{ selectedOrder.products[i].count }} X{{
+              product.product.price | number: "1.2-2"
+            }}
             <!--div contains the buttons of the item-->
             <div
               class="button-group"
@@ -126,15 +146,41 @@
         </div>
       </div>
       <!--This is the list of items that are being refunded!-->
-      <div>
-        <h3>These are the products being refunded</h3>
-        <div *ngFor="let product of refundItems" class="order-card">
-          <label> {{ product.name }}: {{ product.price }} </label>
+      <div *ngIf="refundItems && refundItems.length > 0" class="product-group">
+        <h2 class="header-card green-text">
+          These are the products being refunded
+        </h2>
+        <div
+          *ngFor="let product of refundItems; let i = index"
+          class="order-card"
+        >
+          <label>
+            {{ product.name }}: {{ product.price | number: "1.2-2" }}
+          </label>
           <div>
             <button type="button" (click)="removeItemFromRefund(product)">
               <mat-icon>exposure_neg_1</mat-icon>
             </button>
           </div>
+        </div>
+      </div>
+      <!--This is the list of items that were previously refunded!-->
+      <div
+        *ngIf="previouslyRefundedItems && previouslyRefundedItems.length > 0"
+        class="product-group"
+      >
+        <h2 class="header-card green-text">
+          These are the products for this order that were previously returned
+        </h2>
+        <div
+          *ngFor="let productGroup of previouslyRefundedItems; let i = index"
+          class="order-card"
+        >
+          <label>
+            {{ productGroup.product.name }}*
+            {{ selectedOrder.products[i].count }}
+            {{ productGroup.product.price | number: "1.2-2" }}
+          </label>
         </div>
       </div>
 

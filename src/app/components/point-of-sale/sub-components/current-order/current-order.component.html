@@ -120,16 +120,34 @@
 <ng-template #noCouponSelected></ng-template>
 
 <div class="button-group">
-  <button type="button" (click)="openRefundModal()">
+  <button
+    type="button"
+    (click)="openRefundModal()"
+    [disabled]="pastOrdersLoading"
+  >
     REFUND
-    <mat-icon>assignment_return</mat-icon>
+    <mat-icon *ngIf="!pastOrdersLoading; else pastOrdersLoadingTemplate"
+      >assignment_return</mat-icon
+    >
+    <ng-template #pastOrdersLoadingTemplate>
+      <mat-spinner class="small-spinner"></mat-spinner
+    ></ng-template>
   </button>
-  <button type="button" (click)="openChooseCustomerModal()">
+  <button
+    type="button"
+    (click)="openChooseCustomerModal()"
+    [disabled]="customerLoading"
+  >
     CUSTOMER
-    <mat-icon> person_pin</mat-icon>
-    <div *ngIf="this.selectedCustomer && this.selectedCustomer.name">
-      {{ this.selectedCustomer.name }}
-    </div>
+    <ng-template *ngIf="!customerLoading; else customerLoadingTemplate">
+      <mat-icon> person_pin</mat-icon>
+      <div *ngIf="this.selectedCustomer && this.selectedCustomer.name">
+        {{ this.selectedCustomer.name }}
+      </div>
+    </ng-template>
+    <ng-template #customerLoadingTemplate>
+      <mat-spinner class="small-spinner"></mat-spinner
+    ></ng-template>
   </button>
   <button
     *ngIf="this.selectedCustomer && this.selectedCustomer.name"
@@ -172,12 +190,6 @@
   <p>TAXES FOR THIS ORDER:{{ totalTaxAmount | number: "1.2-2" }}</p>
   <p>ORDER TOTAL:{{ orderTotal - refundTotal | number: "1.2-2" }}</p>
   <div>
-    <div *ngIf="currentOrder && currentOrder.refundedProducts">
-      DEBUG refund count: {{ currentOrder.refundedProducts.length }}
-    </div>
-    <div *ngIf="currentOrder && currentOrder.products">
-      DEBUG product count: {{ currentOrder.products.length }}
-    </div>
     <button
       type="button"
       (click)="goToPayment()"

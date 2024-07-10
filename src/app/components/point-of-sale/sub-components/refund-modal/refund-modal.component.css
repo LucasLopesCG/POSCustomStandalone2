@@ -9,6 +9,7 @@
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
   background-color: #f5f5dc; /* Beige background */
 }
@@ -30,4 +31,43 @@
   position: absolute;
   right: 16px;
   top: 16px;
+}
+
+.label-info {
+  font-weight: 700;
+}
+
+.product-group {
+  padding-bottom: 10px;
+  box-sizing: border-box;
+  border: black;
+  border-radius: 5px;
+  border-width: 2px;
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: white;
+}
+
+.green-text {
+  color: green;
+}
+
+.header-card {
+  box-sizing: border-box;
+  border: black;
+  border-radius: 5px;
+  border-width: 2px;
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: #f5f5dc;
+}
+
+.main-modal-padding {
+  padding: 10px;
 }
