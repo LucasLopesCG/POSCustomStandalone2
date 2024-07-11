@@ -19,22 +19,28 @@
           <div
             *ngFor="let hh of storeDiscounts.happyHour; let i = index"
             class="mb-4 rounded border shadow-sm p-3"
+            style="background-color: cornsilk"
           >
-            {{ hh.hhType }} {{ hh.description }}
-            <button
-              type="button"
-              (click)="deleteHappyHour(hh)"
-              class="btn btn-danger ml-2"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-            <button
-              type="button"
-              (click)="editHappyHour(hh, i)"
-              class="btn btn-primary ml-2"
-            >
-              <mat-icon>edit</mat-icon>
-            </button>
+            <div class="hh-and-coupon-labels">
+              <label>Type: {{ hh.hhType }}</label>
+              <label>Description: {{ hh.description }}</label>
+            </div>
+            <div class="hh-and-coupon-buttons">
+              <button
+                type="button"
+                (click)="deleteHappyHour(hh)"
+                class="btn btn-danger ml-2"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+              <button
+                type="button"
+                (click)="editHappyHour(hh, i)"
+                class="btn btn-primary ml-2"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
           </div>
           <button
             type="button"
@@ -51,21 +57,29 @@
             *ngFor="let coupon of storeDiscounts.coupon; let i = index"
             class="mb-4 rounded border shadow-sm p-3"
           >
-            {{ coupon.couponDetail?.activationCode }}
-            <button
-              type="button"
-              (click)="deleteCoupon(coupon)"
-              class="btn btn-danger ml-2"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-            <button
-              type="button"
-              (click)="editCoupon(coupon, i)"
-              class="btn btn-primary ml-2"
-            >
-              <mat-icon>edit</mat-icon>
-            </button>
+            <div class="hh-and-coupon-labels">
+              <label
+                >Activation Code:
+                {{ coupon.couponDetail?.activationCode }}</label
+              >
+              <label>Description: {{ coupon.couponDetail?.description }}</label>
+            </div>
+            <div class="hh-and-coupon-buttons">
+              <button
+                type="button"
+                (click)="deleteCoupon(coupon)"
+                class="btn btn-danger ml-2"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+              <button
+                type="button"
+                (click)="editCoupon(coupon, i)"
+                class="btn btn-primary ml-2"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
           </div>
           <button type="button" (click)="newCoupon()" class="btn btn-success">
             <mat-icon>fiber_new</mat-icon>
@@ -80,14 +94,16 @@
         <p class="text-center">ALLOW USER TO CREATE DISCOUNT SETTINGS</p>
       </ng-template>
 
-      <div>
+      <div style="display: flex">
         <button
           mat-icon-button
           aria-label="cancel edit for discounts"
           mat-dialog-close
           (click)="cancelEditDiscounts()"
           class="btn btn-danger mr-2"
+          style="display: flex; justify-content: center; margin-right: 0.2rem"
         >
+          CANCEL CHANGES
           <mat-icon>cancel</mat-icon>
         </button>
         <button
@@ -96,12 +112,15 @@
           mat-dialog-close
           (click)="confirmEditDiscounts()"
           class="btn btn-success"
+          style="display: flex; justify-content: center; margin-left: 0.2rem"
         >
+          CONFIRM CHANGES
           <mat-icon>check_circle</mat-icon>
         </button>
       </div>
     </div>
 
+    <!--EDIT HAPPY HOUR-->
     <div *ngIf="mode == 'editHappyHour'">
       <div class="bg-beige p-4 rounded border shadow-sm happy-hour-edit">
         <div>

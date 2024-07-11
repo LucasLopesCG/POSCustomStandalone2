@@ -108,7 +108,7 @@ export class RefundModalComponent implements AfterViewInit {
     //2
     this.refundItems = [];
     this.currentOrder.refundOrderNumber = this.selectedOrder.orderId;
-    console.log(this.currentOrder);
+    //console.log(this.currentOrder);
     this.selectedOrder = structuredClone(this.pristineSelectedOrder);
     this.previousOrders = structuredClone(this.pristinePreviousOrders);
     this.currentOrderService.refundSelected(this.currentOrder);
@@ -159,9 +159,7 @@ export class RefundModalComponent implements AfterViewInit {
       this.filteredOrders = this.previousOrders.filter((order) => {
         if (order) {
           const orderCustomer = order.customer?.name?.toLowerCase() as string;
-          const orderNumber = order.orderNumber
-            ?.toString()
-            .toLowerCase() as string;
+          const orderNumber = order.orderId?.toString().toLowerCase() as string;
           const searchString = this.searchString.toLowerCase();
 
           if (orderCustomer && orderNumber) {
@@ -186,7 +184,7 @@ export class RefundModalComponent implements AfterViewInit {
         return true;
       return false;
     });
-    console.log(this.filteredOrders);
+    //console.log(this.filteredOrders);
   }
 
   goToPage(i: number) {

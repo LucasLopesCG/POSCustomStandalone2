@@ -26,11 +26,6 @@
   padding-bottom: 64px; /* Add padding to the bottom to separate from the create customer button */
 }
 
-.customer-card > div:nth-child(3) {
-  flex-basis: 100%;
-  text-align: right;
-}
-
 /* Style the customer cards */
 .customer-card {
   padding: 16px;

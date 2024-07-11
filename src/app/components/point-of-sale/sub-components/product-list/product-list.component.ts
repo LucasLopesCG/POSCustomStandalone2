@@ -92,6 +92,7 @@ export class ProductListComponent implements AfterContentInit {
       if (val && val.length > 0) {
         this.productsForCurrentLocationNoDiscounts = val;
         this.storeService.setProductsForStore(val);
+        //this.store
         this.isProductLoading = false;
         this.determineLoadingStatus();
         this.separateCouponsAndHappyHour();
@@ -132,7 +133,7 @@ export class ProductListComponent implements AfterContentInit {
       this.categoryIconList = val;
     });
     storeService.productsForCurrentStore$.subscribe((val) => {
-      console.log(val);
+      //console.log(val);
       this.productsForCurrentLocation = val;
       this.createVariantGroups();
       this.determineAvailableCategories();
@@ -373,6 +374,9 @@ export class ProductListComponent implements AfterContentInit {
   separateCouponsAndHappyHour() {
     this.productsForCurrentLocation =
       this.productsForCurrentLocationNoDiscounts;
+    this.storeService.setProductsForStore(
+      this.productsForCurrentLocationNoDiscounts,
+    );
     this.happyHourFlag = false;
     if (this.availableDiscounts && this.availableDiscounts.happyHour) {
       if (this.availableDiscounts.happyHour.length == 0)

@@ -50,6 +50,15 @@
   justify-content: flex-start;
   align-items: flex-start;
   align-content: space-around;
+  margin-bottom: 0.5rem;
+}
+
+.POS-cashier-menu > label {
+  padding-right: 2rem;
+}
+.POS-cashier-menu > button {
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 .width40 {
   width: 30%;

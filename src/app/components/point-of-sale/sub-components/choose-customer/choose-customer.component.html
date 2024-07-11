@@ -19,7 +19,7 @@
               type="text"
               [(ngModel)]="searchString"
               placeholder="Filter By..."
-              (ngModelChange)="filterProducts()"
+              (ngModelChange)="filterCustomers()"
             />
           </div>
         </div>
@@ -118,12 +118,29 @@
       "
       class="customer-card"
     >
-      Name: {{ showDetailsCustomer.name }} Address:
-      {{ showDetailsCustomer.address }} Contact:
-      <mat-icon>alternate_email</mat-icon>{{ showDetailsCustomer.email }}
-      <mat-icon>phone</mat-icon>{{ showDetailsCustomer.phone }}
-      <mat-icon>phonelink_ring</mat-icon>{{ showDetailsCustomer.mobile }} NOTES:
-      {{ showDetailsCustomer.notes }};
+      <div>
+        <label> Name: </label> <label>{{ showDetailsCustomer.name }}</label>
+      </div>
+      <div>
+        <label> Address: </label>
+        <label>{{ showDetailsCustomer.address }}</label>
+      </div>
+      <div>
+        <label> Email: <mat-icon>alternate_email</mat-icon> </label>
+        <label>{{ showDetailsCustomer.email }}</label>
+      </div>
+      <div>
+        <label> Phone: <mat-icon>phone</mat-icon></label>
+        <label>{{ showDetailsCustomer.phone }}</label>
+      </div>
+      <div>
+        <label> Mobile: <mat-icon>phonelink_ring</mat-icon></label>
+        <label>{{ showDetailsCustomer.mobile }}</label>
+      </div>
+      <div>
+        <label> NOTES: </label> <label>{{ showDetailsCustomer.notes }}</label>
+      </div>
+
       <button type="button" (click)="selectCustomer(showDetailsCustomer)">
         <mat-icon>check_circle</mat-icon> SELECT CUSTOMER
       </button>

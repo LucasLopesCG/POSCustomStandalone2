@@ -120,19 +120,21 @@ export class ChooseLocationComponent implements OnInit {
   }
 
   determineAvailableLocations(val: any) {
-    val.forEach((element) => {
-      if (element.email == this.currentUser.email) {
-        var updateUser: User = {
-          id: element.id,
-          name: this.currentUser.name,
-          email: element.email,
-          accessLevel: this.determineAccessLevel(element.access_level),
-          locationAccess: this.determineLocations(element.stores),
-        };
+    if (val && val.length > 0) {
+      val.forEach((element) => {
+        if (element.email == this.currentUser.email) {
+          var updateUser: User = {
+            id: element.id,
+            name: this.currentUser.name,
+            email: element.email,
+            accessLevel: this.determineAccessLevel(element.access_level),
+            locationAccess: this.determineLocations(element.stores),
+          };
 
-        this.userService.setCurrentUser(updateUser);
-      }
-    });
+          this.userService.setCurrentUser(updateUser);
+        }
+      });
+    }
   }
 
   determineAccessLevel(val: string) {

@@ -19,6 +19,30 @@
 .button-group {
   display: flex;
   flex-wrap: nowrap;
+  align-content: center;
+  align-items: stretch;
+  justify-content: space-between;
+  padding-bottom: 2rem;
+}
+
+.label-right-padding {
+  padding-right: 1rem;
+}
+
+.pay-button {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+}
+
+.button-style {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-items: center;
+  justify-content: space-between;
+  align-content: center;
 }
 
 .coupon-section {

@@ -214,13 +214,6 @@ export class PaymentComponent {
     if (this.currentOrder.products && this.currentOrder.products.length > 0)
       this.odooService.sendNewOrder(this.currentOrder);
     if (this.currentOrder.refundOrderNumber != undefined) {
-      console.log(
-        "create a new order. This order should have the refunded products within it.",
-      );
-      console.log(
-        "this should basically be the same logic as sendNewOrder, but the location_id and destination id's will be flipped.",
-      );
-      console.log("After that's done, link the 2 orders together");
       this.odooService.sendRefundOrder(this.currentOrder);
     }
     this.currentOrderService.goToDoneStatus();

@@ -88,7 +88,7 @@ export class UserLoginComponent implements OnInit {
   }
   handleOauthResponse(response) {
     const responsePayload = this.decodeJWTToken(response.credential);
-    console.log(responsePayload);
+    //console.log(responsePayload);
     sessionStorage.setItem("loggedinUser", JSON.stringify(responsePayload));
     //window.location('/your-desired-place')
     var potentialUser = JSON.stringify(responsePayload);

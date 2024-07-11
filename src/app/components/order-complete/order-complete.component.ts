@@ -7,6 +7,7 @@ import { NgxBarcode6Module } from "ngx-barcode6";
 import helvetica from "./Helvetica 400-normal";
 import code128 from "./code128-normal";
 import { OdooService } from "../../services/odoo.service";
+import { storeService } from "../../services/storeService";
 
 @Component({
   selector: "app-order-complete",
@@ -20,12 +21,34 @@ export class OrderCompleteComponent implements OnInit {
   pdfRefundSrc: any;
   orderInOdoo: boolean = false;
   generateReceipt: boolean = true;
+  previousOrders: Array<any> = [];
+  stockFilter: string = "";
 
   constructor(
     private currentOrderService: CurrentOrderService,
     private sanitizer: DomSanitizer,
     private odooService: OdooService,
+    private storeService: storeService,
   ) {
+    this.storeService.dataSelectedStoreLocation$.subscribe((val) => {
+      switch (val.location) {
+        case "Apopka":
+          this.stockFilter = "APS/Stock";
+          break;
+        case "DeLand":
+          this.stockFilter = "DL/Stock";
+          break;
+        case "Orlando":
+          this.stockFilter = "ORL/Stock";
+          break;
+        case "Sanford":
+          this.stockFilter = "SANFO/Stock";
+          break;
+      }
+    });
+    storeService.pastOrdersFromStore$.subscribe((val) => {
+      this.previousOrders = val;
+    });
     this.currentOrderService.currentOrder$.subscribe((order) => {
       if (order) {
         this.order = order;
@@ -38,14 +61,33 @@ export class OrderCompleteComponent implements OnInit {
         !order.pickingId &&
         this.generateReceipt
       ) {
-        this.order.orderNumber = order.orderNumber;
+        this.order.orderNumber = "POS_C_Order " + Date(); //order.orderNumber;
+        this.order.orderName = "POS_C_Order " + Date(); //order.orderNumber;
+        this.order.note = "POS_CUSTOM: Order By: " + this.order.cashier;
+        this.order.refunded_order_ids = [];
+        this.order.products.forEach((productGroup) => {
+          productGroup.product.refund_orderline_ids = [];
+        });
         this.generateReceipt = false;
         this.generatePdf(true);
+        //Add this order to previous orders
+        this.previousOrders = [order].concat(this.previousOrders);
+        //this.previousOrders.push(order);
+        this.storeService.setPastOrdersForStore(this.previousOrders);
+        if (this.stockFilter != "")
+          this.odooService.getCombinedProductData(this.stockFilter);
       }
       if (order && order.orderNumber && order.pickingId) {
         this.order.orderNumber = order.orderNumber;
         this.generateReceipt = false;
         this.generatePdf(false);
+        //Now look through each of the products inside of the return order and increase count for the product
+        //this may mean creating a new productGroup if the product was out of stock.
+        //This also means changing the contents of the refund orders.
+        //probably just better to re-query past orders and products at this point
+        this.odooService.getPastOrdersForCustomers();
+        if (this.stockFilter != "")
+          this.odooService.getCombinedProductData(this.stockFilter);
       }
     });
   }

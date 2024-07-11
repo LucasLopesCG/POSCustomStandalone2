@@ -330,12 +330,12 @@ export class RestaurantLayoutViewComponent {
       const reader = new FileReader();
       reader.onload = () => {
         this.fileContents = reader.result as string;
-        console.log(this.fileContents);
+        //console.log(this.fileContents);
         var importedOrders = JSON.parse(this.fileContents);
         importedOrders.forEach((order) => {
           this.odooService.sendNewOrder(order, false);
         });
-        console.log(importedOrders);
+        //console.log(importedOrders);
       };
       reader.readAsText(file);
     }

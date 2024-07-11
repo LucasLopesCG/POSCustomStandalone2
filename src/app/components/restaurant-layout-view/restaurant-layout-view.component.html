@@ -1,6 +1,7 @@
 <div *ngIf="orderStatus == orderStatusEnum.Ordering">
   <div>
     <div
+      class="POS-cashier-menu"
       *ngIf="
         user.accessLevel == accessLevel.Admin ||
         user.accessLevel == accessLevel.SuperAdmin
@@ -17,7 +18,7 @@
         CHANGE LAYOUT
       </button>
     </div>
-    <div>
+    <div class="POS-cashier-menu">
       <label>GENERAL ACCESS</label>
       <button class="" (click)="openCloseSessionModal()">CLOSE SESSION</button>
       <button class="" (click)="openGenerateStoreReport()">

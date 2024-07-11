@@ -90,3 +90,21 @@
 .width60 {
   width: 60%;
 }
+
+.POS-cashier-menu {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-content: space-around;
+  margin-bottom: 0.5rem;
+}
+
+.POS-cashier-menu > label {
+  padding-right: 2rem;
+}
+.POS-cashier-menu > button {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}

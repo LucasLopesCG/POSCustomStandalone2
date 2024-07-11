@@ -122,10 +122,12 @@
 <div class="button-group">
   <button
     type="button"
+    class="button-style"
     (click)="openRefundModal()"
     [disabled]="pastOrdersLoading"
   >
-    REFUND
+    <label class="label-right-padding">REFUND</label>
+
     <mat-icon *ngIf="!pastOrdersLoading; else pastOrdersLoadingTemplate"
       >assignment_return</mat-icon
     >
@@ -138,29 +140,41 @@
     (click)="openChooseCustomerModal()"
     [disabled]="customerLoading"
   >
-    CUSTOMER
-    <ng-template *ngIf="!customerLoading; else customerLoadingTemplate">
-      <mat-icon> person_pin</mat-icon>
-      <div *ngIf="this.selectedCustomer && this.selectedCustomer.name">
-        {{ this.selectedCustomer.name }}
-      </div>
-    </ng-template>
-    <ng-template #customerLoadingTemplate>
-      <mat-spinner class="small-spinner"></mat-spinner
-    ></ng-template>
+    <div class="button-style">
+      <label class="label-right-padding">CUSTOMER</label>
+
+      <!-- <ng-template *ngIf="!customerLoading; else customerLoadingTemplate"> -->
+      <mat-icon *ngIf="!customerLoading; else customerLoadingTemplate">
+        person_pin</mat-icon
+      >
+      <ng-template #customerLoadingTemplate>
+        <mat-spinner class="small-spinner"></mat-spinner
+      ></ng-template>
+    </div>
+    <div *ngIf="this.selectedCustomer && this.selectedCustomer.name">
+      {{ this.selectedCustomer.name }}
+    </div>
+    <!-- </ng-template> -->
   </button>
   <button
     *ngIf="this.selectedCustomer && this.selectedCustomer.name"
     type="button"
+    class="button-style"
     (click)="clearSelectedCustomer()"
   >
-    Clear Customer
+    <label class="label-right-padding">Clear Customer</label>
+
     <mat-icon> person_remove</mat-icon>
   </button>
 
   <div *ngIf="this.selectedCustomer && this.selectedCustomer.name">
-    <button type="button" (click)="openChooseCoupon()">
-      COUPONS
+    <button
+      type="button"
+      (click)="openChooseCoupon()"
+      class="button-style"
+      style="height: 100%; align-items: center"
+    >
+      <label class="label-right-padding">COUPON</label>
       <mat-icon> money_off</mat-icon>
     </button>
   </div>
@@ -189,9 +203,10 @@
   </p>
   <p>TAXES FOR THIS ORDER:{{ totalTaxAmount | number: "1.2-2" }}</p>
   <p>ORDER TOTAL:{{ orderTotal - refundTotal | number: "1.2-2" }}</p>
-  <div>
+  <div class="pay-button">
     <button
       type="button"
+      class="button-style"
       (click)="goToPayment()"
       [disabled]="
         currentOrder &&

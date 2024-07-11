@@ -63,4 +63,16 @@
   border: 1px solid #ddd;
   border-radius: 10px;
   cursor: pointer;
+  background-color: beige;
+}
+
+.hh-and-coupon-labels {
+  display: flex;
+  flex-direction: column;
+}
+
+.hh-and-coupon-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
 }

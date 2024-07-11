@@ -37,7 +37,7 @@ export class ChooseCustomerComponent {
       this.maxPageCount = Math.round(this.availableCustomers.length / 50 - 1);
       this.maxPage = this.maxPageCount;
 
-      this.filterProducts();
+      this.filterCustomers();
       // (this.availableCustomers);
     });
   }
@@ -56,18 +56,21 @@ export class ChooseCustomerComponent {
 
   selectCustomer(event) {
     this.customerService.setCurrentCustomer(event);
-    console.log(event);
     this.close();
   }
 
-  filterProducts(): void {
+  filterCustomers(): void {
     if (this.searchString != "")
       this.filteredCustomerList = this.availableCustomers;
     this.filteredCustomerList = this.availableCustomers.filter((customer) => {
       if (customer && customer.name) {
         const customerName = customer.name.toLowerCase();
+        const customerAddress = (customer.address as string).toLowerCase();
         const searchString = this.searchString.toLowerCase();
-        return customerName.includes(searchString);
+        return (
+          customerAddress.includes(searchString) ||
+          customerName.includes(searchString)
+        );
       } else {
         //const searchString = this.searchString.toLowerCase();
         return false;
@@ -90,14 +93,12 @@ export class ChooseCustomerComponent {
   saveCustomer() {
     this.createCustomerMessage = "";
     if (this.noRepeatData()) {
-      //console.log();
       this.customerService.addNewCustomer(this.newCustomer); //This service will be deleted? Maybe for just setting currentCustomer?
       this.odooService.submitNewCustomer(this.newCustomer);
       this.displayMode = "all";
     } else {
     }
     //this.availableCustomers.push(structuredClone(this.newCustomer));
-    //console.log("SAVE ATTEMPTED");
   }
 
   noRepeatData(): boolean {
@@ -151,11 +152,6 @@ export class ChooseCustomerComponent {
       }
     });
     if (findInstances.length > 0) {
-      findInstances.forEach((instance) => {
-        console.log(instance);
-        console.log("WAS FOUND TO HAVE MATCHING DATA TO");
-        console.log(this.newCustomer);
-      });
       return false;
     }
     return true;
