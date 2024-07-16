@@ -9,6 +9,7 @@ import { storeLocationEnum } from "../../models/storeLocation";
 import { User } from "../../models/user";
 import { offlineModeService } from "../../services/offlineMode.service";
 import { order } from "../../models/order";
+import { OdooService } from "../../services/odoo.service";
 
 @Component({
   selector: "app-close-session-modal",
@@ -21,11 +22,15 @@ export class CloseSessionModalComponent {
   disableButton: boolean = false;
   selectedLocation: any = null;
   offlineOrderList: Array<order> = [];
+  cashCloseAmount: number = 0;
+  expectedCashAmt: number = 0;
+  sessionId: number = -1;
   constructor(
     public dialogRef: MatDialogRef<CloseSessionModalComponent>,
     private storeService: storeService,
     private userService: userService,
     private offlineMode: offlineModeService,
+    private odooService: OdooService,
   ) {
     storeService.dataSelectedStoreLocation$.subscribe((val) => {
       this.selectedLocation = val;
@@ -40,8 +45,21 @@ export class CloseSessionModalComponent {
         this.disableButton = true;
       }
     });
+    odooService.sessionId$.subscribe((val) => {
+      if (val) this.sessionId = val;
+    });
+    userService.cashRegisterAmt$.subscribe((val) => {
+      this.expectedCashAmt = val;
+    });
   }
 
+  closeSession(amt) {
+    //send out signal to close the session.
+    this.odooService.closeSession(this.sessionId, amt);
+    this.storeService.setCurrentStore(storeLocationEnum.none);
+    this.odooService.getPOSConfigIds();
+    this.close();
+  }
   close() {
     this.dialogRef.close();
   }
@@ -50,6 +68,7 @@ export class CloseSessionModalComponent {
     //Call something here to say that the session is over?
     //Set selected location to none
     this.storeService.setCurrentStore(storeLocationEnum.none);
+    this.odooService.getPOSConfigIds();
     this.close();
   }
 

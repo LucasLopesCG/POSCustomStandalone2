@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter } from "@angular/core";
+import { Component, OnInit, EventEmitter, inject } from "@angular/core";
 import { storeService } from "../../services/storeService";
 import { storeLocationEnum } from "../../models/storeLocation";
 import { FormsModule } from "@angular/forms";
@@ -23,6 +23,9 @@ import { User } from "../../models/user";
 import { OdooService } from "../../services/odoo.service";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { accessLevel } from "../../models/accessLevel";
+import { MatDialog } from "@angular/material/dialog";
+import { RefundModalComponent } from "../point-of-sale/sub-components/refund-modal/refund-modal.component";
+import { CreateSessionModalComponent } from "../create-session-modal/create-session-modal.component";
 
 @Component({
   selector: "app-choose-location",
@@ -57,9 +60,11 @@ import { accessLevel } from "../../models/accessLevel";
   styleUrl: "./choose-location.component.css",
 })
 export class ChooseLocationComponent implements OnInit {
+  private dialog = inject(MatDialog);
   allStores: any = {};
   token: any = null;
   currentUser: any = {};
+  configIds: Array<any> = [];
   private apiUrl =
     "https://woocommerce-1248616-4474056.cloudwaysapps.com/wp-json"; // Replace with your WordPress site URL
   username: string = "chronictest";
@@ -70,6 +75,8 @@ export class ChooseLocationComponent implements OnInit {
   selectedLocation: any = null;
   availableLocations: any = [];
   wordpressResponse: any = {};
+  wordpressUserList: any = {};
+  POSSessionStates: Array<any> = [];
   isLoading: boolean = true;
   users: any = {};
   constructor(
@@ -83,14 +90,24 @@ export class ChooseLocationComponent implements OnInit {
   ) {
     userService.dataUser$.subscribe((val) => {
       this.currentUser = val;
+      this.currentUser.name = this.currentUser.name.replace(/\s/g, "");
+      console.log(val);
     });
     storeService.availableStoreLocation$.subscribe((val) => {
       this.availableLocations = val;
     });
     wordpressService.wordpressUserList$.subscribe((val) => {
       this.isLoading = true;
-      this.determineAvailableLocations(val);
-      this.isLoading = false;
+      this.wordpressUserList = val;
+      this.odooService.getPOSConfigIds();
+    });
+    odooService.configIds$.subscribe((val) => {
+      if (val && val.length > 0) {
+        this.configIds = val;
+        this.configIds.forEach((configId) => {
+          this.odooService.getPOSStatusById(configId.id);
+        });
+      }
     });
     wordpressService.wordpressStoreList$.subscribe((val) => {
       if (this.selectedLocation != null) {
@@ -113,6 +130,15 @@ export class ChooseLocationComponent implements OnInit {
         this.currentOrderService.emptyBXGOProductArray();
       }
     });
+    odooService.POSSessionStates$.subscribe((val) => {
+      if (val && val.length > 0) {
+        this.POSSessionStates = val;
+        if (this.POSSessionStates.length == this.configIds.length) {
+          this.determineAvailableLocations(this.wordpressUserList);
+          this.isLoading = false;
+        }
+      }
+    });
   }
   ngOnInit(): void {
     //this.auth();
@@ -130,7 +156,7 @@ export class ChooseLocationComponent implements OnInit {
             accessLevel: this.determineAccessLevel(element.access_level),
             locationAccess: this.determineLocations(element.stores),
           };
-
+          console.log(updateUser);
           this.userService.setCurrentUser(updateUser);
         }
       });
@@ -151,15 +177,15 @@ export class ChooseLocationComponent implements OnInit {
   }
 
   determineLocations(stores: string) {
+    var output: Array<any> = [];
     if (stores == "ALL") {
-      return [
+      output = [
         { location: storeLocationEnum.Apopka, isRestaurant: false },
         { location: storeLocationEnum.DeLand, isRestaurant: true },
         { location: storeLocationEnum.Orlando, isRestaurant: true },
         { location: storeLocationEnum.Sanford, isRestaurant: false },
       ];
     } else {
-      var output: Array<any> = [];
       var locations = stores.split(",");
       locations.forEach((loc) => {
         if (loc.toLowerCase() == "apopka") {
@@ -187,24 +213,89 @@ export class ChooseLocationComponent implements OnInit {
           });
         }
       });
-      return output;
     }
+    //Now, use the data that I pull from getPOSConfigIds to expand the list to include
+    //all locations
+    var output2: Array<any> = [];
+    output.forEach((location) => {
+      this.configIds.forEach((configId) => {
+        if (
+          configId.name.toLowerCase().includes(location.location.toLowerCase())
+        ) {
+          location.name = configId.name;
+          location.configId = configId.id;
+          output2.push(structuredClone(location));
+        }
+      });
+    });
+
+    this.POSSessionStates.forEach((state) => {
+      output2.forEach((outputItem) => {
+        if (outputItem.configId == state.id) {
+          outputItem.cashInRegister = state.cashInRegister;
+          outputItem.inUse = state.inUse;
+          outputItem.cashier = state.cashier;
+          outputItem.sessionId = state.sessionId;
+          outputItem.order_ids = state.order_ids;
+        }
+      });
+    });
+    return output2;
   }
 
   getAllUsers() {
     this.wordpressService.getAllUsers();
   }
 
+  resumeSession(location) {
+    this.odooService.setSessionId(location.sessionId);
+    this.selectLocation(location);
+    this.userService.addToRegister(location.cashInRegister);
+    //Now I need to query the session that I just resumed.
+    // I need to find out how much money was exchanged by the orders of this session.
+    //the "order_ids" array contains an array of orders associated with this session.
+    location.order_ids.forEach((order) => {
+      this.odooService
+        .checkOrderAmountsById(order)
+        .subscribe((orderDetails) => {
+          this.userService.addToRegister(orderDetails[0].amount_total);
+        });
+    });
+    //I can then start a loop of calls to checkOrderAmountsById to add up what the expected total is
+  }
+
   /**
    * Called before selectLocation is called. This calls the "create session Modal", which asks user to fill certain information.
    */
-  createNewSession() {
-    //Step 1: Find the location that was selected.
-    //step 2: call the "Session" api call to get a list of sessions.
-    //step 3: Find a session whose's config ID [1] field includes the
+  createNewSession(location) {
+    //When a location is selected, open the modal for user to start a session.
+    //When session is created, trigger the "selectLocation" code
+    var createSessionModal = this.dialog.open(CreateSessionModalComponent, {
+      data: location,
+    });
+    createSessionModal.afterClosed().subscribe((result) => {
+      if (result == "cancel") {
+        //do nothing
+      } else if (this.isStringNumber(result)) {
+        var amt = parseFloat(result);
+        this.odooService.createSession(
+          location.configId,
+          6,
+          amt,
+          this.currentUser.name,
+        );
+        this.selectLocation(location);
+        this.userService.addToRegister(amt);
+      }
+    });
   }
 
-  selectLocation(location: storeLocationEnum) {
+  isStringNumber(str: string): boolean {
+    const num = parseFloat(str);
+    return !isNaN(num);
+  }
+
+  selectLocation(location) {
     // ("STORE SELECTED");
     // (location);
     this.storeService.setCurrentStore(location);

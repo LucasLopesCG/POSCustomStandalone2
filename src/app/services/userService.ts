@@ -33,18 +33,24 @@ export class userService {
 
   user = { name: " " };
   sessionDataArray: Array<order> = [];
+  sessionCashTracker: number = 0;
 
   // Observable string source
   private dataUser = new BehaviorSubject<User>({});
   private sessionData = new BehaviorSubject<Array<order>>([]);
+  private cashRegisterAmt = new BehaviorSubject<number>(0);
 
   // Observable string stream
   dataUser$ = this.dataUser.asObservable();
   sessionData$ = this.sessionData.asObservable();
+  cashRegisterAmt$ = this.cashRegisterAmt.asObservable();
 
   constructor() {
     this.sessionData$.subscribe((val) => {
       this.sessionDataArray = val;
+    });
+    this.cashRegisterAmt$.subscribe((val) => {
+      this.sessionCashTracker = val;
     });
   }
 
@@ -61,5 +67,10 @@ export class userService {
   public addOrderToSessionData(val) {
     this.sessionDataArray.push(val);
     this.sessionData.next(this.sessionDataArray);
+  }
+
+  public addToRegister(val) {
+    this.sessionCashTracker = this.sessionCashTracker + val;
+    this.cashRegisterAmt.next(this.sessionCashTracker);
   }
 }

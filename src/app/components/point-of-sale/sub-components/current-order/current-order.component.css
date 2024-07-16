@@ -20,9 +20,8 @@
   display: flex;
   flex-wrap: nowrap;
   align-content: center;
-  align-items: stretch;
-  justify-content: space-between;
-  padding-bottom: 2rem;
+  align-items: center;
+  justify-content: center;
 }
 
 .label-right-padding {

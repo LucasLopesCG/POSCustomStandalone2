@@ -11,8 +11,26 @@
   </button>
 </div>
 <div mat-dialog-content style="height: 25rem" class="p-3">
-  THIS IS WHERE CASHIER PLACES THE TOTAL AMOUNT OF MONEY IN REGISTER
-  <p>to be implemented (CASHIER CONFIRM MONEY IN DRAWER)</p>
+  <div class="close-session-card">
+    <h2>Record total cash amount within your register:</h2>
+    <input [(ngModel)]="cashCloseAmount" class="form-control" />
+    <label
+      >The expected Amount of cash is:
+      {{ expectedCashAmt | number: "1.2-2" }}</label
+    >
+    <label
+      >difference:
+      {{ cashCloseAmount - expectedCashAmt | number: "1.2-2" }}</label
+    >
+    <button
+      mat-icon-button
+      aria-label="confirm edit"
+      mat-dialog-close
+      (click)="closeSession(cashCloseAmount)"
+    >
+      <mat-icon>check_circle</mat-icon>
+    </button>
+  </div>
   <div *ngIf="offlineOrderList.length > 0; else allGreen">
     <p>WARNING: THERE ARE ORDERS SITTING IN MEMORY NOT YET IN THE SYSTEM.</p>
     <p>
@@ -22,52 +40,4 @@
     <button (click)="createExport()">OFFLINE ORDER EXPORT</button>
   </div>
   <ng-template #allGreen>NO OFFLINE ORDERS</ng-template>
-  <div *ngIf="this.selectedLocation.isRestaurant; else storeOptions">
-    <button
-      mat-icon-button
-      aria-label="close dialog"
-      mat-dialog-close
-      (click)="close()"
-      class="float-right"
-    >
-      CANCEL
-      <mat-icon>close</mat-icon>
-    </button>
-
-    <button
-      mat-icon-button
-      aria-label="close dialog"
-      mat-dialog-close
-      [disabled]="disableButton"
-      (click)="endSessionRestaurant()"
-      class="float-right"
-    >
-      END SESSION
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
-  <ng-template #storeOptions>
-    <button
-      mat-icon-button
-      aria-label="close dialog"
-      mat-dialog-close
-      (click)="close()"
-      class="float-right"
-    >
-      CANCEL
-      <mat-icon>close</mat-icon>
-    </button>
-
-    <button
-      mat-icon-button
-      aria-label="close dialog"
-      mat-dialog-close
-      [disabled]="disableButton"
-      (click)="endSessionStore()"
-      class="float-right"
-    >
-      END SESSION
-      <mat-icon>close</mat-icon>
-    </button>
-  </ng-template>
 </div>

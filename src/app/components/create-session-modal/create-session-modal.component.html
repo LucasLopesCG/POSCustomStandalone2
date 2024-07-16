@@ -1,6 +1,6 @@
 <div style="min-width: 900px; max-height: 600px">
-  <div mat-dialog-title class="dialog-title bg-beige text-dark-green p-3">
-    <h2>Create Session for {{storeLocation}}</h2>
+  <!-- <div mat-dialog-title class="dialog-title bg-beige text-dark-green p-3">
+    <h2>Create Session for {{ data.name }}</h2>
     <button
       mat-icon-button
       aria-label="close dialog"
@@ -10,7 +10,29 @@
     >
       <mat-icon>close</mat-icon>
     </button>
+  </div> -->
+
+  <div mat-dialog-title>
+    <h2>Create Session for {{ data.name }}</h2>
+    <button aria-label="close dialog" mat-dialog-close (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
   </div>
-  <div mat-dialog-content style="height: 25rem" class="p-3">
+  <div mat-dialog-content style="height: 25rem" class="p-3 card">
+    <h2>Attempting to create new POS session for {{ data.name }}</h2>
+    <div>
+      <label class="">Cash in Register: </label>
+      <input [(ngModel)]="cashAmt" class="form-control" />
+    </div>
+    <div>
+      <button
+        mat-icon-button
+        aria-label="confirm edit"
+        mat-dialog-close
+        (click)="close(cashAmt)"
+      >
+        <mat-icon>check_circle</mat-icon>
+      </button>
+    </div>
   </div>
 </div>

@@ -183,8 +183,28 @@ export class storeService {
     user1.email = "cashier@chronicGuru.com";
     user1.id = "cashier1";
     user1.locationAccess = [
-      { location: storeLocationEnum.Apopka, isRestaurant: false },
-      { location: storeLocationEnum.DeLand, isRestaurant: true },
+      {
+        location: storeLocationEnum.Apopka,
+        isRestaurant: false,
+        name: "Apopka Test",
+        configId: 1,
+        cashInRegister: 0,
+        inUse: false,
+        cashier: "",
+        sessionId: 0,
+        order_ids: [],
+      },
+      {
+        location: storeLocationEnum.DeLand,
+        isRestaurant: true,
+        name: "DeLand Test",
+        configId: 2,
+        cashInRegister: 0,
+        inUse: false,
+        cashier: "",
+        sessionId: 0,
+        order_ids: [],
+      },
     ];
     user1.name = "Cashier Doe";
     user1.phoneNumber = 5558675309;
@@ -193,8 +213,28 @@ export class storeService {
       email: "Manager@chronicGuru.com",
       id: "manager1",
       locationAccess: [
-        { location: storeLocationEnum.Apopka, isRestaurant: false },
-        { location: storeLocationEnum.DeLand, isRestaurant: true },
+        {
+          location: storeLocationEnum.Apopka,
+          isRestaurant: false,
+          name: "Apopka Test",
+          configId: 1,
+          cashInRegister: 0,
+          inUse: false,
+          cashier: "",
+          sessionId: 0,
+          order_ids: [],
+        },
+        {
+          location: storeLocationEnum.DeLand,
+          isRestaurant: true,
+          name: "DeLand Test",
+          configId: 2,
+          cashInRegister: 0,
+          inUse: false,
+          cashier: "",
+          sessionId: 0,
+          order_ids: [],
+        },
       ],
       name: "Manager Jane",
       phoneNumber: 5559999999,
@@ -408,10 +448,8 @@ export class storeService {
           if (data.discount != null) {
             var mult = (100 - data.discount) / 100;
             product.price = (product.price as number) * mult;
-            
           } else if (data.newPrice != null) {
             product.price = data.newPrice as number;
-            
           }
           product.happyHourDiscount = true;
         }

@@ -1,9 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { MatDialogRef } from "@angular/material/dialog";
 import { MatIcon } from "@angular/material/icon";
 import { storeLocationEnum } from "../../models/storeLocation";
+import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 
 @Component({
   selector: "app-create-session-modal",
@@ -14,8 +15,14 @@ import { storeLocationEnum } from "../../models/storeLocation";
 })
 export class CreateSessionModalComponent {
   storeLocation: storeLocationEnum = storeLocationEnum.none;
-  constructor(public dialogRef: MatDialogRef<CreateSessionModalComponent>) {}
-  close() {
-    this.dialogRef.close();
+  cashAmt: number = 0;
+  constructor(
+    public dialogRef: MatDialogRef<CreateSessionModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+  ) {
+    this.cashAmt = data.cashInRegister;
+  }
+  close(state: string | number = "cancel") {
+    this.dialogRef.close(state);
   }
 }

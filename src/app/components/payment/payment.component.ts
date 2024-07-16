@@ -35,6 +35,7 @@ export class PaymentComponent {
   paid: number = 0;
   currentOrder: order = {};
   refundTotal: number = 0;
+  sessionId: number = 599;
   moneyOptions: Money[] = [
     { name: "$100", count: 0, value: 100 },
     { name: "$50", count: 0, value: 50 },
@@ -68,6 +69,9 @@ export class PaymentComponent {
       this.taxAmount = Number(this.taxAmount.toFixed(2));
       //this.calculateTotalCost();
       this.groupProducts();
+    });
+    odooService.sessionId$.subscribe((val) => {
+      if (val) this.sessionId = val;
     });
   }
 
@@ -208,6 +212,7 @@ export class PaymentComponent {
       this.currentOrder.refundedProducts = [];
     }
     this.currentOrder.amountPaid = this.paid;
+    this.currentOrder.sessionId = this.sessionId;
     this.currentOrder.status = orderStatusEnum.Paid;
     this.currentOrder.total = this.totalCost;
     this.storeService.submitOrder(this.currentOrder);
@@ -218,6 +223,7 @@ export class PaymentComponent {
     }
     this.currentOrderService.goToDoneStatus();
     this.userService.addOrderToSessionData(this.currentOrder);
+    this.userService.addToRegister(this.currentOrder.total as number);
   }
   backToOrder(): void {
     this.currentOrderService.goToOrderStatus();

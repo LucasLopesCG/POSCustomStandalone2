@@ -23,4 +23,5 @@ export class order {
   date?: Date;
   totalCouponDiscount?: number;
   refunded_order_ids?: Array<number>;
+  sessionId?: number;
 }

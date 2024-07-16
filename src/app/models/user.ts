@@ -13,5 +13,12 @@ export class User {
   locationAccess?: Array<{
     location: storeLocationEnum;
     isRestaurant: boolean;
+    configId: number;
+    name: string;
+    inUse: boolean;
+    cashInRegister: number;
+    cashier: string;
+    sessionId: number;
+    order_ids: Array<number>;
   }>;
 }

@@ -3,7 +3,6 @@ import { Component, OnInit } from "@angular/core";
 import { RouterModule, RouterOutlet } from "@angular/router";
 import { State, userSelector } from "./ngrx/pos.reducer";
 import { Store } from "@ngrx/store";
-import { UserLoginComponent } from "./components/user-login/user-login.component";
 import { Subscription } from "rxjs";
 import { User } from "./models/user";
 import { userService } from "./services/userService";
@@ -26,7 +25,6 @@ import { Http } from "@angular/http";
     //RouterOutlet,
     CommonModule,
     //RouterModule,
-    UserLoginComponent,
     GoogleLogInComponent,
     ChooseLocationComponent,
   ],

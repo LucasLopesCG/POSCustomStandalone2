@@ -17,6 +17,9 @@ export class OdooService implements OnInit {
   odooPastOrderArray: any = [];
   odooPastOrderLineArray: any = [];
 
+  private sessionId = new BehaviorSubject<number>(599);
+  private configIds = new BehaviorSubject<any>({});
+  private POSSessionStates = new BehaviorSubject<any>({});
   private orderPlaced = new BehaviorSubject<boolean>(false);
   private paymentPlaced = new BehaviorSubject<boolean>(false);
   private pickingsForOrder = new BehaviorSubject<boolean>(false);
@@ -34,6 +37,9 @@ export class OdooService implements OnInit {
   private combinedProductData = new BehaviorSubject<any>({});
   private testImageSub = new BehaviorSubject<any>({});
 
+  sessionId$ = this.sessionId.asObservable();
+  configIds$ = this.configIds.asObservable();
+  POSSessionStates$ = this.POSSessionStates.asObservable();
   orderPlaced$ = this.orderPlaced.asObservable();
   paymentPlaced$ = this.paymentPlaced.asObservable();
   pickingsForOrder$ = this.pickingsForOrder.asObservable();
@@ -52,12 +58,14 @@ export class OdooService implements OnInit {
   testImageSub$ = this.testImageSub.asObservable();
 
   selectedLocation: any = null;
+  sessionIdVal;
   session_data: any = null;
   config: odooInfo = { url: "", port: "", username: "", password: "", db: "" };
   host: string | null = "";
   port: string | null = "";
   secure: boolean = false;
   uid: any = 0;
+  POSStatusArray: Array<any> = [];
   private middleManUrl = "https://phpstack-1248616-4634628.cloudwaysapps.com";
   headers = new HttpHeaders({
     "Content-Type": "text/xml",
@@ -83,26 +91,199 @@ export class OdooService implements OnInit {
         this.combineOdooOrderLines();
       }
     });
+    this.POSSessionStates$.subscribe((val) => {
+      if (val && val.length > 0) this.POSStatusArray = val;
+    });
     storeService.dataSelectedStoreLocation$.subscribe((val) => {
       this.selectedLocation = val;
       //Run logic here to gather information of the locations the user has access to:
     });
+    this.sessionId$.subscribe((val) => {
+      this.sessionIdVal = val;
+    });
   }
   ngOnInit(): void {}
 
-  createSession(configId, userId, cashStart) {
+  getPOSConfigIds() {
+    let headers = new HttpHeaders();
+    headers.append("Content-Type", "application/json");
+    headers.append("Accept", "application/json");
+    headers.append("Origin", "http://localhost:3000");
+
+    this.http.get(this.middleManUrl + "/api/getPOSConfigIds").subscribe(
+      (response) => {
+        console.log("Response:", response);
+        this.configIds.next(response);
+      },
+      (error) => {
+        console.log("Error:", error);
+        var errorDecode = error.error.text.toString();
+        var errorDecode2 = errorDecode.split("null");
+        var errorDecode3 = errorDecode2[1];
+        var errorDecode4 = JSON.parse(errorDecode3);
+        this.configIds.next(errorDecode4);
+      },
+    );
+  }
+
+  getPOSStatusById(id: string) {
+    let headers = new HttpHeaders();
+    headers.append("Content-Type", "application/json");
+    headers.append("Accept", "application/json");
+    headers.append("Origin", "http://localhost:3000");
+
+    this.http
+      .get(this.middleManUrl + `/api/getPOSStatusById?id=${id}`)
+      .subscribe(
+        (response) => {
+          //console.log("Response:", response);
+          var matchFound: boolean = false;
+          if (this.POSStatusArray && this.POSStatusArray.length > 0) {
+            this.POSStatusArray.forEach((POSStatus) => {
+              if (POSStatus.id == id) {
+                matchFound = true;
+                if (response[0].state == "closed") {
+                  POSStatus.inUse = false;
+                  POSStatus.cashInRegister =
+                    response[0].cash_register_balance_end_real;
+                } else {
+                  POSStatus.inUse = true;
+                  POSStatus.sessionId = response[0].id;
+
+                  var messageContents: Array<any> = [];
+                  //this thing contains a list of message Ids, which I now need to load from the system.
+                  if (response[0].message_ids.length > 0) {
+                    response[0].message_ids.forEach((messageId) => {
+                      this.http
+                        .get(
+                          this.middleManUrl +
+                            `/api/getMessageById?id=${messageId}`,
+                        )
+                        .subscribe((response) => {
+                          var message = response[0].preview as string;
+                          //messageContents.push(response[0].preview as string);
+                          if (message.includes("POSC - Session opened by -")) {
+                            POSStatus.cashier = message
+                              .split("POSC - Session opened by -")[1]
+                              .replace(/\s/g, "");
+                          }
+                        });
+                    });
+                  }
+                }
+              }
+            });
+          }
+          if (!matchFound) {
+            var newStatus: any = {};
+            newStatus.id = id;
+            newStatus.sessionId = response[0].id;
+            if (response[0].state == "closed") {
+              newStatus.inUse = false;
+              newStatus.cashInRegister =
+                response[0].cash_register_balance_end_real;
+            } else {
+              newStatus.cashInRegister =
+                response[0].cash_register_balance_start;
+              newStatus.order_ids = response[0].order_ids;
+              newStatus.inUse = true;
+              var flipFound: boolean = false;
+              var messageContents: Array<any> = [];
+              //this thing contains a list of message Ids, which I now need to load from the system.
+              if (response[0].message_ids.length > 0) {
+                response[0].message_ids.forEach((messageId) => {
+                  this.http
+                    .get(
+                      this.middleManUrl + `/api/getMessageById?id=${messageId}`,
+                    )
+                    .subscribe((response) => {
+                      var message = response[0].preview as string;
+                      //messageContents.push(response[0].preview as string);
+                      if (message.includes("POSC - Session Opened By -")) {
+                        newStatus.cashier = message
+                          .split("POSC - Session Opened By -")[1]
+                          .replace(/\s/g, "");
+                        flipFound = true;
+                      }
+                    });
+                });
+              }
+
+              if (!flipFound) {
+                newStatus.cashier = response[0].user_id[1];
+              }
+            }
+            this.POSStatusArray.push(newStatus);
+          }
+          this.POSSessionStates.next(this.POSStatusArray);
+        },
+        (error) => {
+          //console.log("Error:", error);
+        },
+      );
+  }
+
+  createSession(configId, userId, cashStart, cashier) {
     const odooUrl = this.middleManUrl + "/api/createPOSSession"; // Replace with your Odoo instance URL
     var odooSession: any = {
       configId: configId,
       userId: userId,
       cashStart: cashStart,
+      openingNote: "Opened By -" + cashier,
     };
     const body = JSON.stringify(odooSession);
     this.http.put(odooUrl, body).subscribe(
       (response) => {
+        var responseNum = +response;
         //this.pas.next(response);
         console.log(response);
+        this.sessionId.next(responseNum);
+        this.addPOSMessageToSession(responseNum, cashier);
         // update the customer on local side to have this newly created id, saving a get call
+      },
+      (error) => {
+        console.error(error);
+      },
+    );
+  }
+
+  checkOrderAmountsById(orderId) {
+    return this.http.get(
+      this.middleManUrl + `/api/checkOrderAmountsById?id=${orderId}`,
+    );
+  }
+
+  setSessionId(id) {
+    this.sessionId.next(id);
+  }
+
+  addPOSMessageToSession(sessionId, cashier) {
+    const odooUrl = this.middleManUrl + "/api/createSessionMessage"; // Replace with your Odoo instance URL
+    var odooSession: any = {
+      body: "POSC - Session Opened By - " + cashier,
+      sessionId: sessionId,
+    };
+    const body = JSON.stringify(odooSession);
+    this.http.put(odooUrl, body).subscribe(
+      (response) => {
+        console.log(response);
+      },
+      (error) => {
+        console.error(error);
+      },
+    );
+  }
+
+  closeSession(sessionId, amt) {
+    const odooUrl = this.middleManUrl + "/api/closeSession"; // Replace with your Odoo instance URL
+    var odooSession: any = {
+      id: sessionId,
+      cash_register_balance_end_real: amt,
+    };
+    const body = JSON.stringify(odooSession);
+    this.http.post(odooUrl, body).subscribe(
+      (response) => {
+        if (response == true) this.sessionId.next(-1);
       },
       (error) => {
         console.error(error);
@@ -339,6 +520,7 @@ export class OdooService implements OnInit {
    * includes logic to send all offline orders if it suceeds in contacting odoo. Will likewise add to offline orders if it fails
    */
   sendNewOrder(order: order, offlineOrder: boolean = false) {
+    order.sessionId = this.sessionIdVal;
     // if (this.session_data == null) {
     //   this.getAuth();
     // }
@@ -359,25 +541,21 @@ export class OdooService implements OnInit {
         config_id = 1;
         fiscal_position_id = 2;
         paymentMethodId = 1;
-        sessionId = 599;
       }
       if (this.selectedLocation.location == storeLocationEnum.DeLand) {
         config_id = 4;
         fiscal_position_id = 4;
         paymentMethodId = 7;
-        sessionId = 622;
       }
       if (this.selectedLocation.location == storeLocationEnum.Orlando) {
         config_id = 3;
         fiscal_position_id = 5;
         paymentMethodId = 8;
-        sessionId = 579;
       }
       if (this.selectedLocation.location == storeLocationEnum.Sanford) {
         config_id = 2;
         fiscal_position_id = 1;
         paymentMethodId = 5;
-        sessionId = 599;
       }
     }
     if (order && order.products && order.products.length > 0) {
@@ -452,7 +630,7 @@ export class OdooService implements OnInit {
       amount_total: total,
       amount_paid: total,
       amount_return: amountPaid - total,
-      session_id: sessionId,
+      session_id: order.sessionId,
       name: "POS_CUSTOM_ORDER",
       cashier: order.cashier,
       config_id: config_id,
@@ -525,6 +703,7 @@ export class OdooService implements OnInit {
     odooStyleOrder.cashier = order.cashier;
     odooStyleOrder.refundAmount = order.totalRefund as number;
     odooStyleOrder.refundAmount = odooStyleOrder.refundAmount * -1;
+    odooStyleOrder.session_id = order.sessionId as number;
     odooStyleOrder.products = [];
     if (order && order.refundedProducts) {
       order.refundedProducts?.forEach((product) => {

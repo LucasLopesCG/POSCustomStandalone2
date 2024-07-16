@@ -11,10 +11,44 @@
           <button (click)="Logout()">LogOut <mat-icon>logout</mat-icon></button>
         </div>
       </div>
-      <div *ngFor="let storeLoc of availableLocations">
+      <div *ngFor="let storeLoc of availableLocations" class="location-card">
         <div>
-          {{ storeLoc.location }}
-          <button (click)="selectLocation(storeLoc)">Login</button>
+          <div>
+            <label>LOCATION: </label>
+            <label>{{ storeLoc.name }}</label>
+          </div>
+          <div *ngIf="!storeLoc.inUse">
+            <label>Register Amt Available: </label>
+            <label>{{ storeLoc.cashInRegister | number: "1.2-2" }}</label>
+          </div>
+          <div *ngIf="storeLoc.inUse">
+            <label>Register In Use By: </label>
+            <label>{{ storeLoc.cashier }}</label>
+          </div>
+          <button
+            *ngIf="storeLoc.inUse && storeLoc.cashier != currentUser.name"
+            (click)="createNewSession(storeLoc)"
+            [disabled]="storeLoc.inUse"
+          >
+            <label *ngIf="!storeLoc.inUse">Login</label>
+            <label
+              *ngIf="storeLoc.inUse && storeLoc.cashier != currentUser.name"
+              >Register In Use</label
+            >
+          </button>
+          <button
+            *ngIf="!storeLoc.inUse"
+            (click)="createNewSession(storeLoc)"
+            [disabled]="storeLoc.inUse"
+          >
+            <label *ngIf="!storeLoc.inUse">Login</label>
+          </button>
+          <button
+            *ngIf="storeLoc.inUse && storeLoc.cashier == currentUser.name"
+            (click)="resumeSession(storeLoc)"
+          >
+            <label>Resume Session</label>
+          </button>
         </div>
       </div>
     </div>
