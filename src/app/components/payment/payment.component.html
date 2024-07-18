@@ -88,6 +88,13 @@
         >
       </div>
     </div>
+    <div *ngIf="currentOrder.guruBucksUsed && currentOrder.guruBucksUsed > 0">
+      <label
+        >GURU BUCKS DOLLARS OFF ORDER: ${{
+          currentOrder.guruBucksUsed / 20
+        }}</label
+      >
+    </div>
 
     <div>
       <label>Tax: </label><label>{{ taxAmount | number: "1.2-2" }}</label>

@@ -32,8 +32,8 @@ export class customerService {
   //      ("user got updated inside of userService");
   //   }
 
-  customer = { name: " " };
-  availableCustomersList: Array<customer> = [];
+  customer: customer = { name: " " };
+  availableCustomersList: Array<any> = [];
 
   // Observable string source
   private selectedCustomer = new BehaviorSubject<customer>({});
@@ -55,29 +55,20 @@ export class customerService {
     this.selectedCustomer.next(this.customer);
   }
 
+  updateCustomerWithGuruBucks(guruBucks) {
+    this.customer.guruBucks = guruBucks;
+    this.selectedCustomer.next(this.customer);
+  }
+
+  updatecustomerWithWPUserId(id) {
+    this.customer.wpUserId = id;
+    this.selectedCustomer.next(this.customer);
+  }
+
   public setCustomers(val) {
     this.availableCustomers.next(val);
   }
 
-  public getCustomers() {
-    var customer1 = {
-      name: "Bruce Wayne",
-      address: "01 Wayne Manor, Gotham",
-      email: "totallyNotBatman@wayneTech.com",
-      phone: "555-511-8626",
-      mobile: "555-511-8626",
-      notes: ["might be batman", "loaded"],
-    };
-    var customer2 = {
-      name: "Clark Kent",
-      address: "555 Penthouse For Journalists, Metropolis",
-      email: "leadPipeJournalist@dailyPlanet.com",
-      phone: "555-522-8626",
-      mobile: "555-522-8626",
-      notes: ["might be superman", "loaded"],
-    };
-    this.availableCustomers.next([customer1, customer2]);
-  }
   public addNewCustomer(val: customer) {
     this.availableCustomersList.push(val);
     this.availableCustomers.next(this.availableCustomersList);

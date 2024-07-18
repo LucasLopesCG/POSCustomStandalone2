@@ -7,4 +7,6 @@ export class customer {
   notes?: Array<string>;
   address?: string;
   category_id?: Array<number>;
+  guruBucks?: number;
+  wpUserId?: number;
 }

@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import * as util from "util";
 import { BehaviorSubject } from "rxjs/internal/BehaviorSubject";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { customerService } from "./customerService";
 
 @Injectable({
   providedIn: "root",
@@ -22,7 +23,10 @@ export class WordPressService {
   wordpressUserList$ = this.wordpressUserList.asObservable();
   wordpressStoreList$ = this.wordpressStoreList.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private customerService: customerService,
+  ) {}
 
   setWordPressUserList(val) {
     this.wordpressUserList.next(val);
@@ -136,5 +140,61 @@ export class WordPressService {
           console.error("An error occurred:", error);
         },
       );
+  }
+
+  getGuruBucksForCustomer(email) {
+    var guruBucksTotal: number = 0;
+    this.http
+      .get(
+        this.apiUrl + "/poscustom/v1/customers/getCustomerById/" + email.email,
+      )
+      .subscribe(
+        (response) => {
+          console.log(response);
+          var response2: any = response;
+          //now go through each guru_bucks record. Add up the points_balance for each record.
+          if (response2.guru_bucks.length > 0) {
+            response2.guru_bucks.forEach((gb) => {
+              var gbBalance: number = +gb.points_balance;
+              guruBucksTotal = (guruBucksTotal + gbBalance) as number;
+            });
+            console.log(guruBucksTotal);
+            this.customerService.updatecustomerWithWPUserId(
+              response2.customer.user_id,
+            );
+            this.customerService.updateCustomerWithGuruBucks(guruBucksTotal);
+          }
+        },
+        (error) => {
+          console.error(
+            "An error occurred: Odoo Customer has no account on WooCommerce",
+            error,
+          );
+        },
+      );
+  }
+
+  deductGuruBucksFromCustomer(order) {
+    const url = this.apiUrl + "/poscustom/v1/customers/guruBucksBalanceUpdate"; // Replace with your Odoo instance URL
+    var gbUpdateBody: any = {
+      id: order.customer.wpUserId,
+      balance: order.guruBucksUsed * -1,
+    };
+    this.http.post(url, gbUpdateBody).subscribe((response) => {
+      console.log("got a message back?");
+      console.log(response);
+    });
+  }
+
+  addGuruBucksToCustomer(order) {
+    const url = this.apiUrl + "/poscustom/v1/customers/guruBucksBalanceUpdate";
+    var gbUpdateBody: any = {
+      id: order.customer.wpUserId,
+      balance: order.total / order.taxRate + 1,
+    };
+    this.http.post(url, gbUpdateBody).subscribe((response) => {
+      console.log("got a message back?");
+      console.log(response);
+    });
   }
 }

@@ -191,6 +191,11 @@ export class CurrentOrderService {
     //This needs to trigger a series of recalculations over at order tracking component
   }
 
+  public setOrderGBUsed(val: number) {
+    this.currentOrderCopy.guruBucksUsed = val;
+    this.currentOrder.next(this.currentOrderCopy);
+  }
+
   removeCouponIfHappyHourProduct() {
     this.productsForCurrentOrder.forEach((product) => {
       if (product.happyHourDiscount) {

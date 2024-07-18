@@ -7,6 +7,7 @@ import { FormsModule } from "@angular/forms";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MatFormField, MatLabel } from "@angular/material/form-field";
 import { OdooService } from "../../../../services/odoo.service";
+import { WordPressService } from "../../../../services/wordpress.service";
 @Component({
   selector: "app-choose-customer",
   standalone: true,
@@ -30,6 +31,7 @@ export class ChooseCustomerComponent {
     private customerService: customerService,
     public dialogRef: MatDialogRef<ChooseCustomerComponent>,
     private odooService: OdooService,
+    private wordpressService: WordPressService,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     customerService.availableCustomers$.subscribe((val) => {
@@ -56,6 +58,7 @@ export class ChooseCustomerComponent {
 
   selectCustomer(event) {
     this.customerService.setCurrentCustomer(event);
+    this.wordpressService.getGuruBucksForCustomer(event);
     this.close();
   }
 
@@ -66,10 +69,15 @@ export class ChooseCustomerComponent {
       if (customer && customer.name) {
         const customerName = customer.name.toLowerCase();
         const customerAddress = (customer.address as string).toLowerCase();
+        var email: any = customer.email;
+
+        const customerEmail =
+          email instanceof String ? email.toLowerCase() : "";
         const searchString = this.searchString.toLowerCase();
         return (
           customerAddress.includes(searchString) ||
-          customerName.includes(searchString)
+          customerName.includes(searchString) ||
+          customerEmail.includes(searchString)
         );
       } else {
         //const searchString = this.searchString.toLowerCase();

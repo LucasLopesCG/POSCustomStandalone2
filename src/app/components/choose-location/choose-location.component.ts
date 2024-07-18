@@ -255,11 +255,19 @@ export class ChooseLocationComponent implements OnInit {
     // I need to find out how much money was exchanged by the orders of this session.
     //the "order_ids" array contains an array of orders associated with this session.
     location.order_ids.forEach((order) => {
-      this.odooService
-        .checkOrderAmountsById(order)
-        .subscribe((orderDetails) => {
+      var retry = 0;
+      this.odooService.checkOrderAmountsById(order).subscribe(
+        (orderDetails) => {
           this.userService.addToRegister(orderDetails[0].amount_total);
-        });
+        },
+        (error) => {
+          if (retry < 2) {
+            retry++;
+            this.odooService.checkOrderAmountsById(order);
+          }
+          console.error(error);
+        },
+      );
     });
     //I can then start a loop of calls to checkOrderAmountsById to add up what the expected total is
   }

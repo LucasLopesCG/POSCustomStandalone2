@@ -5,6 +5,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { RefundModalComponent } from "../refund-modal/refund-modal.component";
+import { GuruBucksModalComponent } from "../guru-bucks-modal/guru-bucks-modal.component";
 import { storeService } from "../../../../services/storeService";
 import { customerService } from "../../../../services/customerService";
 import { ChooseCustomerComponent } from "../choose-customer/choose-customer.component";
@@ -35,6 +36,8 @@ export class CurrentOrderComponent {
   productGroupsWithCouponGroups: Array<any> = [];
   bxgoProducts: Array<product> = [];
   currentOrder: order = {};
+  guruBucksUsed: number = 0;
+  guruBucksEarned: number = 0;
   currentOrderCouponsApplied: Array<coupon> = [];
   currentOrderGrouped: Array<{ product: product; count: number }> = [];
   selectedCustomer: customer = {};
@@ -84,6 +87,9 @@ export class CurrentOrderComponent {
     });
     currentOrderService.currentOrder$.subscribe((val) => {
       this.currentOrder = val;
+      if (this.currentOrder.guruBucksUsed) {
+        this.guruBucksUsed = this.currentOrder.guruBucksUsed;
+      }
       if (val.coupon && val.coupon[0]) {
         this.selectedCoupon = val.coupon[0];
       }
@@ -306,10 +312,13 @@ export class CurrentOrderComponent {
       this.totalPrice - this.totalCouponDiscount < 0
         ? 0
         : this.totalPrice - this.totalCouponDiscount;
+    this.totalPriceAfterDiscounts =
+      this.totalPriceAfterDiscounts - this.guruBucksUsed / 20;
     this.totalTaxAmount = this.totalPriceAfterDiscounts * this.taxRate;
     //this.orderTotal = this.totalPriceAfterDiscounts + this.totalTaxAmount - this.refundTotal;
     this.orderTotal = this.totalPriceAfterDiscounts + this.totalTaxAmount;
     this.orderTotal = Number(this.orderTotal.toFixed(2));
+    this.guruBucksEarned = Math.floor(this.totalPriceAfterDiscounts);
   }
 
   determineCurrentOrderGrouped() {
@@ -390,7 +399,6 @@ export class CurrentOrderComponent {
                     (productGroup.product.price as number) * mult;
                   productGroup.product.deductCountForCouponEntry = true;
                 } else {
-
                   productGroup.product.priceAfterCoupon =
                     couponDetail.setPrice as number;
 
@@ -414,12 +422,10 @@ export class CurrentOrderComponent {
                 //now check to see if it's a discount or set price
                 // and modify productGroup.product.odooOrderListPrice;
                 if (couponDetail.type == "discount" && couponDetail.discount) {
-                 
                   var mult = (100 - couponDetail.discount) / 100;
                   productGroup.product.price =
                     (productGroup.product.price as number) * mult;
                 } else {
-
                   productGroup.product.price = couponDetail.setPrice as number;
                 }
               }
@@ -466,7 +472,6 @@ export class CurrentOrderComponent {
           }
         });
       } else {
-
         this.productGroupsWithCouponGroups.forEach((productGroup) => {
           if (couponDetail.product) {
             couponDetail.product.forEach((hhItem) => {
@@ -509,6 +514,10 @@ export class CurrentOrderComponent {
     //User can then select individual items within the order to refund. Pressing "refund" button will then return user to this component,
     //with "negative items" in the order
     this.dialog.open(RefundModalComponent, { data: "NO DATA PRESENT" });
+  }
+
+  openGuruBucks() {
+    this.dialog.open(GuruBucksModalComponent, { data: "NO DATA PRESENT" });
   }
 
   openChooseCustomerModal() {

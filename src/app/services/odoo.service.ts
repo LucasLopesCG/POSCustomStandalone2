@@ -9,6 +9,7 @@ import { odooInfo } from "../models/odooInfo";
 import { storeService } from "./storeService";
 import { CurrentOrderService } from "./current-order.service";
 import { couponTypeEnum } from "../models/couponTypeEnum";
+import { WordPressService } from "./wordpress.service";
 
 @Injectable({
   providedIn: "root",
@@ -16,6 +17,7 @@ import { couponTypeEnum } from "../models/couponTypeEnum";
 export class OdooService implements OnInit {
   odooPastOrderArray: any = [];
   odooPastOrderLineArray: any = [];
+  customersArray: any = [];
 
   private sessionId = new BehaviorSubject<number>(599);
   private configIds = new BehaviorSubject<any>({});
@@ -76,6 +78,7 @@ export class OdooService implements OnInit {
     private offlineMode: offlineModeService,
     private storeService: storeService,
     private currentOrderService: CurrentOrderService,
+    private wordpressService: WordPressService,
   ) {
     this.pastOrders$.subscribe((val) => {
       //save this value and call the other service to pull lines
@@ -299,16 +302,16 @@ export class OdooService implements OnInit {
   }
 
   submitNewCustomer(newCustomer: any) {
-    const odooUrl = this.middleManUrl + "/api/createcustomer"; // Replace with your Odoo instance URL
+    const odooUrl = this.middleManUrl + "/api/createCustomer"; // Replace with your Odoo instance URL
 
     var odooCustomer: any = {
-      name: "John Doe Tic Tac Toe",
-      email: "john.doe@example.com",
-      phone: "123456789",
-      mobile: "4448675309",
-      street: "123 Main St",
-      city: "New York",
-      country_id: 1, // Assuming country_id is an integer representing the country in Odoo
+      name: newCustomer.name,
+      email: newCustomer.email,
+      phone: newCustomer.phone,
+      mobile: newCustomer.mobile,
+      street: newCustomer.address.split(",")[0],
+      city: newCustomer.address.split(",")[1],
+      country_id: 233, // Assuming country_id is an integer representing the country in Odoo - 233 being united states
     };
     console.log(odooCustomer);
     const body = JSON.stringify(odooCustomer);
@@ -318,9 +321,11 @@ export class OdooService implements OnInit {
         //this.pas.next(response);
         console.log(response);
         // update the customer on local side to have this newly created id, saving a get call
+        this.getCustomers();
       },
       (error) => {
         console.error(error);
+        this.getCustomers();
       },
     );
   }
@@ -408,20 +413,66 @@ export class OdooService implements OnInit {
     headers.append("Accept", "application/json");
     headers.append("Origin", "http://localhost:3000");
 
-    this.http.get(this.middleManUrl + "/api/customers").subscribe(
+    this.http.get(this.middleManUrl + "/api/customerCount").subscribe(
       (response) => {
         //console.log("Response:", response);
-        this.odooCustomerList.next(response);
+        var value = response as number;
+        if (value > 20000) {
+          //call customers with offset to get the rest of the customers
+          //step 0: Empty out the array that will track incoming calls
+          this.customersArray = [];
+          //step 1: Find out how many times I'll need to call it:
+          var maxCallCount = Math.floor(value / 57185) + 1;
+          var callCount = 0;
+          while (callCount < maxCallCount) {
+            var offsetValue = callCount * 57185;
+            this.http
+              .get(
+                this.middleManUrl +
+                  "/api/customersWithOffset?offset=${offsetValue}",
+              )
+              .subscribe(
+                (response) => {
+                  var response2: any = response;
+                  //console.log("Response:", response);
+                  if (
+                    Object.prototype.toString.call(response2) ===
+                    "[object Array]"
+                  ) {
+                    response2.forEach((res) => {
+                      this.customersArray.push(res);
+                    });
+                  } else {
+                    this.customersArray.push(response);
+                  }
+                  this.odooCustomerList.next(this.customersArray);
+                },
+                (error) => {
+                  //console.log("Error:", error);
+                },
+              );
+
+            callCount++;
+          }
+        } else {
+          //just call the normal "customers"
+
+          this.http.get(this.middleManUrl + "/api/customers").subscribe(
+            (response) => {
+              //console.log("Response:", response);
+              this.odooCustomerList.next(response);
+            },
+            (error) => {
+              //console.log("Error:", error);
+            },
+          );
+        }
       },
       (error) => {
         //console.log("Error:", error);
       },
     );
   }
-
-  getCustomersByPhone(phone: number) {}
-
-  getCustomersByName(name: string) {}
 
   /**
    *
@@ -569,6 +620,7 @@ export class OdooService implements OnInit {
               product_name: product.product.name,
               quantity: 1,
               price_unit: price,
+              price_subtotal_incl: price * taxRate + price,
               total_price: price * product.count,
             };
             count++;
@@ -583,6 +635,7 @@ export class OdooService implements OnInit {
                 product_name: product.product.name,
                 quantity: 1,
                 price_unit: price,
+                price_subtotal_incl: price * taxRate + price,
                 total_price: price * product.count,
               };
               count++;
@@ -595,13 +648,57 @@ export class OdooService implements OnInit {
             product_name: product.product.name,
             quantity: 1,
             price_unit: couponPrice,
+            price_subtotal_incl: couponPrice * taxRate + couponPrice,
             total_price: couponPrice,
           };
           lines.push(couponLine);
         }
       });
     }
-    //CHECK TO SEE IF FREEBIE WAS USED: SEND OUT TAG!
+    if (
+      order &&
+      order.coupon &&
+      order.coupon[0] &&
+      order.coupon[0].couponType &&
+      order.coupon[0].couponType == couponTypeEnum.amountOffOrder
+    ) {
+      var newLine: any = {
+        product_id: -1,
+        product_name: order.coupon[0].couponDetail?.description as string,
+        quantity: 1,
+        price_unit: order.coupon[0].couponDetail?.setPrice as number,
+        price_subtotal_incl:
+          (order.coupon[0].couponDetail?.setPrice as number) * taxRate +
+          (order.coupon[0].couponDetail?.setPrice as number),
+        total_price: order.coupon[0].couponDetail?.setPrice as number,
+      };
+      lines.push(newLine);
+    }
+
+    if (order && order.guruBucksUsed && order.guruBucksUsed > 0) {
+      var guruBucksLeft = order.guruBucksUsed;
+      // Go through each existing lines record and start removing dollars from the price_unit value.
+      //re-calculate the price_subtotal_incl and total_price fields.
+      //re-name the "product_name" field to include (X dollars off from guru bucks)
+      lines.forEach((line) => {
+        var dollarsOff: number = 0;
+        var productNameOriginal = line.product_name;
+        while (line.price_unit > 1 && guruBucksLeft >= 20) {
+          dollarsOff++;
+          guruBucksLeft = guruBucksLeft - 20;
+          line.price_unit = line.price_unit - 1;
+          line.price_subtotal_incl =
+            line.price_unit * taxRate + line.price_unit;
+          line.total_price = line.price_unit;
+          line.product_name =
+            productNameOriginal +
+            " ($" +
+            dollarsOff +
+            " Removed from product by Guru Bucks Rewards)";
+        }
+      });
+    }
+
     if (
       order.coupon &&
       order.customer &&
@@ -609,6 +706,7 @@ export class OdooService implements OnInit {
       order.coupon[0] &&
       order.coupon[0].couponType == couponTypeEnum.singleUsePerCustomer
     ) {
+      //CHECK TO SEE IF FREEBIE WAS USED: SEND OUT TAG!
       var customerId = { customer_id: order.customer.id, tag_id: 1 };
       const odooTagUrl = this.middleManUrl + "/api/addTagToCustomer";
       const body2 = JSON.stringify(customerId);
@@ -906,6 +1004,10 @@ export class OdooService implements OnInit {
       },
       (error) => {
         console.log("order set to paid? ERROR?");
+        if (order.customer && order.customer.wpUserId) {
+          this.wordpressService.deductGuruBucksFromCustomer(order);
+          this.wordpressService.addGuruBucksToCustomer(order);
+        }
         this.orderComplete(order);
       },
     );

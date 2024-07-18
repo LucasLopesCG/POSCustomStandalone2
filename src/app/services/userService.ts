@@ -61,6 +61,7 @@ export class userService {
   }
 
   public newSession() {
+    this.sessionCashTracker = 0;
     this.sessionData.next([]);
   }
 

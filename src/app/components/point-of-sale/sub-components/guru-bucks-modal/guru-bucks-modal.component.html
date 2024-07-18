@@ -1,0 +1,28 @@
+<div style="min-width: 900px; max-height: 600px">
+  <div mat-dialog-title>
+    <h2>UTILIZE GURU BUCKS</h2>
+    <button aria-label="close dialog" mat-dialog-close (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div mat-dialog-content>
+    <div>
+      <label>Customer currently has: </label>
+      <label>{{ pristineGBAmmount }}</label>
+    </div>
+    <div>
+      <button *ngIf="pristineGBAmmount >= 20" (click)="useRewards()">
+        USE 20 GURU BUCKS FOR $1 DISCOUNT
+      </button>
+      <button *ngIf="usedGB > 0" (click)="refundRewards()">
+        REMOVE $1 DISCOUNT
+      </button>
+    </div>
+    <div>
+      <label
+        >Using: {{ usedGB }} to remove {{ usedGB / 20 }} dollars from
+        order</label
+      >
+    </div>
+  </div>
+</div>

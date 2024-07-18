@@ -24,4 +24,5 @@ export class order {
   totalCouponDiscount?: number;
   refunded_order_ids?: Array<number>;
   sessionId?: number;
+  guruBucksUsed?: number;
 }

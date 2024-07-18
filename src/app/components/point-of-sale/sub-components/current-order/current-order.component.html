@@ -178,6 +178,23 @@
       <mat-icon> money_off</mat-icon>
     </button>
   </div>
+  <div
+    *ngIf="
+      this.selectedCustomer &&
+      this.selectedCustomer.name &&
+      this.selectedCustomer.guruBucks
+    "
+  >
+    <button
+      type="button"
+      (click)="openGuruBucks()"
+      class="button-style"
+      style="height: 100%; align-items: center"
+    >
+      <label class="label-right-padding">GURU BUCKS</label>
+      <mat-icon> money_off</mat-icon>
+    </button>
+  </div>
 </div>
 
 <div>
@@ -186,6 +203,16 @@
   </p>
   <p>
     TOTAL DISCOUNTS GIVEN BY COUPON: {{ totalCouponDiscount | number: "1.2-2" }}
+  </p>
+  <p
+    *ngIf="
+      currentOrder &&
+      currentOrder.guruBucksUsed &&
+      currentOrder.guruBucksUsed > 0
+    "
+  >
+    TOTAL DISCOUNTS GIVEN BY USING GURU BUCKS:
+    {{ guruBucksUsed / 20 | number: "1.2-2" }}
   </p>
   <p
     *ngIf="
@@ -203,6 +230,10 @@
   </p>
   <p>TAXES FOR THIS ORDER:{{ totalTaxAmount | number: "1.2-2" }}</p>
   <p>ORDER TOTAL:{{ orderTotal - refundTotal | number: "1.2-2" }}</p>
+  <p>
+    GURU BUCKS EARNED BY THIS ORDER BEING COMPLETED:
+    {{ guruBucksEarned }}
+  </p>
   <div class="pay-button">
     <button
       type="button"
