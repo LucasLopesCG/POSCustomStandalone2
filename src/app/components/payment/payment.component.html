@@ -11,6 +11,15 @@
     <div class="actions">
       <button (click)="payExactAmount()">Exact Amount</button>
       <!-- <button>Paid with Card NOT IMPLEMENTED</button> -->
+      <div>
+        <label>Enter amount: </label>
+        <input
+          type="number"
+          [(ngModel)]="amountVal"
+          placeholder="Enter amount..."
+          (ngModelChange)="setPaid()"
+        />
+      </div>
     </div>
     <div class="money">
       <div *ngFor="let money of moneyOptions">

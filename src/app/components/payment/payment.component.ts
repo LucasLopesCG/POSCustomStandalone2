@@ -25,6 +25,7 @@ interface GroupedProduct {
   styleUrl: "./payment.component.css",
 })
 export class PaymentComponent {
+  amountVal: number = 0;
   displayMode: string = "payment";
   products: any = [];
   groupedProducts: any = [];
@@ -76,6 +77,7 @@ export class PaymentComponent {
   }
 
   payExactAmount(): void {
+    this.amountVal = 0;
     this.paid = 0;
     this.moneyOptions.forEach((bill) => {
       bill.count = 0;
@@ -140,11 +142,17 @@ export class PaymentComponent {
   }
 
   increaseMoneyCount(money: Money): void {
+    this.amountVal = 0;
     money.count++;
     this.calculatePaid();
   }
 
+  setPaid() {
+    this.paid = Math.round(this.amountVal * 100) / 100;
+  }
+
   decreaseMoneyCount(money: Money): void {
+    this.amountVal = 0;
     if (money.count > 0) {
       money.count--;
       this.calculatePaid();
