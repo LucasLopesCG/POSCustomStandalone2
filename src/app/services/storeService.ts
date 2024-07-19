@@ -75,6 +75,9 @@ export class storeService {
   private usersForStore = new BehaviorSubject<any>([]);
   private storeId = new BehaviorSubject<number>(-1);
   private enableOdooCalls = new BehaviorSubject<boolean>(false);
+  private selectedPriceList = new BehaviorSubject<number>(7);
+  private availablePriceLists = new BehaviorSubject<Array<number>>([7]);
+  private stockFilter = new BehaviorSubject<string>("");
   /////////////////////////////////////////////////////////////////////////////////////
   private currentStoreLayout = new BehaviorSubject<any>({});
   private restaurantViewEditMode = new BehaviorSubject<any>({});
@@ -98,6 +101,9 @@ export class storeService {
   usersForStore$ = this.usersForStore.asObservable();
   storeId$ = this.storeId.asObservable();
   enableOdooCalls$ = this.enableOdooCalls.asObservable();
+  selectedPriceList$ = this.selectedPriceList.asObservable();
+  availablePriceLists$ = this.availablePriceLists.asObservable();
+  stockFilter$ = this.stockFilter.asObservable();
   /////////////////////////////////////////////////////////////////////////////////////
   currentStoreLayout$ = this.currentStoreLayout.asObservable();
   restaurantViewEditMode$ = this.restaurantViewEditMode.asObservable();
@@ -129,6 +135,18 @@ export class storeService {
 
   public getCategoryIconList() {
     return ["", "", "", ""];
+  }
+
+  public setCurrentPriceList(val) {
+    this.selectedPriceList.next(val);
+  }
+
+  public setAvailablePriceLists(val) {
+    this.availablePriceLists.next(val);
+  }
+
+  public setStockFilter(val) {
+    this.stockFilter.next(val);
   }
 
   public setCurrentStore(value) {
@@ -172,75 +190,6 @@ export class storeService {
       }
     });
     this.productsForCurrentStore.next(this.productList);
-  }
-
-  public getUsersForCurrentStore() {
-    //this would trigger an api call to our WP database to find the users for current store
-    //for now, just return a static array
-    var array: Array<User> = [];
-    var user1: User = {};
-    user1.accessLevel = accessLevel.Cashier;
-    user1.email = "cashier@chronicGuru.com";
-    user1.id = "cashier1";
-    user1.locationAccess = [
-      {
-        location: storeLocationEnum.Apopka,
-        isRestaurant: false,
-        name: "Apopka Test",
-        configId: 1,
-        cashInRegister: 0,
-        inUse: false,
-        cashier: "",
-        sessionId: 0,
-        order_ids: [],
-      },
-      {
-        location: storeLocationEnum.DeLand,
-        isRestaurant: true,
-        name: "DeLand Test",
-        configId: 2,
-        cashInRegister: 0,
-        inUse: false,
-        cashier: "",
-        sessionId: 0,
-        order_ids: [],
-      },
-    ];
-    user1.name = "Cashier Doe";
-    user1.phoneNumber = 5558675309;
-    var user2: User = {
-      accessLevel: accessLevel.Manager,
-      email: "Manager@chronicGuru.com",
-      id: "manager1",
-      locationAccess: [
-        {
-          location: storeLocationEnum.Apopka,
-          isRestaurant: false,
-          name: "Apopka Test",
-          configId: 1,
-          cashInRegister: 0,
-          inUse: false,
-          cashier: "",
-          sessionId: 0,
-          order_ids: [],
-        },
-        {
-          location: storeLocationEnum.DeLand,
-          isRestaurant: true,
-          name: "DeLand Test",
-          configId: 2,
-          cashInRegister: 0,
-          inUse: false,
-          cashier: "",
-          sessionId: 0,
-          order_ids: [],
-        },
-      ],
-      name: "Manager Jane",
-      phoneNumber: 5559999999,
-    };
-    array = [user1, user2];
-    this.usersForStore.next(array);
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

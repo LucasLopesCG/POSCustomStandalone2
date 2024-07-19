@@ -38,6 +38,7 @@ export class OdooService implements OnInit {
   private odooCustomerList = new BehaviorSubject<any>({});
   private combinedProductData = new BehaviorSubject<any>({});
   private testImageSub = new BehaviorSubject<any>({});
+  private priceListData = new BehaviorSubject<any>({});
 
   sessionId$ = this.sessionId.asObservable();
   configIds$ = this.configIds.asObservable();
@@ -58,6 +59,7 @@ export class OdooService implements OnInit {
   odooCustomerList$ = this.odooCustomerList.asObservable();
   combinedProductData$ = this.combinedProductData.asObservable();
   testImageSub$ = this.testImageSub.asObservable();
+  priceListData$ = this.priceListData.asObservable();
 
   selectedLocation: any = null;
   sessionIdVal;
@@ -180,6 +182,9 @@ export class OdooService implements OnInit {
           if (!matchFound) {
             var newStatus: any = {};
             newStatus.id = id;
+            newStatus.defaultPriceList = response[0].pricelist_id;
+            newStatus.availablePriceLists = response[0].available_pricelist_ids;
+            newStatus.availableTaxRates = response[0].fiscal_position_ids;
             newStatus.sessionId = response[0].id;
             if (response[0].state == "closed") {
               newStatus.inUse = false;
@@ -334,7 +339,7 @@ export class OdooService implements OnInit {
     this.combinedProductData.next([]);
   }
 
-  getCombinedProductData(stockFilter: string) {
+  getCombinedProductData(stockFilter: string, priceList: number) {
     let headers = new HttpHeaders();
     headers.append("Content-Type", "application/json");
     headers.append("Accept", "application/json");
@@ -343,7 +348,7 @@ export class OdooService implements OnInit {
     this.http
       .get(
         this.middleManUrl +
-          `/api/combinedProductData?stockFilter=${stockFilter}`,
+          `/api/combinedProductData?stockFilter=${stockFilter}&&priceListId=${priceList}`,
       )
       .subscribe(
         (response) => {
@@ -354,6 +359,18 @@ export class OdooService implements OnInit {
           //console.log("Error:", error);
         },
       );
+  }
+
+  fetchPriceListNames() {
+    this.http.get(this.middleManUrl + `/api/priceList`).subscribe(
+      (response) => {
+        //console.log("Response:", response);
+        this.priceListData.next(response);
+      },
+      (error) => {
+        //console.log("Error:", error);
+      },
+    );
   }
 
   getProducts() {
@@ -735,6 +752,9 @@ export class OdooService implements OnInit {
       fiscal_position_id: fiscal_position_id,
       lines: lines,
     };
+    if (order.customer) {
+      odooStyleOrder.customerId = order.customer.id as number;
+    }
     console.log(odooStyleOrder);
     const body = JSON.stringify(odooStyleOrder);
 
@@ -807,6 +827,9 @@ export class OdooService implements OnInit {
       order.refundedProducts?.forEach((product) => {
         odooStyleOrder.products.push(product.id);
       });
+    }
+    if (order.customer) {
+      odooStyleOrder.customerId = order.customer.id as number;
     }
     const body = JSON.stringify(odooStyleOrder);
     const odooUrl = this.middleManUrl + "/api/createRefundOrder"; // Replace with your Odoo instance URL

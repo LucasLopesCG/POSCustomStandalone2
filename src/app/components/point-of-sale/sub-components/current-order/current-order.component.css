@@ -12,6 +12,10 @@
   cursor: pointer;
 }
 
+.active {
+  background-color: aquamarine !important;
+}
+
 .bxgo-product {
   background-color: chartreuse;
 }
@@ -21,7 +25,7 @@
   flex-wrap: nowrap;
   align-content: center;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
 }
 
 .label-right-padding {

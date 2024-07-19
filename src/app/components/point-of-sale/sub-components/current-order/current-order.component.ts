@@ -21,6 +21,7 @@ import { order } from "../../../../models/order";
 import { OdooService } from "../../../../services/odoo.service";
 import { couponDetail } from "../../../../models/couponDetail";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { ChangePriceListModalComponent } from "../change-price-list-modal/change-price-list-modal.component";
 
 @Component({
   selector: "app-current-order",
@@ -52,6 +53,7 @@ export class CurrentOrderComponent {
   customerLoading: boolean = true;
   pastOrdersLoading: boolean = true;
   orderStatus: orderStatusEnum = orderStatusEnum.Ordering;
+  selectedProductGroup: any = {};
   constructor(
     private currentOrderService: CurrentOrderService,
     private storeService: storeService,
@@ -516,6 +518,12 @@ export class CurrentOrderComponent {
     this.dialog.open(RefundModalComponent, { data: "NO DATA PRESENT" });
   }
 
+  changePriceList() {
+    this.dialog.open(ChangePriceListModalComponent, {
+      data: "NO DATA PRESENT",
+    });
+  }
+
   openGuruBucks() {
     this.dialog.open(GuruBucksModalComponent, { data: "NO DATA PRESENT" });
   }
@@ -544,5 +552,10 @@ export class CurrentOrderComponent {
     this.currentOrder.totalCouponDiscount = this.totalCouponDiscount;
     this.currentOrder.totalRefund = this.refundTotal;
     this.currentOrderService.goToPaymentStatus();
+  }
+
+  selectProductGroup(productGroup) {
+    console.log(productGroup);
+    this.selectedProductGroup = productGroup;
   }
 }

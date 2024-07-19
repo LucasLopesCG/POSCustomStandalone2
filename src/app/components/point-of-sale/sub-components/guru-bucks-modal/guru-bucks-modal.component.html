@@ -6,11 +6,11 @@
     </button>
   </div>
   <div mat-dialog-content>
-    <div>
-      <label>Customer currently has: </label>
-      <label>{{ pristineGBAmmount }}</label>
+    <div class="info-card">
+      <label>Customer has accrued: </label>
+      <label>{{ pristineGBAmmount }} Guru Bucks</label>
     </div>
-    <div>
+    <div style="padding-bottom: 1rem">
       <button *ngIf="pristineGBAmmount >= 20" (click)="useRewards()">
         USE 20 GURU BUCKS FOR $1 DISCOUNT
       </button>
@@ -19,10 +19,22 @@
       </button>
     </div>
     <div>
-      <label
-        >Using: {{ usedGB }} to remove {{ usedGB / 20 }} dollars from
-        order</label
-      >
+      <div class="info-card">
+        <label
+          >Using: {{ usedGB }} GB's to remove {{ usedGB / 20 }} dollar(s) from
+          order</label
+        >
+      </div>
+      <div>
+        <button
+          mat-icon-button
+          aria-label="confirm edit"
+          mat-dialog-close
+          (click)="updateOrderWithGBUsed()"
+        >
+          <mat-icon>check_circle</mat-icon>
+        </button>
+      </div>
     </div>
   </div>
 </div>

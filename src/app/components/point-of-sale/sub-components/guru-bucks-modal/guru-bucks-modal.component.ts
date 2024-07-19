@@ -42,7 +42,10 @@ export class GuruBucksModalComponent {
   close() {
     //Need to send out a command here that stores how many $1 discounts were applied.
     //These translate as adding coupons to the order?
-    this.orderService.setOrderGBUsed(this.usedGB);
     this.dialogRef.close();
+  }
+  updateOrderWithGBUsed() {
+    this.orderService.setOrderGBUsed(this.usedGB);
+    this.close();
   }
 }

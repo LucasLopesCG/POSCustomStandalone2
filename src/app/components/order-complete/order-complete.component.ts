@@ -23,6 +23,7 @@ export class OrderCompleteComponent implements OnInit {
   generateReceipt: boolean = true;
   previousOrders: Array<any> = [];
   stockFilter: string = "";
+  selectedPriceList: number = 0;
 
   constructor(
     private currentOrderService: CurrentOrderService,
@@ -45,6 +46,9 @@ export class OrderCompleteComponent implements OnInit {
           this.stockFilter = "SANFO/Stock";
           break;
       }
+    });
+    storeService.selectedPriceList$.subscribe((val) => {
+      this.selectedPriceList = val;
     });
     storeService.pastOrdersFromStore$.subscribe((val) => {
       this.previousOrders = val;
@@ -75,7 +79,10 @@ export class OrderCompleteComponent implements OnInit {
         //this.previousOrders.push(order);
         this.storeService.setPastOrdersForStore(this.previousOrders);
         if (this.stockFilter != "")
-          this.odooService.getCombinedProductData(this.stockFilter);
+          this.odooService.getCombinedProductData(
+            this.stockFilter,
+            this.selectedPriceList,
+          );
       }
       if (order && order.orderNumber && order.pickingId) {
         this.order.orderNumber = order.orderNumber;
@@ -87,7 +94,10 @@ export class OrderCompleteComponent implements OnInit {
         //probably just better to re-query past orders and products at this point
         this.odooService.getPastOrdersForCustomers();
         if (this.stockFilter != "")
-          this.odooService.getCombinedProductData(this.stockFilter);
+          this.odooService.getCombinedProductData(
+            this.stockFilter,
+            this.selectedPriceList,
+          );
       }
     });
   }

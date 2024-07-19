@@ -20,5 +20,8 @@ export class User {
     cashier: string;
     sessionId: number;
     order_ids: Array<number>;
+    defaultPriceList: number;
+    availablePriceLists: Array<number>;
+    availableTaxRates: Array<number>;
   }>;
 }

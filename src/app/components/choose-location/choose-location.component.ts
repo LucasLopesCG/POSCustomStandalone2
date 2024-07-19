@@ -237,6 +237,13 @@ export class ChooseLocationComponent implements OnInit {
           outputItem.cashier = state.cashier;
           outputItem.sessionId = state.sessionId;
           outputItem.order_ids = state.order_ids;
+          this.configIds.forEach((configId) => {
+            if (outputItem.configId == configId.id) {
+              outputItem.availablePriceLists = configId.available_pricelist_ids;
+              outputItem.defaultPriceList = configId.pricelist_id[0];
+            }
+          });
+          //outputItem.availablePriceLists =
         }
       });
     });
@@ -339,7 +346,13 @@ export class ChooseLocationComponent implements OnInit {
         break;
     }
     this.odooService.wipeProductData();
-    this.odooService.getCombinedProductData(stockFilter);
+    this.odooService.getCombinedProductData(
+      stockFilter,
+      location.defaultPriceList,
+    );
+    this.storeService.setStockFilter(stockFilter);
+    this.storeService.setAvailablePriceLists(location.availablePriceLists);
+    this.storeService.setCurrentPriceList(location.defaultPriceList);
     this.odooService.orderComplete({});
   }
 

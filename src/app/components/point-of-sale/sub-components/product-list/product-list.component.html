@@ -57,6 +57,7 @@
         <div class="product-container">
           <ng-container *ngFor="let array of filteredProducts">
             <div
+              (click)="addProductToOrder(array[0])"
               class="product-card"
               *ngIf="
                 array.length < 2 &&
@@ -65,7 +66,7 @@
                 array[0].stock > 0
               "
             >
-              <div (click)="addProductToOrder(array[0])">
+              <div>
                 <img
                   class="img-responsive"
                   [src]="sanitizeImage(array[0].image)"
