@@ -25,7 +25,9 @@ import { OrderCompleteComponent } from "../order-complete/order-complete.compone
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { OdooService } from "../../services/odoo.service";
 import { accessLevel } from "../../models/accessLevel";
-
+import { GoogleLogInComponent } from "../google-login/google-login.component";
+import { CashierSwitchOrLockModalComponent } from "../cashier-switch-or-lock-modal/cashier-switch-or-lock-modal.component";
+import { MatMenuModule } from "@angular/material/menu";
 @Component({
   selector: "app-restaurant-layout-view",
   standalone: true,
@@ -41,6 +43,7 @@ import { accessLevel } from "../../models/accessLevel";
     PaymentComponent,
     OrderCompleteComponent,
     MatProgressSpinnerModule,
+    MatMenuModule,
   ],
   templateUrl: "./restaurant-layout-view.component.html",
   styleUrl: "./restaurant-layout-view.component.css",
@@ -52,6 +55,7 @@ export class RestaurantLayoutViewComponent {
   sessionData: Array<order> = [];
   public orderStatusEnum = orderStatusEnum;
   orderStatus: orderStatusEnum = orderStatusEnum.Ordering;
+  availableTaxRates: Array<any> = [];
   restaurantServiceLocation: string = "Table 1";
   private dialog = inject(MatDialog);
   mode: string = "view";
@@ -83,6 +87,9 @@ export class RestaurantLayoutViewComponent {
     customerService.selectedCustomer$.subscribe((val) => {
       this.selectedCustomer = val;
       // (this.availableCustomers);
+    });
+    this.odooService.taxRates$.subscribe((val) => {
+      this.availableTaxRates = val;
     });
     this.storeService.currentStoreLayout$.subscribe((val) => {
       this.isLoading = true;
@@ -217,6 +224,7 @@ export class RestaurantLayoutViewComponent {
       total: 0,
       customer: {},
       status: orderStatusEnum.Ordering,
+      taxRate: this.determineTaxRate(this.storeLocation),
       date: new Date(),
     };
     if (!this.layout.stools[i].order.products) {
@@ -276,6 +284,7 @@ export class RestaurantLayoutViewComponent {
       total: 0,
       customer: {},
       status: orderStatusEnum.Ordering,
+      taxRate: this.determineTaxRate(this.storeLocation),
       date: new Date(),
     };
     if (!this.layout.tables[i].order.products) {
@@ -305,6 +314,24 @@ export class RestaurantLayoutViewComponent {
       }
     }
     //this.storeService.getProductsForStore(this.storeLocation);
+  }
+
+  determineTaxRate(location): number {
+    var output: number = 0;
+    var stringToConvertToPercentage: string = "";
+    if (this.availableTaxRates && this.availableTaxRates.length > 0) {
+      this.availableTaxRates.forEach((taxRate) => {
+        if (taxRate.position_id[1] == location.location) {
+          stringToConvertToPercentage = taxRate.tax_dest_id[1];
+          stringToConvertToPercentage =
+            stringToConvertToPercentage.split("%")[0];
+          output = +stringToConvertToPercentage;
+          output = output / 100;
+        }
+      });
+    }
+
+    return output;
   }
 
   openGenerateStoreReport() {
@@ -339,5 +366,16 @@ export class RestaurantLayoutViewComponent {
       };
       reader.readAsText(file);
     }
+  }
+  openSwitchCashier() {
+    //basically, make a modal that contains the login button (change this to be a copy of the login component? to handle extra functions)
+    this.dialog.open(CashierSwitchOrLockModalComponent, {
+      data: false,
+    });
+  }
+  openLockCashier() {
+    this.dialog.open(CashierSwitchOrLockModalComponent, {
+      data: true,
+    });
   }
 }

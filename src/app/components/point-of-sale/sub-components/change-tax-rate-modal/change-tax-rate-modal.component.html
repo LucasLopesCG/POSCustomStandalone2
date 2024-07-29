@@ -1,1 +1,43 @@
-<p>change-tax-rate-modal works!</p>
+<div style="min-width: 900px; max-height: 600px">
+  <div mat-dialog-title class="bg-beige">
+    <h2>SELECT TAX RATE</h2>
+    <button aria-label="close dialog" mat-dialog-close (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div mat-dialog-content>
+    <div class="info-card">
+      <h1>Select an available Tax Rate for {{ locationName }}:</h1>
+      <div *ngFor="let taxRate of displayTaxRates">
+        <button
+          style="margin-bottom: 5px"
+          (click)="selectNewTaxRate(taxRate)"
+          [disabled]="taxRate == selectedTaxRate"
+        >
+          <label style="padding-right: 5px">Tax Rate: {{ taxRate }}% </label>
+          <label *ngIf="taxRate == selectedTaxRate"> CURRENTLY SELECTED</label>
+        </button>
+      </div>
+    </div>
+    <div>
+      <div class="confirm-or-deny-buttons">
+        <button
+          mat-icon-button
+          aria-label="confirm edit"
+          mat-dialog-close
+          (click)="updateTaxRate()"
+        >
+          <mat-icon>check_circle</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="cancel edit"
+          mat-dialog-close
+          (click)="close()"
+        >
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

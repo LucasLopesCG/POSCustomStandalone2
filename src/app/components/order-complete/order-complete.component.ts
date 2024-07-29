@@ -24,6 +24,7 @@ export class OrderCompleteComponent implements OnInit {
   previousOrders: Array<any> = [];
   stockFilter: string = "";
   selectedPriceList: number = 0;
+  pastOrderConfigIds: Array<any> = [];
 
   constructor(
     private currentOrderService: CurrentOrderService,
@@ -57,6 +58,9 @@ export class OrderCompleteComponent implements OnInit {
       if (order) {
         this.order = order;
       }
+    });
+    this.odooService.pastOrderConfigIds$.subscribe((val) => {
+      this.pastOrderConfigIds = val;
     });
     this.odooService.orderInOdoo$.subscribe((order) => {
       if (
@@ -92,7 +96,8 @@ export class OrderCompleteComponent implements OnInit {
         //this may mean creating a new productGroup if the product was out of stock.
         //This also means changing the contents of the refund orders.
         //probably just better to re-query past orders and products at this point
-        this.odooService.getPastOrdersForCustomers();
+        //grab the id's that I need, set the limit to 1, and offset to 0. Should just grab the lastest
+        this.odooService.getPastOrdersForCustomers(this.pastOrderConfigIds);
         if (this.stockFilter != "")
           this.odooService.getCombinedProductData(
             this.stockFilter,

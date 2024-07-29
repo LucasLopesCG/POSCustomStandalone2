@@ -279,7 +279,7 @@ export class RestaurantLayoutEditComponent implements AfterViewInit {
       discounts: JSON.stringify(this.discountForCurrentStoreArray),
     };
     this.wordpressService.updateStore(storeData);
-    console.log(this.layout);
+    //console.log(this.layout);
     this.close();
   }
 

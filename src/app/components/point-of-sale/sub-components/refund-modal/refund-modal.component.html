@@ -1,5 +1,5 @@
 <div style="min-width: 900px; max-height: 600px">
-  <div mat-dialog-title>
+  <div mat-dialog-title class="bg-beige">
     <h2>REFUND ORDER</h2>
     <button aria-label="close dialog" mat-dialog-close (click)="close()">
       <mat-icon>close</mat-icon>
@@ -128,7 +128,7 @@
             <!--div contains the detail of the item-->
             {{ product.product.name }} X
             {{ selectedOrder.products[i].count }} X{{
-              product.product.price | number: "1.2-2"
+              product.product.priceWithTax | number: "1.2-2"
             }}
             <!--div contains the buttons of the item-->
             <div
@@ -155,7 +155,7 @@
           class="order-card"
         >
           <label>
-            {{ product.name }}: {{ product.price | number: "1.2-2" }}
+            {{ product.name }}: {{ product.priceWithTax | number: "1.2-2" }}
           </label>
           <div>
             <button type="button" (click)="removeItemFromRefund(product)">
@@ -184,7 +184,7 @@
         </div>
       </div>
 
-      <div class="button-group">
+      <div class="button-group confirm confirm-or-deny-buttons">
         <button type="button" (click)="returnToViewMode()">
           <mat-icon>home</mat-icon>
           Cancel

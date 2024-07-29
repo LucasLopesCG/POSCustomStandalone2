@@ -11,6 +11,7 @@ import {
   MatDialogModule,
   MatDialogRef,
 } from "@angular/material/dialog";
+import { MatMenuModule } from "@angular/material/menu";
 
 import { ProductListComponent } from "./sub-components/product-list/product-list.component";
 import { CurrentOrderComponent } from "./sub-components/current-order/current-order.component";
@@ -24,6 +25,8 @@ import { OrderCompleteComponent } from "../order-complete/order-complete.compone
 import { order } from "../../models/order";
 import { OdooService } from "../../services/odoo.service";
 import { accessLevel } from "../../models/accessLevel";
+import { GoogleLogInComponent } from "../google-login/google-login.component";
+import { CashierSwitchOrLockModalComponent } from "../cashier-switch-or-lock-modal/cashier-switch-or-lock-modal.component";
 
 @Component({
   selector: "app-point-of-sale",
@@ -37,6 +40,7 @@ import { accessLevel } from "../../models/accessLevel";
     CashierSettingsModalComponent,
     PaymentComponent,
     OrderCompleteComponent,
+    MatMenuModule,
   ],
   providers: [{ provide: MatDialogRef, useValue: {} }],
   templateUrl: "./point-of-sale.component.html",
@@ -66,15 +70,11 @@ export class PointOfSaleComponent {
     userService.sessionData$.subscribe((val) => {
       this.sessionData = val;
     });
-    // userService.userSubject.asObservable().subscribe((content)=>{
-    //   this.user=content
-    //    ("value of user updated?")
-    //    (this.user);
-    // })
     userService.dataUser$.subscribe((val) => {
       this.user = val;
       // ("USER VALUE UPDATED!!");
       // (this.user);
+      console.log(this.user);
     });
     storeService.happyHourFlag$.subscribe((val) => {
       this.happyHourFlag = val;
@@ -151,5 +151,17 @@ export class PointOfSaleComponent {
       };
       reader.readAsText(file);
     }
+  }
+
+  openSwitchCashier() {
+    //basically, make a modal that contains the login button (change this to be a copy of the login component? to handle extra functions)
+    this.dialog.open(CashierSwitchOrLockModalComponent, {
+      data: false,
+    });
+  }
+  openLockCashier() {
+    this.dialog.open(CashierSwitchOrLockModalComponent, {
+      data: true,
+    });
   }
 }

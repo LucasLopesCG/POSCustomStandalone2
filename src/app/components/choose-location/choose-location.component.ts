@@ -59,11 +59,11 @@ import { CreateSessionModalComponent } from "../create-session-modal/create-sess
   templateUrl: "./choose-location.component.html",
   styleUrl: "./choose-location.component.css",
 })
-export class ChooseLocationComponent implements OnInit {
+export class ChooseLocationComponent {
   private dialog = inject(MatDialog);
   allStores: any = {};
   token: any = null;
-  currentUser: any = {};
+  currentUser: any = null;
   configIds: Array<any> = [];
   private apiUrl =
     "https://woocommerce-1248616-4474056.cloudwaysapps.com/wp-json"; // Replace with your WordPress site URL
@@ -79,6 +79,12 @@ export class ChooseLocationComponent implements OnInit {
   POSSessionStates: Array<any> = [];
   isLoading: boolean = true;
   users: any = {};
+  availableTaxRates: any = { emptyVar: "empty" };
+  pastOrderConfigIds: Array<any> = [];
+  getPastOrderTrip: boolean = false;
+  POSSessionStatesFinal: Array<any> = [];
+  scannedMessages: Array<number> = [];
+  fetchPastOrdersFlag: boolean = false;
   constructor(
     private storeService: storeService,
     private currentOrderService: CurrentOrderService,
@@ -88,25 +94,169 @@ export class ChooseLocationComponent implements OnInit {
     private wordpressService: WordPressService,
     private odooService: OdooService,
   ) {
+    //Need to re-adjust this logic, it's gotten too bloated and complicated.
+    /*
+    Step 0: Get availableStoreLocation from app.component
+    Step 1: Get current User (which comes from log in component)
+    Step 2: Get Tax rates for all the locations, try to fetch users
+    step 3:Get all users, try to fetch configId's for locations
+    step 4: Get all configIds for POS locations. Proceed to get POS status for each location
+    Step 5: when all posSessionStates have been fetched, proceed to determine available locations
+    
+
+    */
     userService.dataUser$.subscribe((val) => {
-      this.currentUser = val;
-      this.currentUser.name = this.currentUser.name.replace(/\s/g, "");
-      console.log(val);
+      //STEP 1
+      if (val && val.name && !this.currentUser) {
+        this.currentUser = val;
+        this.odooService.getTaxRates();
+        this.currentUser.name = this.currentUser.name.replace(/\s/g, "");
+        //console.log(val);
+      }
     });
-    storeService.availableStoreLocation$.subscribe((val) => {
-      this.availableLocations = val;
+    odooService.taxRates$.subscribe((val) => {
+      //STEP 2
+      if (val && val.length > 0 && this.availableTaxRates.emptyVar == "empty") {
+        this.availableTaxRates = val;
+        this.isLoading = false;
+        this.wordpressService.getAllUsers();
+      }
     });
     wordpressService.wordpressUserList$.subscribe((val) => {
-      this.isLoading = true;
-      this.wordpressUserList = val;
-      this.odooService.getPOSConfigIds();
+      //STEP 3
+      if (val && val.length > 0) {
+        this.isLoading = true;
+        this.wordpressUserList = val;
+        this.odooService.getPOSConfigIds();
+      }
     });
     odooService.configIds$.subscribe((val) => {
+      //STEP 4
       if (val && val.length > 0) {
         this.configIds = val;
         this.configIds.forEach((configId) => {
           this.odooService.getPOSStatusById(configId.id);
         });
+      }
+    });
+
+    //TAKE A LOOK AT THIS!!! LDL
+    odooService.POSSessionStates$.subscribe((val) => {
+      if (val && val.length > 0) {
+        this.scannedMessages = [];
+        this.POSSessionStates = val;
+        this.POSSessionStates.forEach((state) => {
+          if (state.messagesToScan && state.messagesToScan.length > 1) {
+            //greater than 1 meaning that this has a chance of being a POSC session.
+            console.log(
+              "find the contents of the following messages to see if user was using the session",
+            );
+            console.log(state.messagesToScan);
+            var count: number = 0;
+            while (count < state.messagesToScan.length) {
+              if (!this.scannedMessages.includes(state.messagesToScan[count])) {
+                this.scannedMessages.push(state.messagesToScan[count]);
+                this.odooService.updatePOSSessionState(
+                  state,
+                  state.messagesToScan[count],
+                );
+              }
+              //call the appropriate function that will then overwrite the value with the proper cashier.
+              count++;
+            }
+          } else {
+            //setPosSessionStatesFinal to be this.POSSessionStates
+            this.odooService.updatePOSSessionStateWithOdooPOS(state);
+            //POSStatusArray ->odooService
+            //this.odooService.
+          }
+        });
+        // if (this.POSSessionStates.length == this.configIds.length) {
+        //   this.determineAvailableLocations(this.wordpressUserList);
+        //   this.isLoading = false;
+        // }
+      }
+    });
+    odooService.POSSessionStatesFinal$.subscribe((val) => {
+      //this.isLoading = true;
+      var completeArray = val;
+      //need to take this val and combine it against this.POSSessionStates
+      var updatedSessionIds: Array<any> = [];
+      if (val && val.length > 0) {
+        val.forEach((v) => {
+          updatedSessionIds.push(v.sessionId);
+        });
+      }
+      updatedSessionIds = [...new Set(updatedSessionIds)];
+      this.POSSessionStates.forEach((session) => {
+        if (updatedSessionIds.includes(session.sessionId)) {
+        } else {
+          completeArray.push(session);
+        }
+      });
+      var duplicateId: Array<number> = [];
+      var nonDupId: Array<number> = [];
+      var completeArrayLen = completeArray.length;
+      var count: number = 0;
+      while (count < completeArrayLen) {
+        if (nonDupId.includes(completeArray[count].sessionId)) {
+          //found a duplicate!
+          duplicateId.push(completeArray[count].sessionId);
+        } else {
+          nonDupId.push(completeArray[count].sessionId);
+        }
+        count++;
+      }
+      var noDupCompleteArray: Array<any> = [];
+      completeArray.forEach((item) => {
+        if (nonDupId.includes(item.sessionId)) {
+          //remove the id out of the array
+          var index = nonDupId.indexOf(item.sessionId);
+          if (index > -1) {
+            nonDupId.splice(index, 1);
+          }
+          noDupCompleteArray.push(item);
+        }
+      });
+      completeArray = [...new Set(noDupCompleteArray)];
+      this.POSSessionStatesFinal = completeArray;
+      if (completeArray && completeArray.length == this.configIds.length) {
+        this.determineAvailableLocations(this.wordpressUserList);
+        this.isLoading = false;
+      }
+    });
+    //END OF TAKE A LOOK
+    storeService.availableStoreLocation$.subscribe((val) => {
+      if (val && val.length > 0) {
+        this.availableLocations = val;
+      }
+    });
+    odooService.pastOrderConfigIds$.subscribe((val) => {
+      if (val && val.length > 0) {
+        this.pastOrderConfigIds = val;
+        this.odooService.getPastOrderCount();
+      }
+    });
+    odooService.pastOrderCount$.subscribe((val) => {
+      if (Number.isInteger(Number(val))) {
+        //step 1, see how many orders there are!
+        console.log(val);
+        //STEP 2. divide count by recordCount to get page count.
+        var recordCount: number = 50;
+        var timesToCallPastOrders = Math.ceil(val / recordCount);
+        var count: number = 0;
+        if (!this.fetchPastOrdersFlag) {
+          this.fetchPastOrdersFlag = true;
+
+          this.odooService.addPastOrdersToList(
+            this.pastOrderConfigIds,
+            recordCount,
+            count * recordCount,
+            timesToCallPastOrders,
+          );
+        }
+        //count++;
+        //}
       }
     });
     wordpressService.wordpressStoreList$.subscribe((val) => {
@@ -130,19 +280,6 @@ export class ChooseLocationComponent implements OnInit {
         this.currentOrderService.emptyBXGOProductArray();
       }
     });
-    odooService.POSSessionStates$.subscribe((val) => {
-      if (val && val.length > 0) {
-        this.POSSessionStates = val;
-        if (this.POSSessionStates.length == this.configIds.length) {
-          this.determineAvailableLocations(this.wordpressUserList);
-          this.isLoading = false;
-        }
-      }
-    });
-  }
-  ngOnInit(): void {
-    //this.auth();
-    this.getAllUsers();
   }
 
   determineAvailableLocations(val: any) {
@@ -156,7 +293,7 @@ export class ChooseLocationComponent implements OnInit {
             accessLevel: this.determineAccessLevel(element.access_level),
             locationAccess: this.determineLocations(element.stores),
           };
-          console.log(updateUser);
+          //console.log(updateUser);
           this.userService.setCurrentUser(updateUser);
         }
       });
@@ -229,7 +366,7 @@ export class ChooseLocationComponent implements OnInit {
       });
     });
 
-    this.POSSessionStates.forEach((state) => {
+    this.POSSessionStatesFinal.forEach((state) => {
       output2.forEach((outputItem) => {
         if (outputItem.configId == state.id) {
           outputItem.cashInRegister = state.cashInRegister;
@@ -240,6 +377,7 @@ export class ChooseLocationComponent implements OnInit {
           this.configIds.forEach((configId) => {
             if (outputItem.configId == configId.id) {
               outputItem.availablePriceLists = configId.available_pricelist_ids;
+              outputItem.paymentMethodIds = configId.payment_method_ids;
               outputItem.defaultPriceList = configId.pricelist_id[0];
             }
           });
@@ -250,12 +388,11 @@ export class ChooseLocationComponent implements OnInit {
     return output2;
   }
 
-  getAllUsers() {
-    this.wordpressService.getAllUsers();
-  }
-
   resumeSession(location) {
+    this.storeService.setAvailablePaymentMethodIds(location.paymentMethodIds);
+    this.storeService.setConfigId(location.configId);
     this.odooService.setSessionId(location.sessionId);
+
     this.selectLocation(location);
     this.userService.addToRegister(location.cashInRegister);
     //Now I need to query the session that I just resumed.
@@ -299,6 +436,7 @@ export class ChooseLocationComponent implements OnInit {
           amt,
           this.currentUser.name,
         );
+        this.storeService.setConfigId(location.configId);
         this.selectLocation(location);
         this.userService.addToRegister(amt);
       }
@@ -311,12 +449,31 @@ export class ChooseLocationComponent implements OnInit {
   }
 
   selectLocation(location) {
+    this.storeService.setAvailablePaymentMethodIds(location.paymentMethodIds);
     // ("STORE SELECTED");
     // (location);
+    //the following logic makes an array of "configId's" that correspond to the current store (other cashier stations)
+    //this is used to pull past orders limited to just the location.
+    console.log(location);
+    console.log(this.availableLocations);
+    var PastOrderConfigs: Array<number> = [];
+    this.availableLocations.forEach((loc) => {
+      if (
+        loc.name
+          .toLowerCase()
+          .includes(location.location.toString().toLowerCase())
+      ) {
+        //this loc matches the location selected, add configId to array;
+        PastOrderConfigs.push(loc.configId);
+      }
+    });
+    console.log(PastOrderConfigs);
+    this.odooService.setPastOrderConfigs(PastOrderConfigs);
+    //this.odooService.getTaxRates();
     this.storeService.setCurrentStore(location);
     this.wordpressService.getAllStores();
     //Need to run logic on the subscription of this to check against current location and set the proper values to memory based off results from this
-    this.storeService.getPriceListForStore(location);
+    this.storeService.getPriceListForStore(location, this.availableTaxRates);
     this.storeService.setCurrentRestaurantMode("view");
     //call wordpress service to get stores, locate the one we have selected and then use storeService to set discount for the stores based on what's pulled
     this.wordpressService.getAllStores();
@@ -327,7 +484,8 @@ export class ChooseLocationComponent implements OnInit {
     this.currentOrderService.goToOrderStatus();
     this.currentOrderService.newOrder();
     //this.storeService.getPastOrdersFromStore();
-    this.odooService.getPastOrdersForCustomers();
+    this.odooService.setPastOrderConfigs(PastOrderConfigs);
+    //this.odooService.getPastOrdersForCustomers(PastOrderConfigs);
     this.odooService.getCustomers();
     var stockFilter: string = "";
     var location2: any = location;

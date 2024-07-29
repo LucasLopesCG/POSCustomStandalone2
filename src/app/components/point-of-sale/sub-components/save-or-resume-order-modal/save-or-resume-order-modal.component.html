@@ -1,0 +1,76 @@
+<div style="min-width: 900px; max-height: 600px">
+  <div mat-dialog-title class="bg-beige">
+    <h2>SAVE FOR LATER?</h2>
+    <button aria-label="close dialog" mat-dialog-close (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div mat-dialog-content>
+    <div class="info-card">
+      <!--Write info on what is present on current order-->
+      <div *ngIf="currentOrder.products && currentOrder.products.length > 0">
+        <!--Div for products-->
+        <h2 style="padding-left: 5rem">PRODUCTS IN ORDER:</h2>
+        <div *ngFor="let products of currentOrder.products">
+          <div class="order-details">
+            <label>Product Name: {{ products.product.name }} </label>
+            <label>Product Count: {{ products.count }}</label>
+            <label>NOTES: {{ products.note }}</label>
+          </div>
+        </div>
+      </div>
+      <div
+        *ngIf="
+          currentOrder.refundedProducts &&
+          currentOrder.refundedProducts.length > 0
+        "
+      >
+        <!--Div for Refunds-->
+        <h2>REFUNDS IN ORDER:</h2>
+        <div *ngFor="let products of currentOrder.refundedProducts">
+          <div class="order-details">
+            <label>Product Name: {{ products.name }} </label>
+            <label>Product Count: 1</label>
+          </div>
+        </div>
+        <label>Tied to order #: {{ currentOrder.refundOrderNumber }}</label>
+      </div>
+
+      <div *ngIf="currentOrder.coupon && currentOrder.coupon[0]">
+        <!--Div for COUPON-->
+        <h2>COUPON IN ORDER:</h2>
+        <div class="order-details">
+          <label>Coupon Type: {{ currentOrder.coupon[0].couponType }} </label>
+          <label
+            >Coupon Name:
+            {{ currentOrder.coupon[0].couponDetail?.description }}</label
+          >
+        </div>
+      </div>
+      <div class="order-details">
+        <label>Assign a nickname to this order:</label>
+        <input type="text" [(ngModel)]="orderNickname" />
+      </div>
+    </div>
+    <div>
+      <div class="confirm-or-deny-buttons">
+        <button
+          mat-icon-button
+          aria-label="confirm edit"
+          mat-dialog-close
+          (click)="saveCurrentOrder()"
+        >
+          <mat-icon>check_circle</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="cancel edit"
+          mat-dialog-close
+          (click)="close()"
+        >
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

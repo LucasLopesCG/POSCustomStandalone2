@@ -1,5 +1,5 @@
 <div style="min-width: 900px; max-height: 600px">
-  <div mat-dialog-title>
+  <div mat-dialog-title class="bg-beige">
     <h2>SELECT PRICE LIST:</h2>
     <button aria-label="close dialog" mat-dialog-close (click)="close()">
       <mat-icon>close</mat-icon>
@@ -7,13 +7,14 @@
   </div>
   <div mat-dialog-content>
     <div class="info-card">
-      <label>Select an available pricelist for {{ locationName }}: </label>
+      <h1>Select an available pricelist for {{ locationName }}:</h1>
       <div *ngFor="let priceList of displayPriceLists">
         <button
+          style="margin-bottom: 5px"
           (click)="selectePriceList(priceList)"
           [disabled]="priceList.id == selectedPriceListVal"
         >
-          <label>{{ priceList.name }}</label>
+          <label style="padding-right: 5px">{{ priceList.name }}</label>
           <label *ngIf="priceList.id == selectedPriceListVal">
             CURRENTLY SELECTED</label
           >
@@ -21,7 +22,7 @@
       </div>
     </div>
     <div>
-      <div>
+      <div class="confirm-or-deny-buttons">
         <button
           mat-icon-button
           aria-label="confirm edit"

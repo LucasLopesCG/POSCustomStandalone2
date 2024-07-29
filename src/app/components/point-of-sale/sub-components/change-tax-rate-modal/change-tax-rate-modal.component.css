@@ -1,0 +1,26 @@
+.info-card {
+  padding-top: 2rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 2rem;
+}
+
+[mat-dialog-title] {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+[mat-dialog-title] h2 {
+  font-size: 24px;
+  margin: 0;
+}
+
+/* Style the close button */
+[mat-dialog-title] button {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+}

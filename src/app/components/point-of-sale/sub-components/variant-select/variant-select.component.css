@@ -20,4 +20,25 @@
 .img-responsive {
   width: 100%;
   height: auto;
+  max-width: 128px;
+  max-height: 128px;
+}
+[mat-dialog-title] {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+[mat-dialog-title] h2 {
+  font-size: 24px;
+  margin: 0;
+}
+
+/* Style the close button */
+[mat-dialog-title] button {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  right: 16px;
+  top: 16px;
 }

@@ -4,6 +4,7 @@ export class product {
   id?: number;
   name?: string;
   price?: number;
+  priceWithTax?: number;
   category?: Array<categoryEnum>;
   stock?: number;
   variantName?: string;

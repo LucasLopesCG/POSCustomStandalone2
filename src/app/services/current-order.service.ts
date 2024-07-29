@@ -15,6 +15,7 @@ import { userService } from "./userService";
 import { User } from "../models/user";
 import { orderStatusEnum } from "../models/orderStatusEnum";
 import { storeService } from "./storeService";
+import { OdooService } from "./odoo.service";
 @Injectable({
   providedIn: "root",
 })
@@ -23,18 +24,22 @@ export class CurrentOrderService {
   bxgoProductsArray: Array<product> = [];
   user: User = {};
   currentOrderCopy: order = {};
+  selectedLocation: any = {};
+  availableTaxRates: Array<any> = [];
 
   private currentOrder = new BehaviorSubject<any>({});
   private productsForCurrentOrder = new BehaviorSubject<any>({});
   private selectedCoupon = new BehaviorSubject<any>({});
   private bxgoProducts = new BehaviorSubject<any>({});
   private orderStatus = new BehaviorSubject<any>({});
+  private disableButtons = new BehaviorSubject<boolean>(false);
 
   productsForCurrentOrder$ = this.productsForCurrentOrder.asObservable();
   selectedCoupon$ = this.selectedCoupon.asObservable();
   currentOrder$ = this.currentOrder.asObservable();
   bxgoProducts$ = this.bxgoProducts.asObservable();
   orderStatus$ = this.orderStatus.asObservable();
+  disableButtons$ = this.disableButtons.asObservable();
 
   constructor(
     private userService: userService,
@@ -54,7 +59,12 @@ export class CurrentOrderService {
     });
   }
 
+  public setDisableButtons(val) {
+    this.disableButtons.next(val);
+  }
+
   public addItemToOrder(value) {
+    this.disableButtons.next(true);
     // ("Attempting to add To the order");
     // (value);
     var newArray: Array<product> = [];
@@ -101,6 +111,7 @@ export class CurrentOrderService {
   }
 
   public decreaseItemCount(value) {
+    this.disableButtons.next(true);
     // ("Attempting to decrease the count from 1 item");
     // (value);
     var noneFlag: boolean = false;
@@ -250,6 +261,7 @@ export class CurrentOrderService {
       total: 0,
       customer: {},
       status: orderStatusEnum.Ordering,
+      //taxRate: this.determineTaxRate(this.selectedLocation),
       date: new Date(),
     };
     this.productsForCurrentOrder.next(newOrder.products);
@@ -307,5 +319,10 @@ export class CurrentOrderService {
 
   public goToDoneStatus() {
     this.orderStatus.next(orderStatusEnum.Paid);
+  }
+
+  public addCustomerToOrder(customer) {
+    this.currentOrderCopy.customer = customer;
+    this.currentOrder.next(this.currentOrderCopy);
   }
 }

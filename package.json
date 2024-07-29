@@ -43,6 +43,7 @@
     "json-rpc-2.0": "^1.7.0",
     "jspdf": "^2.5.1",
     "jspdf-customfonts": "^0.0.4-rc.4",
+    "mdb-angular-ui-kit": "^6.1.0",
     "ng2-pdf-viewer": "^10.2.2",
     "ngx-barcode6": "^1.0.24",
     "node-fetch": "^2.6.1",

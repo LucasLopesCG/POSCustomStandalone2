@@ -10,6 +10,7 @@ import { storeService } from "./storeService";
 import { CurrentOrderService } from "./current-order.service";
 import { couponTypeEnum } from "../models/couponTypeEnum";
 import { WordPressService } from "./wordpress.service";
+import { userService } from "./userService";
 
 @Injectable({
   providedIn: "root",
@@ -18,10 +19,16 @@ export class OdooService implements OnInit {
   odooPastOrderArray: any = [];
   odooPastOrderLineArray: any = [];
   customersArray: any = [];
+  storeConfigId: number = 0;
+  availablePaymentMethodIds: Array<number> = [];
+  POSSessionStatesFinalArray: Array<any> = [];
+  currentCashier: any = {};
 
   private sessionId = new BehaviorSubject<number>(599);
   private configIds = new BehaviorSubject<any>({});
+  private taxRates = new BehaviorSubject<any>({});
   private POSSessionStates = new BehaviorSubject<any>({});
+  private POSSessionStatesFinal = new BehaviorSubject<any>({});
   private orderPlaced = new BehaviorSubject<boolean>(false);
   private paymentPlaced = new BehaviorSubject<boolean>(false);
   private pickingsForOrder = new BehaviorSubject<boolean>(false);
@@ -39,10 +46,15 @@ export class OdooService implements OnInit {
   private combinedProductData = new BehaviorSubject<any>({});
   private testImageSub = new BehaviorSubject<any>({});
   private priceListData = new BehaviorSubject<any>({});
+  private pastOrderConfigIds = new BehaviorSubject<Array<number>>([]);
+  private pastOrderCount = new BehaviorSubject<any>({});
+  private productStockInfo = new BehaviorSubject<any>({});
 
   sessionId$ = this.sessionId.asObservable();
   configIds$ = this.configIds.asObservable();
+  taxRates$ = this.taxRates.asObservable();
   POSSessionStates$ = this.POSSessionStates.asObservable();
+  POSSessionStatesFinal$ = this.POSSessionStatesFinal.asObservable();
   orderPlaced$ = this.orderPlaced.asObservable();
   paymentPlaced$ = this.paymentPlaced.asObservable();
   pickingsForOrder$ = this.pickingsForOrder.asObservable();
@@ -60,6 +72,9 @@ export class OdooService implements OnInit {
   combinedProductData$ = this.combinedProductData.asObservable();
   testImageSub$ = this.testImageSub.asObservable();
   priceListData$ = this.priceListData.asObservable();
+  pastOrderConfigIds$ = this.pastOrderConfigIds.asObservable();
+  pastOrderCount$ = this.pastOrderCount.asObservable();
+  productStockInfo$ = this.productStockInfo.asObservable();
 
   selectedLocation: any = null;
   sessionIdVal;
@@ -81,7 +96,17 @@ export class OdooService implements OnInit {
     private storeService: storeService,
     private currentOrderService: CurrentOrderService,
     private wordpressService: WordPressService,
+    private userService: userService,
   ) {
+    userService.dataUser$.subscribe((val) => {
+      this.currentCashier = val;
+    });
+    this.storeService.availablePaymentMethods$.subscribe((val) => {
+      this.availablePaymentMethodIds = val;
+    });
+    this.storeService.configIdForCurrentStore$.subscribe((val) => {
+      this.storeConfigId = val;
+    });
     this.pastOrders$.subscribe((val) => {
       //save this value and call the other service to pull lines
       if (val && val.length > 0) {
@@ -90,14 +115,11 @@ export class OdooService implements OnInit {
         this.storeService.setPastOrdersForStore(this.odooPastOrderArray);
       }
     });
-    this.pastOrderLines$.subscribe((val) => {
-      if (val && val.length > 0) {
-        this.odooPastOrderLineArray = val;
-        this.combineOdooOrderLines();
-      }
-    });
     this.POSSessionStates$.subscribe((val) => {
       if (val && val.length > 0) this.POSStatusArray = val;
+    });
+    this.POSSessionStatesFinal$.subscribe((val) => {
+      if (val && val.length > 0) this.POSSessionStatesFinalArray = val;
     });
     storeService.dataSelectedStoreLocation$.subscribe((val) => {
       this.selectedLocation = val;
@@ -131,12 +153,7 @@ export class OdooService implements OnInit {
     );
   }
 
-  getPOSStatusById(id: string) {
-    let headers = new HttpHeaders();
-    headers.append("Content-Type", "application/json");
-    headers.append("Accept", "application/json");
-    headers.append("Origin", "http://localhost:3000");
-
+  getPOSStatusByIdOG(id: string) {
     this.http
       .get(this.middleManUrl + `/api/getPOSStatusById?id=${id}`)
       .subscribe(
@@ -231,6 +248,97 @@ export class OdooService implements OnInit {
       );
   }
 
+  getPOSStatusById(id: string) {
+    this.http
+      .get(this.middleManUrl + `/api/getPOSStatusById?id=${id}`)
+      .subscribe((response) => {
+        var matchFound: boolean = false;
+        if (this.POSStatusArray && this.POSStatusArray.length > 0) {
+          this.POSStatusArray.forEach((POSStatus) => {
+            if (POSStatus.id == id) {
+              matchFound = true;
+              if (response[0].state == "closed") {
+                POSStatus.inUse = false;
+                POSStatus.cashInRegister =
+                  response[0].cash_register_balance_end_real;
+              } else {
+                POSStatus.cashier = response[0].user_id[1];
+                POSStatus.inUse = true;
+                POSStatus.sessionId = response[0].id;
+
+                var messageContents: Array<any> = [];
+                //this thing contains a list of message Ids, which I now need to load from the system.
+              }
+            }
+          });
+        }
+        if (!matchFound) {
+          var newStatus: any = {};
+          newStatus.id = id;
+          newStatus.defaultPriceList = response[0].pricelist_id;
+          newStatus.availablePriceLists = response[0].available_pricelist_ids;
+          newStatus.availableTaxRates = response[0].fiscal_position_ids;
+          newStatus.sessionId = response[0].id;
+          if (response[0].state == "closed") {
+            newStatus.inUse = false;
+            newStatus.cashInRegister =
+              response[0].cash_register_balance_end_real;
+          } else {
+            newStatus.cashInRegister = response[0].cash_register_balance_start;
+            newStatus.order_ids = response[0].order_ids;
+            newStatus.cashier = response[0].user_id[1];
+            newStatus.inUse = true;
+            var flipFound: boolean = false;
+            var messageContents: Array<any> = [];
+            //this thing contains a list of message Ids, which I now need to load from the system.
+            if (response[0].message_ids.length > 0) {
+              newStatus.messagesToScan = response[0].message_ids;
+            }
+          }
+          this.POSStatusArray.push(newStatus);
+        }
+        this.POSSessionStates.next(this.POSStatusArray);
+      });
+  }
+
+  updatePOSSessionState(state: any, messageId) {
+    //call the function to fetch the message.
+    //see if the message includes the "POSC - Session Opened By -" string
+    //if so, find the record within POSSessionStates$ value, and change it to be new. Then update a new observable that I then need to subscribe too
+    //otherwise it will go in an endless loop
+    this.http
+      .get(this.middleManUrl + `/api/getMessageById?id=${messageId}`)
+      .subscribe((response) => {
+        var message = response[0].preview as string;
+        //messageContents.push(response[0].preview as string);
+        if (message.includes("POSC - Session Opened By -")) {
+          state.cashier = message
+            .split("POSC - Session Opened By -")[1]
+            .replace(/\s/g, "");
+          //now add this new state into a new observable (which will add them all up)
+
+          this.POSStatusArray.forEach((session) => {
+            if (session.sessionId == state.sessionId) {
+              var sessionCopy = structuredClone(session);
+              sessionCopy.cashier = state.cashier;
+              this.POSSessionStatesFinalArray.push(sessionCopy);
+            }
+          });
+          this.POSSessionStatesFinal.next(this.POSSessionStatesFinalArray);
+        }
+      });
+  }
+  updatePOSSessionStateWithOdooPOS(state) {
+    this.POSStatusArray.forEach((session) => {
+      if (session.sessionId == state.sessionId) {
+        var sessionCopy = structuredClone(session);
+        sessionCopy.cashier = state.cashier;
+        this.POSSessionStatesFinalArray.push(sessionCopy);
+      }
+    });
+    this.POSSessionStatesFinal.next(this.POSSessionStatesFinalArray);
+  }
+
   createSession(configId, userId, cashStart, cashier) {
     const odooUrl = this.middleManUrl + "/api/createPOSSession"; // Replace with your Odoo instance URL
     var odooSession: any = {
@@ -244,7 +352,7 @@ export class OdooService implements OnInit {
       (response) => {
         var responseNum = +response;
         //this.pas.next(response);
-        console.log(response);
+        //console.log(response);
         this.sessionId.next(responseNum);
         this.addPOSMessageToSession(responseNum, cashier);
         // update the customer on local side to have this newly created id, saving a get call
@@ -274,7 +382,7 @@ export class OdooService implements OnInit {
     const body = JSON.stringify(odooSession);
     this.http.put(odooUrl, body).subscribe(
       (response) => {
-        console.log(response);
+        //console.log(response);
       },
       (error) => {
         console.error(error);
@@ -318,13 +426,13 @@ export class OdooService implements OnInit {
       city: newCustomer.address.split(",")[1],
       country_id: 233, // Assuming country_id is an integer representing the country in Odoo - 233 being united states
     };
-    console.log(odooCustomer);
+    //console.log(odooCustomer);
     const body = JSON.stringify(odooCustomer);
 
     this.http.put(odooUrl, body).subscribe(
       (response) => {
         //this.pas.next(response);
-        console.log(response);
+        //console.log(response);
         // update the customer on local side to have this newly created id, saving a get call
         this.getCustomers();
       },
@@ -491,22 +599,15 @@ export class OdooService implements OnInit {
     );
   }
 
-  /**
-   *
-   * @param customer the customer information we will use to filter order results by
-   * NEED TO IMPLEMENT
-   * Retrieve all orders for the currently selected customer. Used by past orders modal component (by look-up).
-   */
-  getPastOrdersForCustomers() {
-    let headers = new HttpHeaders();
-    headers.append("Content-Type", "application/json");
-    headers.append("Accept", "application/json");
-    headers.append("Origin", "http://localhost:3000");
+  setPastOrderConfigs(inputArray) {
+    this.pastOrderConfigIds.next(inputArray);
+  }
 
-    this.http.get(this.middleManUrl + "/api/pastOrders").subscribe(
+  getPastOrderCount() {
+    this.http.get(this.middleManUrl + `/api/pastOrderCount`).subscribe(
       (response) => {
         //console.log("Response:", response);
-        this.pastOrders.next(response);
+        this.pastOrderCount.next(response);
       },
       (error) => {
         //console.log("Error:", error);
@@ -514,21 +615,62 @@ export class OdooService implements OnInit {
     );
   }
 
-  getPastOrderLines() {
+  addPastOrdersToList(inputArray, limit, offset, totalCalls) {
+    this.http
+      .get(
+        this.middleManUrl +
+          `/api/pastOrders?id=[${inputArray}]&limit=${limit}&offset=${offset}`,
+      )
+      .subscribe(
+        (response) => {
+          //console.log("Response:", response);
+          this.addValuesToPastOrders(response);
+          totalCalls--;
+          if (totalCalls > 0) {
+            this.addPastOrdersToList(
+              inputArray,
+              limit,
+              offset + limit,
+              totalCalls,
+            );
+          }
+        },
+        (error) => {
+          //console.log("Error:", error);
+        },
+      );
+  }
+
+  addValuesToPastOrders(array) {
+    array.forEach((item) => {
+      this.odooPastOrderArray.push(item);
+    });
+    this.pastOrders.next(this.odooPastOrderArray);
+  }
+
+  /**
+   *
+   * @param customer the customer information we will use to filter order results by
+   * NEED TO IMPLEMENT
+   * Retrieve all orders for the currently selected customer. Used by past orders modal component (by look-up).
+   */
+  getPastOrdersForCustomers(inputArray) {
     let headers = new HttpHeaders();
     headers.append("Content-Type", "application/json");
     headers.append("Accept", "application/json");
     headers.append("Origin", "http://localhost:3000");
 
-    this.http.get(this.middleManUrl + "/api/pastOrderLines").subscribe(
-      (response) => {
-        //console.log("Response:", response);
-        this.pastOrderLines.next(response);
-      },
-      (error) => {
-        //console.log("Error:", error);
-      },
-    );
+    this.http
+      .get(this.middleManUrl + `/api/pastOrders?id=${inputArray}`)
+      .subscribe(
+        (response) => {
+          //console.log("Response:", response);
+          this.pastOrders.next(response);
+        },
+        (error) => {
+          //console.log("Error:", error);
+        },
+      );
   }
 
   combineOdooOrderLines() {
@@ -592,6 +734,7 @@ export class OdooService implements OnInit {
     // if (this.session_data == null) {
     //   this.getAuth();
     // }
+    order.cashier = this.currentCashier.name;
     const odooUrl = this.middleManUrl + "/api/order-line"; // Replace with your Odoo instance URL
 
     var lines: Array<any> = [];
@@ -599,29 +742,28 @@ export class OdooService implements OnInit {
     var taxRate = order.taxRate as number;
     var amountPaid = order.amountPaid as number;
     var amountTaxed = total - total / (1 + taxRate);
-    var config_id: number = 0;
+    //var config_id: number = 0;
     var fiscal_position_id: number = 0;
     var paymentMethodId: number = 0;
-    var sessionId: number = 0;
 
     if (this.selectedLocation) {
       if (this.selectedLocation.location == storeLocationEnum.Apopka) {
-        config_id = 1;
+        //config_id = 1;
         fiscal_position_id = 2;
         paymentMethodId = 1;
       }
       if (this.selectedLocation.location == storeLocationEnum.DeLand) {
-        config_id = 4;
+        //config_id = 4;
         fiscal_position_id = 4;
         paymentMethodId = 7;
       }
       if (this.selectedLocation.location == storeLocationEnum.Orlando) {
-        config_id = 3;
+        //config_id = 3;
         fiscal_position_id = 5;
         paymentMethodId = 8;
       }
       if (this.selectedLocation.location == storeLocationEnum.Sanford) {
-        config_id = 2;
+        //config_id = 2;
         fiscal_position_id = 1;
         paymentMethodId = 5;
       }
@@ -639,6 +781,7 @@ export class OdooService implements OnInit {
               price_unit: price,
               price_subtotal_incl: price * taxRate + price,
               total_price: price * product.count,
+              customer_note: product.note,
             };
             count++;
             lines.push(newLine);
@@ -654,6 +797,7 @@ export class OdooService implements OnInit {
                 price_unit: price,
                 price_subtotal_incl: price * taxRate + price,
                 total_price: price * product.count,
+                customer_note: product.note,
               };
               count++;
               lines.push(newLine);
@@ -667,6 +811,7 @@ export class OdooService implements OnInit {
             price_unit: couponPrice,
             price_subtotal_incl: couponPrice * taxRate + couponPrice,
             total_price: couponPrice,
+            customer_note: product.note,
           };
           lines.push(couponLine);
         }
@@ -730,7 +875,7 @@ export class OdooService implements OnInit {
       //send out order here to update the customer with the FREEBIE tag.
       this.http.post(odooTagUrl, body2).subscribe(
         (response) => {
-          console.log(response);
+          //console.log(response);
           console.log("customer should now have FREEBIE tag.");
         },
         (error) => {
@@ -748,20 +893,20 @@ export class OdooService implements OnInit {
       session_id: order.sessionId,
       name: "POS_CUSTOM_ORDER",
       cashier: order.cashier,
-      config_id: config_id,
+      config_id: this.storeConfigId,
       fiscal_position_id: fiscal_position_id,
       lines: lines,
     };
     if (order.customer) {
       odooStyleOrder.customerId = order.customer.id as number;
     }
-    console.log(odooStyleOrder);
+    //console.log(odooStyleOrder);
     const body = JSON.stringify(odooStyleOrder);
 
     this.http.put(odooUrl, body).subscribe(
       (response) => {
         //this.pas.next(response);
-        console.log(response);
+        //console.log(response);
         //since it actually went through, tell offline mode to start dumping orders by recursively calling this function.
         //fire off event to let display know order is now in system.
         this.orderWithinSystem(true);
@@ -776,8 +921,8 @@ export class OdooService implements OnInit {
           order,
           amountPaid,
           lines,
-          config_id,
-          paymentMethodId,
+          this.storeConfigId,
+          this.availablePaymentMethodIds[0],
           true,
         );
         if (change < 0) {
@@ -785,8 +930,8 @@ export class OdooService implements OnInit {
             order,
             change,
             lines,
-            config_id,
-            paymentMethodId,
+            this.storeConfigId,
+            this.availablePaymentMethodIds[0],
             false,
           );
         }
@@ -835,11 +980,11 @@ export class OdooService implements OnInit {
     const odooUrl = this.middleManUrl + "/api/createRefundOrder"; // Replace with your Odoo instance URL
     this.http.put(odooUrl, body).subscribe(
       (response) => {
-        console.log("Success? This actually should not happen?");
+        //console.log("Success? This actually should not happen?");
       },
       (error) => {
-        console.log("refund order error?");
-        console.log("Refund order created... now validate the picking");
+        //console.log("refund order error?");
+        //console.log("Refund order created... now validate the picking");
         var txt = error.error.text;
         var txt2 = txt.split("}]")[0];
         var eachVar = txt2.split(",");
@@ -862,11 +1007,11 @@ export class OdooService implements OnInit {
           this.middleManUrl + "/api/validatePicking";
         this.http.post(odooPickingValidateLinkUrl, linkBodyJSON).subscribe(
           (val) => {
-            console.log("picking for refund validated?");
+            //console.log("picking for refund validated?");
             this.validateOrder(linkingBody);
           },
           (error) => {
-            console.log("picking validated via error?");
+            //console.log("picking validated via error?");
             this.validateOrder(linkingBody);
           },
         );
@@ -891,18 +1036,18 @@ export class OdooService implements OnInit {
       amount: amount,
       orderId: order.orderNumber,
     };
-    console.log(odooStyleOrder);
+    //console.log(odooStyleOrder);
     const body = JSON.stringify(odooStyleOrder);
 
     this.http.put(odooUrl, body).subscribe(
       (response) => {
         //this.pas.next(response);
-        console.log(response);
+        //console.log(response);
         // a payment line was created. Now go through each product in the list and create the pickings for each:
         if (createPickings) {
-          console.log(
-            "Actual payment processed, now create pickings for order",
-          );
+          //console.log(
+          //  "Actual payment processed, now create pickings for order",
+          //);
           this.paymentWithinSystem(true);
           var locationId: number = 0;
           var pickingTypeId: number = 0;
@@ -952,10 +1097,10 @@ export class OdooService implements OnInit {
           const odooPickingUrl = this.middleManUrl + "/api/makeOrderPickings"; // Replace with your Odoo instance URL
           this.http.put(odooPickingUrl, pickingBody).subscribe(
             (response) => {
-              console.log("Created a picking: ");
-              console.log(response);
+              //console.log("Created a picking: ");
+              //console.log(response);
               pickingLineIds.push(response as number);
-              console.log("Remember the id of this!");
+              //console.log("Remember the id of this!");
             },
             (error) => {
               var txt = error.error.text;
@@ -964,9 +1109,9 @@ export class OdooService implements OnInit {
               var pickingLineId: number = +txt;
               //pickingLineIds.push(pickingLineId);
               //console.error(error.txt);
-              console.log("Pickings for each product group was created.");
+              //console.log("Pickings for each product group was created.");
               this.pickingsCreated(true);
-              console.log(pickingLineIds);
+              //console.log(pickingLineIds);
               const odooPickingLinkUrl =
                 this.middleManUrl + "/api/linkPickingToOrder";
               //pickingLineIds.forEach((pickingId) => {
@@ -977,10 +1122,10 @@ export class OdooService implements OnInit {
               const linkBodyJSON = JSON.stringify(linkingBody);
               this.http.post(odooPickingLinkUrl, linkBodyJSON).subscribe(
                 (val) => {
-                  console.log("link made?");
+                  //console.log("link made?");
                 },
                 (error) => {
-                  console.log("link made in error statement");
+                  //console.log("link made in error statement");
                   this.pickingsLinked(true);
 
                   //now take this picking and validate it!
@@ -990,11 +1135,11 @@ export class OdooService implements OnInit {
                     .post(odooPickingValidateLinkUrl, linkBodyJSON)
                     .subscribe(
                       (val) => {
-                        console.log("picking validated?");
+                        //console.log("picking validated?");
                         //this.validateOrder(order);
                       },
                       (error) => {
-                        console.log("picking validated via error?");
+                        //console.log("picking validated via error?");
                         this.validateOrder(order);
                       },
                     );
@@ -1019,19 +1164,44 @@ export class OdooService implements OnInit {
     var odooStyleOrder: any = {
       orderId: order.orderNumber,
     };
-    console.log(odooStyleOrder);
+    //console.log(odooStyleOrder);
     const body = JSON.stringify(odooStyleOrder);
     this.http.post(odooUrl, body).subscribe(
       (val) => {
-        console.log("order set to paid?");
+        //console.log("order set to paid?");
       },
       (error) => {
-        console.log("order set to paid? ERROR?");
+        //console.log("order set to paid? ERROR?");
         if (order.customer && order.customer.wpUserId) {
           this.wordpressService.deductGuruBucksFromCustomer(order);
           this.wordpressService.addGuruBucksToCustomer(order);
         }
         this.orderComplete(order);
+      },
+    );
+  }
+
+  getTaxRates() {
+    const odooUrl = this.middleManUrl + "/api/getTaxRates"; // Replace with your Odoo instance URL
+    this.http.get(odooUrl).subscribe(
+      (val) => {
+        this.taxRates.next(val);
+      },
+      (error) => {
+        //console.log("COULD NOT GET TAX RATES");
+      },
+    );
+  }
+
+  getProductsAndStockBySearchString(name) {
+    const odooUrl =
+      this.middleManUrl + `/api/getProductsAndStockBySearchString?name=${name}`; // Replace with your Odoo instance URL
+    this.http.get(odooUrl).subscribe(
+      (val) => {
+        this.productStockInfo.next(val);
+      },
+      (error) => {
+        //console.log("COULD NOT GET TAX RATES");
       },
     );
   }

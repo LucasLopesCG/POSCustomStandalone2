@@ -22,6 +22,10 @@ import { OdooService } from "../../../../services/odoo.service";
 import { couponDetail } from "../../../../models/couponDetail";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { ChangePriceListModalComponent } from "../change-price-list-modal/change-price-list-modal.component";
+import { ChangeTaxRateModalComponent } from "../change-tax-rate-modal/change-tax-rate-modal.component";
+import { SaveOrResumeOrderModalComponent } from "../save-or-resume-order-modal/save-or-resume-order-modal.component";
+import { ResumeOrderModalComponent } from "../resume-order-modal/resume-order-modal.component";
+import { SplitOrderModalComponent } from "../split-order-modal/split-order-modal.component";
 
 @Component({
   selector: "app-current-order",
@@ -53,13 +57,28 @@ export class CurrentOrderComponent {
   customerLoading: boolean = true;
   pastOrdersLoading: boolean = true;
   orderStatus: orderStatusEnum = orderStatusEnum.Ordering;
-  selectedProductGroup: any = {};
+  selectedProductGroup: any = null;
+  selectedProductGroupIndex: number = 0;
+  selectedProductGroupCount: string = "";
+  productList: Array<any> = [];
+  selectedProductMax: number = 0;
+  disableButtons: boolean = false;
+  stockDividedIntoVariants: Array<any> = [];
+  selectedStoreLocation: any = {};
+
   constructor(
     private currentOrderService: CurrentOrderService,
     private storeService: storeService,
     private customerService: customerService,
     private odooService: OdooService,
   ) {
+    storeService.dataSelectedStoreLocation$.subscribe((val) => {
+      this.selectedStoreLocation = val;
+      console.log(this.selectedStoreLocation);
+    });
+    storeService.stockAtCurrentLocation$.subscribe((val) => {
+      this.stockDividedIntoVariants = val;
+    });
     odooService.pastOrders$.subscribe((val) => {
       if (val && val.length > 0) {
         this.pastOrdersLoading = false;
@@ -75,6 +94,9 @@ export class CurrentOrderComponent {
       //I need some logic here to calculate what coupons are doing to the final price
       this.calculateFinalPrice();
     });
+    currentOrderService.disableButtons$.subscribe((val) => {
+      this.disableButtons = val;
+    });
     currentOrderService.bxgoProducts$.subscribe((val) => {
       this.bxgoProducts = val;
     });
@@ -83,12 +105,21 @@ export class CurrentOrderComponent {
     });
     storeService.taxRateForStore$.subscribe((val) => {
       this.taxRate = val;
+      this.totalPrice = 0;
+      this.totalCouponDiscount = 0;
+      this.calculateFinalPrice();
     });
     currentOrderService.orderStatus$.subscribe((val) => {
       this.orderStatus = val;
     });
+    storeService.productsForCurrentStore$.subscribe((val) => {
+      //products were updated as a result of the +/-/X buttons being pressed, so change the display to true
+      this.currentOrderService.setDisableButtons(false);
+    });
     currentOrderService.currentOrder$.subscribe((val) => {
       this.currentOrder = val;
+      if (!this.currentOrder.taxRate) {
+      }
       if (this.currentOrder.guruBucksUsed) {
         this.guruBucksUsed = this.currentOrder.guruBucksUsed;
       }
@@ -110,6 +141,9 @@ export class CurrentOrderComponent {
         });
       }
       this.customerService.setCustomers(val);
+    });
+    odooService.combinedProductData$.subscribe((val) => {
+      this.productList = val;
     });
   }
 
@@ -305,11 +339,11 @@ export class CurrentOrderComponent {
       this.currentOrder.refundedProducts.length > 0
     ) {
       this.currentOrder.refundedProducts.forEach((product) => {
-        if (product && product.price)
-          this.refundTotal = this.refundTotal + product.price;
+        if (product && product.priceWithTax)
+          this.refundTotal = this.refundTotal + product.priceWithTax;
       });
     }
-    this.refundTotal = this.refundTotal + this.refundTotal * this.taxRate;
+    //this.refundTotal = this.refundTotal + this.refundTotal * this.taxRate;
     this.totalPriceAfterDiscounts =
       this.totalPrice - this.totalCouponDiscount < 0
         ? 0
@@ -499,12 +533,31 @@ export class CurrentOrderComponent {
   }
 
   increaseItemCount(event) {
-    if (event.stock > 0) this.currentOrderService.addItemToOrder(event);
+    var name = event.name;
+    this.stockDividedIntoVariants.forEach((group) => {
+      group.forEach((product) => {
+        if (product.name == name && product.stock > 0) {
+          this.disableButtons = true;
+          this.currentOrderService.addItemToOrder(event);
+        }
+      });
+    });
+    //this.disableButtons = true;
+    //if (event.stock > 0) this.currentOrderService.addItemToOrder(event);
   }
 
   decreaseItemCount(event) {
+    this.disableButtons = true;
     //check if count is at 1, if so, call removeItemFromOrder, otherwise I'll need to create a custom function here
     this.currentOrderService.decreaseItemCount(event);
+  }
+
+  addNoteToProductGroup(note, index) {
+    //console.log(note);
+    //console.log("THE NOTE ABOVE TO BE ADDED TO:");
+    //console.log(this.productGroupsWithCouponGroups[index]);
+    this.currentOrder.products = this.productGroupsWithCouponGroups;
+    //this.currentOrderService.setCurrentOrder(this.currentOrder);
   }
 
   removeCoupon() {
@@ -543,6 +596,23 @@ export class CurrentOrderComponent {
     //this will open a modal that contains a list of each coupon available at the store.
   }
 
+  saveCurrentOrderForLater() {
+    //console.log(this.currentOrder);
+    this.dialog.open(SaveOrResumeOrderModalComponent, { data: "NONE" });
+  }
+
+  resumeSavedOrder() {
+    this.dialog.open(ResumeOrderModalComponent, { data: "NONE" });
+  }
+
+  changeTaxRate() {
+    this.dialog.open(ChangeTaxRateModalComponent, { data: "NONE" });
+  }
+
+  openSplitOrderModal() {
+    this.dialog.open(SplitOrderModalComponent);
+  }
+
   goToPayment() {
     this.currentOrder.products = this.productGroupsWithCouponGroups;
     this.currentOrder.bxgoProducts = this.bxgoProducts;
@@ -554,8 +624,66 @@ export class CurrentOrderComponent {
     this.currentOrderService.goToPaymentStatus();
   }
 
-  selectProductGroup(productGroup) {
-    console.log(productGroup);
-    this.selectedProductGroup = productGroup;
+  selectProductGroup(num) {
+    this.selectedProductGroupIndex = num;
+    this.selectedProductGroup =
+      this.productGroupsWithCouponGroups[this.selectedProductGroupIndex];
+    //console.log(this.selectedProductGroup);
+    this.selectedProductGroupCount = this.selectedProductGroup.count.toString();
+    this.productList.forEach((product) => {
+      if (product.id == this.selectedProductGroup.product.id) {
+        this.selectedProductMax =
+          product.stock + this.selectedProductGroup.count;
+      }
+    });
+  }
+
+  attemptToSetSelectedGroupCount(stringToAdd) {
+    if (stringToAdd != "-") {
+      //console.log(stringToAdd);
+      var added = this.selectedProductGroupCount.concat(stringToAdd);
+      var addedNum = +added;
+      var groupCountNum = +this.selectedProductGroupCount;
+      if (addedNum <= this.selectedProductMax) {
+        //STEP 1: check the difference between addedNum and this.selectedProductGroupCount
+        var timesToAdd = addedNum - groupCountNum;
+        var count: number = 0;
+        //STEP 2: Call the function to increase count N times
+        while (count < timesToAdd) {
+          var modifiedCountForProduct = structuredClone(
+            this.selectedProductGroup.product,
+          );
+          count++;
+          modifiedCountForProduct.stock = modifiedCountForProduct.stock - count;
+          this.increaseItemCount(modifiedCountForProduct);
+        }
+        //LAST STEP: update the selected group count to be addedNum
+        this.selectedProductGroupCount = added;
+      } else {
+        console.log("would raise the count above the stock limit");
+      }
+    } else {
+      if (this.selectedProductGroupCount == "0") {
+        var countToRemove = +this.selectedProductGroupCount;
+        this.removeItemFromOrder({
+          product: this.selectedProductGroup.product,
+          count: countToRemove,
+        });
+      }
+      var lastRemoved = this.selectedProductGroupCount.slice(0, -1);
+      if (lastRemoved == "") {
+        lastRemoved = "0"; //set this to 0, and don't delete it, just leave it as 0
+      }
+      var lastRemovedCount = +lastRemoved;
+      var currentCount = +this.selectedProductGroupCount;
+      var count: number = 0;
+      var timesToRemove = Math.abs(currentCount - lastRemovedCount);
+      while (count < timesToRemove) {
+        count++;
+        this.decreaseItemCount(this.selectedProductGroup.product);
+      }
+    }
+    this.selectedProductGroup =
+      this.productGroupsWithCouponGroups[this.selectedProductGroupIndex];
   }
 }

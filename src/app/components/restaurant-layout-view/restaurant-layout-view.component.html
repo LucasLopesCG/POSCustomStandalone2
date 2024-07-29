@@ -1,6 +1,6 @@
 <div *ngIf="orderStatus == orderStatusEnum.Ordering">
   <div>
-    <div
+    <!-- <div
       class="POS-cashier-menu"
       *ngIf="
         user.accessLevel == accessLevel.Admin ||
@@ -22,11 +22,68 @@
       <label>GENERAL ACCESS</label>
       <button class="" (click)="openCloseSessionModal()">CLOSE SESSION</button>
       <button class="" (click)="openGenerateStoreReport()">
+        <button class="" (click)="openSwitchCashier()">SWITCH CASHIER</button>
+        <button class="" (click)="openLockCashier()">LOCK POS</button>
         GENERATE SALES REPORT
       </button>
       <button (click)="openFileSelector()">IMPORT OFFLINE ORDERS</button>
       <input type="file" hidden (change)="handleFileInput($event)" #fileInput />
+      <button class="" (click)="openSwitchCashier()">SWITCH CASHIER</button>
+    </div> -->
+    <div
+      class="POS-cashier-menu"
+      *ngIf="
+        user.accessLevel == accessLevel.Admin ||
+        user.accessLevel == accessLevel.SuperAdmin
+      "
+    >
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <ul class="navbar-nav">
+            <!-- Dropdown -->
+            <button mat-button [matMenuTriggerFor]="belowMenu">
+              ADMIN MENU
+            </button>
+            <mat-menu #belowMenu="matMenu" yPosition="below">
+              <button class="" (click)="openStoreDiscountSettings()">
+                OPEN DISCOUNTS DIALOG FOR CURRENT STORE
+              </button>
+              <button class="" (click)="openStoreCashierSettings()">
+                OPEN CASHIER DIALOG FOR CURRENT STORE
+              </button>
+            </mat-menu>
+          </ul>
+        </div>
+      </nav>
     </div>
+    <label>Current Cashier: {{ user.name }}</label>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <ul class="navbar-nav">
+          <!-- Dropdown -->
+          <button mat-button [matMenuTriggerFor]="belowMenu">MENU</button>
+          <mat-menu #belowMenu="matMenu" yPosition="below">
+            <button class="" (click)="openCloseSessionModal()">
+              CLOSE SESSION
+            </button>
+            <button class="" (click)="openGenerateStoreReport()">
+              GENERATE SALES REPORT
+            </button>
+            <button (click)="openFileSelector()">IMPORT OFFLINE ORDERS</button>
+            <input
+              type="file"
+              hidden
+              (change)="handleFileInput($event)"
+              #fileInput
+            />
+            <button class="" (click)="openSwitchCashier()">
+              SWITCH CASHIER
+            </button>
+            <button class="" (click)="openLockCashier()">LOCK POS</button>
+          </mat-menu>
+        </ul>
+      </div>
+    </nav>
   </div>
   <div *ngIf="mode == 'view'">
     <div *ngIf="isLoading; else restaurantLoaded">

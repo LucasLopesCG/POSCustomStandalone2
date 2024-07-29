@@ -28,6 +28,10 @@ import { categoryEnum } from "../../../../models/categoryEnum";
 import { OdooService } from "../../../../services/odoo.service";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { DomSanitizer } from "@angular/platform-browser";
+import { Observable } from "rxjs/internal/Observable";
+import { Observer } from "rxjs/internal/types";
+import { ProductStockInformationModalComponent } from "../product-stock-information-modal/product-stock-information-modal.component";
+
 @Component({
   selector: "app-product-list",
   standalone: true,
@@ -74,6 +78,8 @@ export class ProductListComponent implements AfterContentInit {
   searchString: string = "";
   selectedVariantGroup: Array<product> = [];
   filteredProducts: Array<Array<product>> = [];
+  dataUrl: any = "";
+
   constructor(
     private storeService: storeService,
     private currentOrderService: CurrentOrderService,
@@ -82,12 +88,12 @@ export class ProductListComponent implements AfterContentInit {
   ) {
     //checks for happy hour being triggered every minute
     const seconds = 60; // Call function every 60 seconds
-    setInterval(() => {
-      console.log("running minute check");
-      this.separateCouponsAndHappyHour();
-      this.createVariantGroups();
-      this.filterByCategory(this.selectedCategory);
-    }, seconds * 1000);
+    // setInterval(() => {
+    //   console.log("running minute check");
+    //   this.separateCouponsAndHappyHour();
+    //   this.createVariantGroups();
+    //   this.filterByCategory(this.selectedCategory);
+    // }, seconds * 1000);
     odooService.combinedProductData$.subscribe((val) => {
       if (val && val.length > 0) {
         this.productsForCurrentLocationNoDiscounts = val;
@@ -99,6 +105,11 @@ export class ProductListComponent implements AfterContentInit {
         this.createVariantGroups();
         this.determineAvailableCategories();
         this.filterByCategory(this.selectedCategory);
+        // this.dataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+        //   "data:image/jpg;base64," + this.blob,
+        // );
+        //this.dataUrl = this.sanitizeImage(this.blob);
+        //console.log(this.dataUrl);
       }
     });
     storeService.enableOdooCalls$.subscribe((val) => {
@@ -145,10 +156,28 @@ export class ProductListComponent implements AfterContentInit {
     // this.determineLoadingStatus();
   }
 
-  sanitizeImage(imageUrl: string | undefined) {
-    if (typeof imageUrl == "string")
-      return this.sanitizer.bypassSecurityTrustUrl(imageUrl);
-    return "";
+  readAsDataURL(blob: string): Observable<string> {
+    var blob2 = new Blob([blob], { type: "text/plain" });
+    return new Observable((obs: Observer<string>) => {
+      const reader: FileReader = new FileReader();
+
+      reader.onerror = (err) => obs.error(err);
+      reader.onabort = (err) => obs.error(err);
+      reader.onload = () => obs.next(reader.result as string);
+      reader.onloadend = () => obs.complete();
+
+      return reader.readAsDataURL(blob2);
+    });
+  }
+
+  sanitizeImage(imageUrl) {
+    if (imageUrl == "false" || !imageUrl || imageUrl == false) {
+      return "assets/images/placeholder.png";
+    }
+    var output = this.sanitizer.bypassSecurityTrustResourceUrl(
+      "data:image/jpg;base64," + imageUrl,
+    );
+    return output;
   }
 
   determineAvailableCategories() {
@@ -333,6 +362,7 @@ export class ProductListComponent implements AfterContentInit {
       });
 
       this.productsSeparatedIntoVariants = finalOutput;
+      this.storeService.setStoreStock(this.productsSeparatedIntoVariants);
       this.filteredProducts = finalOutput;
       //console.log(this.productsSeparatedIntoVariants);
       this.filterProducts();
@@ -509,5 +539,17 @@ export class ProductListComponent implements AfterContentInit {
   determineLoadingStatus() {
     if (!this.isProductLoading && !this.isDiscountLoading)
       this.isLoading = false;
+  }
+
+  queryStoresForStock(product) {
+    var name = product.name;
+    name = name.split(" (")[0];
+    this.odooService.getProductsAndStockBySearchString(name);
+    //this.dialog.open(ProductStockInformationModalComponent);
+    this.dialog.open(ProductStockInformationModalComponent, {
+      data: name,
+    });
+    product.stopPropagation();
+    //now open the info modal and send out the query to get data for this product
   }
 }

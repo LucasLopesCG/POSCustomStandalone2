@@ -1,4 +1,4 @@
-<div mat-dialog-title class="dialog-title">
+<div mat-dialog-title class="dialog-title bg-beige">
   <h2>{{ selectedVariantGroup[0].name.split("(")[0] }}</h2>
   <button
     mat-icon-button
@@ -30,7 +30,10 @@
               *ngIf="product && product.stock && product.stock > 0"
             >
               <div (click)="addProductToOrder(product)">
-                <img class="img-responsive" src="{{ product.image }}" />
+                <img
+                  class="img-responsive"
+                  [src]="sanitizeImage(product.image)"
+                />
                 <h4>{{ product.name }}</h4>
                 <p>Price: {{ product.price | number: "1.2-2" }}</p>
                 <p>Stock: {{ product.stock }}</p>

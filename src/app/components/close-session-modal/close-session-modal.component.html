@@ -14,14 +14,17 @@
   <div class="close-session-card">
     <h2>Record total cash amount within your register:</h2>
     <input [(ngModel)]="cashCloseAmount" class="form-control" />
-    <label
-      >The expected Amount of cash is:
-      {{ expectedCashAmt | number: "1.2-2" }}</label
-    >
-    <label
-      >difference:
-      {{ cashCloseAmount - expectedCashAmt | number: "1.2-2" }}</label
-    >
+    <div class="money-display">
+      <label
+        >The expected amount of cash is: ${{
+          expectedCashAmt | number: "1.2-2"
+        }}</label
+      >
+      <label
+        >Difference: $
+        {{ cashCloseAmount - expectedCashAmt | number: "1.2-2" }}</label
+      >
+    </div>
     <button
       mat-icon-button
       aria-label="confirm edit"
@@ -31,7 +34,10 @@
       <mat-icon>check_circle</mat-icon>
     </button>
   </div>
-  <div *ngIf="offlineOrderList.length > 0; else allGreen">
+  <div
+    class="close-session-card"
+    *ngIf="offlineOrderList.length > 0; else allGreen"
+  >
     <p>WARNING: THERE ARE ORDERS SITTING IN MEMORY NOT YET IN THE SYSTEM.</p>
     <p>
       UNABLE TO CLOSE SESSION, PLEASE DOWNLOAD EXPORT OR ATTEMPT TO SEND OUT
@@ -39,5 +45,7 @@
     </p>
     <button (click)="createExport()">OFFLINE ORDER EXPORT</button>
   </div>
-  <ng-template #allGreen>NO OFFLINE ORDERS</ng-template>
+  <ng-template #allGreen class="close-session-card"
+    ><h1>NO OFFLINE ORDERS</h1></ng-template
+  >
 </div>

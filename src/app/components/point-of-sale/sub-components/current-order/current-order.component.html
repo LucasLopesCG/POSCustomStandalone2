@@ -1,10 +1,12 @@
 <div class="current-order-product-list">
   <div *ngIf="currentOrderProducts.length > 0">
-    <div *ngFor="let product of productGroupsWithCouponGroups">
+    <div
+      *ngFor="let product of productGroupsWithCouponGroups; let i = index"
+      class="order-padding"
+      [class.active]="product == selectedProductGroup"
+      (click)="selectProductGroup(i)"
+    >
       <div
-        (click)="selectProductGroup(product)"
-        class="order-padding"
-        [class.active]="product === selectedProductGroup"
         *ngIf="
           !product.product.deductCountForCouponEntry;
           else showProductAndCoupon
@@ -16,19 +18,35 @@
           {{ product.count }}
         </div>
         <div class="button-group">
-          <button type="button" (click)="increaseItemCount(product.product)">
+          <button
+            type="button"
+            (click)="increaseItemCount(product.product)"
+            [disabled]="disableButtons"
+          >
             <mat-icon>exposure_plus_1</mat-icon>
           </button>
           <button
             type="button"
             class="btn-close"
             (click)="removeItemFromOrder(product)"
+            [disabled]="product.count <= 1 || disableButtons"
           ></button>
-          <button type="button" (click)="decreaseItemCount(product.product)">
+          <button
+            type="button"
+            (click)="decreaseItemCount(product.product)"
+            [disabled]="disableButtons"
+          >
             <mat-icon>exposure_neg_1</mat-icon>
           </button>
         </div>
       </div>
+      <!-- <div *ngIf="selectedProductGroup == product"> -->
+      <input
+        type="text"
+        [(ngModel)]="product.note"
+        (change)="addNoteToProductGroup(product.note, i)"
+      />
+      <!-- </div> -->
       <ng-template #showProductAndCoupon>
         <div class="order-padding" *ngIf="product.count - 1 > 0">
           <div style="text-align: center; margin: auto">
@@ -107,7 +125,7 @@
       style="text-align: center; margin: auto"
     >
       {{ refund.name }}
-      -{{ refund.price }}
+      -{{ refund.priceWithTax | number: "1.2-2" }}
     </div>
   </div>
 </div>
@@ -205,13 +223,13 @@
 </div>
 
 <div>
-  <p>
+  <!-- <p>
     TOTAL PRICE BEFORE TAXES AND COUPONS: {{ totalPrice | number: "1.2-2" }}
   </p>
   <p>
     TOTAL DISCOUNTS GIVEN BY COUPON: {{ totalCouponDiscount | number: "1.2-2" }}
-  </p>
-  <p
+  </p> -->
+  <!-- <p
     *ngIf="
       currentOrder &&
       currentOrder.guruBucksUsed &&
@@ -220,47 +238,187 @@
   >
     TOTAL DISCOUNTS GIVEN BY USING GURU BUCKS:
     {{ guruBucksUsed / 20 | number: "1.2-2" }}
-  </p>
-  <p
+  </p> -->
+  <h1
+    style="display: flex; flex-direction: row-reverse"
     *ngIf="
       currentOrder &&
       currentOrder.refundedProducts &&
       currentOrder.refundedProducts.length > 0
     "
   >
-    TOTAL AMOUNT TO BE REFUNDED(TAX INCLUDED):
-    {{ refundTotal | number: "1.2-2" }}
-  </p>
-  <p>
+    TOTAL AMOUNT TO BE REFUNDED(TAX INCLUDED): ${{
+      refundTotal | number: "1.2-2"
+    }}
+  </h1>
+  <!-- <p>
     TOTAL FOR THIS ORDER BEFORE TAXES
     {{ totalPriceAfterDiscounts | number: "1.2-2" }}
-  </p>
-  <p>TAXES FOR THIS ORDER:{{ totalTaxAmount | number: "1.2-2" }}</p>
-  <p>ORDER TOTAL:{{ orderTotal - refundTotal | number: "1.2-2" }}</p>
-  <p>
+  </p> -->
+  <h1 style="display: flex; flex-direction: row-reverse">
+    TAXES FOR THIS ORDER: ${{ totalTaxAmount | number: "1.2-2" }}
+  </h1>
+  <h1 style="display: flex; flex-direction: row-reverse">
+    ORDER TOTAL: ${{ orderTotal - refundTotal | number: "1.2-2" }}
+  </h1>
+  <!-- <p>
     GURU BUCKS EARNED BY THIS ORDER BEING COMPLETED:
     {{ guruBucksEarned }}
-  </p>
-  <div class="pay-button">
-    <button
-      type="button"
-      class="button-style"
-      (click)="goToPayment()"
-      [disabled]="
-        currentOrder &&
-        !(
-          (currentOrder.refundedProducts &&
-            currentOrder.refundedProducts.length > 0) ||
-          (currentOrder.products && currentOrder.products.length > 0)
-        )
-      "
-    >
-      Pay Order
-      <mat-icon> money</mat-icon>
-    </button>
-    <button type="button" class="button-style" (click)="changePriceList()">
-      Change Price List
-      <mat-icon> money</mat-icon>
-    </button>
+  </p> -->
+  <div class="button-group-layout">
+    <div class="feature-buttons">
+      <button type="button" class="button-style" (click)="changePriceList()">
+        Change Price List
+        <mat-icon>price_change</mat-icon>
+      </button>
+      <button type="button" class="button-style" (click)="changeTaxRate()">
+        Change Tax Rate
+        <mat-icon> currency_exchange</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="button-style"
+        (click)="saveCurrentOrderForLater()"
+      >
+        Save Current Order
+        <mat-icon> save_alt</mat-icon>
+      </button>
+      <button type="button" class="button-style" (click)="resumeSavedOrder()">
+        Resume a Saved Order
+        <mat-icon> save_alt</mat-icon>
+      </button>
+    </div>
+
+    <!--Numpad-->
+    <div class="numpad-main">
+      <!--1-3-->
+      <div class="numpad-row">
+        <button
+          type="button"
+          (click)="attemptToSetSelectedGroupCount('1')"
+          (keydown.97)="attemptToSetSelectedGroupCount('1')"
+          (keydown.49)="attemptToSetSelectedGroupCount('1')"
+        >
+          1
+        </button>
+        <button
+          type="button"
+          (click)="attemptToSetSelectedGroupCount('2')"
+          (keydown.98)="attemptToSetSelectedGroupCount('2')"
+          (keydown.50)="attemptToSetSelectedGroupCount('2')"
+        >
+          2
+        </button>
+        <button
+          type="button"
+          (click)="attemptToSetSelectedGroupCount('3')"
+          (keydown.99)="attemptToSetSelectedGroupCount('3')"
+          (keydown.51)="attemptToSetSelectedGroupCount('3')"
+        >
+          3
+        </button>
+      </div>
+      <!--4-6-->
+      <div class="numpad-row">
+        <button
+          type="button"
+          (click)="attemptToSetSelectedGroupCount('4')"
+          (keydown.100)="attemptToSetSelectedGroupCount('4')"
+          (keydown.52)="attemptToSetSelectedGroupCount('4')"
+        >
+          4
+        </button>
+        <button
+          type="button"
+          (click)="attemptToSetSelectedGroupCount('5')"
+          (keydown.101)="attemptToSetSelectedGroupCount('5')"
+          (keydown.53)="attemptToSetSelectedGroupCount('5')"
+        >
+          5
+        </button>
+        <button
+          type="button"
+          (click)="attemptToSetSelectedGroupCount('6')"
+          (keydown.102)="attemptToSetSelectedGroupCount('6')"
+          (keydown.54)="attemptToSetSelectedGroupCount('6')"
+        >
+          6
+        </button>
+      </div>
+      <!--7-9-->
+      <div class="numpad-row">
+        <button
+          type="button"
+          (click)="attemptToSetSelectedGroupCount('7')"
+          (keydown.103)="attemptToSetSelectedGroupCount('7')"
+          (keydown.55)="attemptToSetSelectedGroupCount('7')"
+        >
+          7
+        </button>
+        <button
+          type="button"
+          (click)="attemptToSetSelectedGroupCount('8')"
+          (keydown.104)="attemptToSetSelectedGroupCount('8')"
+          (keydown.56)="attemptToSetSelectedGroupCount('8')"
+        >
+          8
+        </button>
+        <button
+          type="button"
+          (click)="attemptToSetSelectedGroupCount('9')"
+          (keydown.105)="attemptToSetSelectedGroupCount('9')"
+          (keydown.57)="attemptToSetSelectedGroupCount('9')"
+        >
+          9
+        </button>
+      </div>
+      <!--0 AND . -->
+      <div class="numpad-row">
+        <button
+          type="button"
+          disabled
+          (click)="attemptToSetSelectedGroupCount('0')"
+          (keydown.96)="attemptToSetSelectedGroupCount('0')"
+          (keydown.48)="attemptToSetSelectedGroupCount('0')"
+        ></button>
+        <button
+          type="button"
+          (click)="attemptToSetSelectedGroupCount('0')"
+          (keydown.96)="attemptToSetSelectedGroupCount('0')"
+          (keydown.48)="attemptToSetSelectedGroupCount('0')"
+        >
+          0
+        </button>
+        <button
+          type="button"
+          (click)="attemptToSetSelectedGroupCount('-')"
+          (keydown.8)="attemptToSetSelectedGroupCount('-')"
+        >
+          <mat-icon>backspace</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div class="pay-button">
+      <button
+        type="button"
+        class="button-style"
+        (click)="goToPayment()"
+        [disabled]="
+          currentOrder &&
+          !(
+            (currentOrder.refundedProducts &&
+              currentOrder.refundedProducts.length > 0) ||
+            (currentOrder.products && currentOrder.products.length > 0)
+          )
+        "
+      >
+        Pay Order
+        <mat-icon> money</mat-icon>
+      </button>
+      <button type="button" class="button-style" (click)="openSplitOrderModal()" *ngIf="">
+        Split Order
+        <mat-icon> splitscreen</mat-icon>
+      </button>
+    </div>
   </div>
 </div>

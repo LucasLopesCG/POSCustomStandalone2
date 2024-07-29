@@ -6,6 +6,7 @@ import { userService } from "./app/services/userService";
 import { storeService } from "./app/services/storeService";
 import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
 import { provideHttpClient } from "@angular/common/http";
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -14,7 +15,8 @@ bootstrapApplication(AppComponent, {
     provideStore({ stateReducer: stateReducer }),
     provideAnimationsAsync(),
     provideHttpClient(),
-  ],
+    provideAnimations()
+],
 }).catch((err) => console.error(err));
 
 declare global {

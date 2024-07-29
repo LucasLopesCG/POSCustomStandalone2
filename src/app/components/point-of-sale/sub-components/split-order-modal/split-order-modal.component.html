@@ -1,0 +1,33 @@
+<div style="min-width: 900px; max-height: 600px">
+  <div mat-dialog-title class="bg-beige">
+    <h2>SPLIT ORDER</h2>
+    <button aria-label="close dialog" mat-dialog-close (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div mat-dialog-content>
+    <div class="info-card">
+      <!--Write info on what is present on current order-->
+    </div>
+    <div>
+      <div class="confirm-or-deny-buttons">
+        <button
+          mat-icon-button
+          aria-label="confirm edit"
+          mat-dialog-close
+          (click)="splitAndMakeOrders()"
+        >
+          <mat-icon>check_circle</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="cancel edit"
+          mat-dialog-close
+          (click)="close()"
+        >
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

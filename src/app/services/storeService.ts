@@ -30,6 +30,7 @@ import { restaurantLayout } from "../models/restaurantLayout";
 import { accessLevel } from "../models/accessLevel";
 import { WordPressService } from "./wordpress.service";
 import { OdooService } from "./odoo.service";
+import { CurrentOrderService } from "./current-order.service";
 @Injectable({
   providedIn: "root",
 })
@@ -57,6 +58,7 @@ export class storeService {
   pastOrderArray: Array<order> = [];
   usersForCurrentStore: Array<User> = [];
   allStores: any = {};
+  incompleteOrdersArray: Array<any> = [];
   // Observable string source
   private dataSelectedStoreLocation = new BehaviorSubject<any>(
     storeLocationEnum.none,
@@ -78,6 +80,10 @@ export class storeService {
   private selectedPriceList = new BehaviorSubject<number>(7);
   private availablePriceLists = new BehaviorSubject<Array<number>>([7]);
   private stockFilter = new BehaviorSubject<string>("");
+  private configIdForCurrentStore = new BehaviorSubject<number>(0);
+  private availablePaymentMethods = new BehaviorSubject<Array<number>>([]);
+  private incompleteOrders = new BehaviorSubject<Array<any>>([]);
+  private stockAtCurrentLocation = new BehaviorSubject<Array<any>>([]);
   /////////////////////////////////////////////////////////////////////////////////////
   private currentStoreLayout = new BehaviorSubject<any>({});
   private restaurantViewEditMode = new BehaviorSubject<any>({});
@@ -104,6 +110,10 @@ export class storeService {
   selectedPriceList$ = this.selectedPriceList.asObservable();
   availablePriceLists$ = this.availablePriceLists.asObservable();
   stockFilter$ = this.stockFilter.asObservable();
+  configIdForCurrentStore$ = this.configIdForCurrentStore.asObservable();
+  availablePaymentMethods$ = this.availablePaymentMethods.asObservable();
+  incompleteOrders$ = this.incompleteOrders.asObservable();
+  stockAtCurrentLocation$ = this.stockAtCurrentLocation.asObservable();
   /////////////////////////////////////////////////////////////////////////////////////
   currentStoreLayout$ = this.currentStoreLayout.asObservable();
   restaurantViewEditMode$ = this.restaurantViewEditMode.asObservable();
@@ -131,6 +141,28 @@ export class storeService {
       this.allStores = val;
       this.getCurrentStoreLayout();
     });
+    this.incompleteOrders$.subscribe((val) => {
+      this.incompleteOrdersArray = val;
+    });
+  }
+
+  public clearIncompleteOrder() {
+    this.incompleteOrders.next([]);
+  }
+
+  public addIncompleteOrder(val) {
+    this.incompleteOrdersArray.push(val);
+    this.incompleteOrders.next(this.incompleteOrdersArray);
+  }
+  public resumeIncompleteOrder(val) {
+    var output: Array<any> = [];
+    this.incompleteOrdersArray.forEach((order) => {
+      if (JSON.stringify(order.order) == JSON.stringify(val)) {
+      } else {
+        output.push(order);
+      }
+    });
+    this.incompleteOrders.next(output);
   }
 
   public getCategoryIconList() {
@@ -163,9 +195,40 @@ export class storeService {
     // (this.availableLocations);
   }
 
-  public getPriceListForStore(value) {
+  public setStoreStock(val) {
+    this.stockAtCurrentLocation.next(val);
+  }
+
+  public getPriceListForStore(location, availableTaxRates) {
     //This function should return the pricelist for the store, tax rate, etc
-    this.taxRateForStore.next(0.07);
+
+    var output: number = 0;
+    var stringToConvertToPercentage: string = "";
+    if (availableTaxRates && availableTaxRates.length > 0) {
+      availableTaxRates.forEach((taxRate) => {
+        if (taxRate.position_id[1] == location.location) {
+          stringToConvertToPercentage = taxRate.tax_dest_id[1];
+          stringToConvertToPercentage =
+            stringToConvertToPercentage.split("%")[0];
+          output = +stringToConvertToPercentage;
+          output = output / 100;
+        }
+      });
+    }
+
+    this.taxRateForStore.next(output);
+  }
+
+  public setConfigId(val) {
+    this.configIdForCurrentStore.next(val);
+  }
+
+  setAvailablePaymentMethodIds(val) {
+    this.availablePaymentMethods.next(val);
+  }
+
+  public setTaxRateForStore(val) {
+    this.taxRateForStore.next(val);
   }
 
   public setProductsForStore(val) {
@@ -176,10 +239,11 @@ export class storeService {
   public decreaseStockOfProduct(value) {
     this.productList.forEach((product) => {
       if (product.id == value.id && product.stock && product.stock >= 0) {
-        product.stock = value.stock - 1;
+        product.stock--;
       }
     });
     this.productsForCurrentStore.next(this.productList);
+    //this.currentOrderService.setDisableButtons(false);
   }
   public increaseStockOfProduct(value) {
     this.productList.forEach((product) => {
@@ -190,6 +254,7 @@ export class storeService {
       }
     });
     this.productsForCurrentStore.next(this.productList);
+    //this.currentOrderService.setDisableButtons(false);
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

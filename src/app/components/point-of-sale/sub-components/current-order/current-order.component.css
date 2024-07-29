@@ -34,9 +34,25 @@
 
 .pay-button {
   display: flex;
+  align-items: stretch;
+  align-content: center;
+  justify-content: center;
+}
+
+.button-group-layout {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  align-items: normal;
+}
+.feature-buttons {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   align-content: center;
   justify-content: center;
+  max-width: 7rem;
 }
 
 .button-style {
@@ -65,6 +81,8 @@
 
 .current-order-product-list {
   min-height: 20rem;
+  /* max-height: 20rem; */
+  max-height: 20vh;
   padding-bottom: 10px;
   box-sizing: border-box;
   border: black;
@@ -75,9 +93,34 @@
   border: 1px solid #ddd;
   border-radius: 10px;
   cursor: pointer;
+  overflow-y: auto;
 }
 
 .small-spinner {
   max-width: 30px;
   max-height: 30px;
+}
+
+.numpad-main {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.numpad-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.numpad-row button {
+  min-width: 4rem;
+  max-height: 4rem;
+  max-width: 4rem;
+  min-height: 3rem;
 }

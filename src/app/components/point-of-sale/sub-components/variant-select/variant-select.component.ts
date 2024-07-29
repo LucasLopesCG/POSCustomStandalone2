@@ -6,6 +6,7 @@ import { FormsModule } from "@angular/forms";
 import { product } from "../../../../models/product";
 import { CurrentOrderService } from "../../../../services/current-order.service";
 import { MatIcon } from "@angular/material/icon";
+import { DomSanitizer } from "@angular/platform-browser";
 
 @Component({
   selector: "app-variant-select",
@@ -17,6 +18,7 @@ import { MatIcon } from "@angular/material/icon";
 export class VariantSelectComponent implements OnInit {
   selectedVariantGroup: Array<any> = [];
   constructor(
+    private sanitizer: DomSanitizer,
     private currentOrderService: CurrentOrderService,
     public dialogRef: MatDialogRef<VariantSelectComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -34,6 +36,13 @@ export class VariantSelectComponent implements OnInit {
     // ("pause and check!");
     if (event.stock > 0) this.currentOrderService.addItemToOrder(event);
     //this.modalService.close();
+  }
+
+  sanitizeImage(imageUrl: string | undefined) {
+    var output = this.sanitizer.bypassSecurityTrustResourceUrl(
+      "data:image/jpg;base64," + imageUrl,
+    );
+    return output;
   }
 
   close() {

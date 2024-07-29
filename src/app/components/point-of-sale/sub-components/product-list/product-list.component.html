@@ -26,10 +26,7 @@
             [class.active]="selectedCategory === category"
             (click)="filterByCategory(category)"
           >
-            <img
-              class="img-responsive"
-              src="assets/images/{{ category }}.png"
-            />
+            <img class="img-category" src="assets/images/{{ category }}.png" />
             <span>{{ category }}</span>
           </div>
           <div
@@ -37,7 +34,7 @@
             [class.active]="selectedCategory === 'ALL'"
             (click)="filterByCategory('ALL')"
           >
-            <img class="img-responsive" src="assets/images/AllCategories.png" />
+            <img class="img-category" src="assets/images/AllCategories.png" />
             <span>All Products</span>
           </div>
           <!-- <div
@@ -55,9 +52,11 @@
     <div class="row">
       <div class="col-md-12">
         <div class="product-container">
-          <ng-container *ngFor="let array of filteredProducts">
+          <ng-container
+            *ngFor="let array of filteredProducts"
+            class="product-container-content"
+          >
             <div
-              (click)="addProductToOrder(array[0])"
               class="product-card"
               *ngIf="
                 array.length < 2 &&
@@ -67,33 +66,64 @@
               "
             >
               <div>
-                <img
-                  class="img-responsive"
-                  [src]="sanitizeImage(array[0].image)"
-                  crossorigin="anonymous"
-                  *ngIf="array[0].image != 'false'"
-                />
-                <h4>{{ array[0].name }}</h4>
-                <p>Price: {{ array[0].price | number: "1.2-2" }}</p>
-                <p>Stock: {{ array[0].stock }}</p>
+                <div style="position: relative">
+                  <img
+                    (click)="addProductToOrder(array[0])"
+                    class="img-responsive"
+                    [src]="sanitizeImage(array[0].image)"
+                    crossorigin="anonymous"
+                    *ngIf="array[0].image != 'false'"
+                  />
+                  <!--INFO card to show product count/variants accross stores goes here-->
+                  <!-- <img
+                    style="max-width: 30px; max-height: 30px"
+                    src="assets/images/info6.png"
+                    (click)="queryStoresForStock(array[0])"
+                  /> -->
+                  <mat-icon
+                    class="info-button"
+                    (click)="queryStoresForStock(array[0])"
+                    >info</mat-icon
+                  >
+                </div>
+
+                <div
+                  class="product-card-info"
+                  (click)="addProductToOrder(array[0])"
+                >
+                  <h4>{{ array[0].name }}</h4>
+                  <p>Price: {{ array[0].price | number: "1.2-2" }}</p>
+                  <p>Stock: {{ array[0].stock }}</p>
+                </div>
               </div>
             </div>
             <div
               class="product-card"
               *ngIf="array.length >= 2 && totalProductCount(array) > 0"
             >
-              <div
-                (click)="openVariantModal(array)"
-                *ngIf="totalProductCount(array) > 0"
-              >
-                <img
-                  class="img-responsive"
-                  [src]="sanitizeImage(array[0].image)"
-                  crossorigin="anonymous"
-                  *ngIf="array[0].image != 'false'"
-                />
-                <h4>{{ array[0].variantName }}</h4>
-                <p>Total Count: {{ totalProductCount(array) }}</p>
+              <div *ngIf="totalProductCount(array) > 0">
+                <div style="position: relative">
+                  <img
+                    class="img-responsive"
+                    [src]="sanitizeImage(array[0].image)"
+                    (click)="openVariantModal(array)"
+                    crossorigin="anonymous"
+                    *ngIf="array[0].image != 'false'"
+                  />
+                  <mat-icon
+                    class="info-button"
+                    (click)="queryStoresForStock(array[0])"
+                    >info</mat-icon
+                  >
+                </div>
+
+                <div
+                  class="product-card-info"
+                  (click)="openVariantModal(array)"
+                >
+                  <h4>{{ array[0].variantName }}</h4>
+                  <p>Total Count: {{ totalProductCount(array) }}</p>
+                </div>
               </div>
             </div>
           </ng-container>

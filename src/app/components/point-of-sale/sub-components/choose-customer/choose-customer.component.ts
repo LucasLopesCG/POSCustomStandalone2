@@ -8,6 +8,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MatFormField, MatLabel } from "@angular/material/form-field";
 import { OdooService } from "../../../../services/odoo.service";
 import { WordPressService } from "../../../../services/wordpress.service";
+import { CurrentOrderService } from "../../../../services/current-order.service";
 @Component({
   selector: "app-choose-customer",
   standalone: true,
@@ -32,6 +33,7 @@ export class ChooseCustomerComponent {
     public dialogRef: MatDialogRef<ChooseCustomerComponent>,
     private odooService: OdooService,
     private wordpressService: WordPressService,
+    private currentOrderService: CurrentOrderService,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     customerService.availableCustomers$.subscribe((val) => {
@@ -60,6 +62,7 @@ export class ChooseCustomerComponent {
     this.customerService.setCurrentCustomer(event);
     this.wordpressService.getGuruBucksForCustomer(event);
     this.close();
+    this.currentOrderService.addCustomerToOrder(event);
   }
 
   filterCustomers(): void {

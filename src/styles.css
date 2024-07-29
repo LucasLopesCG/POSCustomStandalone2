@@ -1,4 +1,24 @@
+@import "mdb-angular-ui-kit/assets/scss/mdb.scss";
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+.bg-beige {
+  background-color: beige;
+}
+
+[mat-dialog-content] {
+  background-color: white;
+}
+
+.confirm-or-deny-buttons {
+  margin-left: 1rem;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+}

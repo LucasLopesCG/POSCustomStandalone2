@@ -1,0 +1,36 @@
+<div style="min-width: 900px; max-height: 600px">
+  <div mat-dialog-title class="bg-beige">
+    <h2>Stock Information for {{ searchName }}</h2>
+    <button aria-label="close dialog" mat-dialog-close (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div mat-dialog-content>
+    <div style="padding-left: 1rem">
+      <div *ngIf="productStockInfoFinal && productStockInfoFinal.length > 0">
+        <!-- <h2>Stock information for {{ searchName }}</h2> -->
+
+        <div
+          *ngFor="let productStock of productStockInfoFinal"
+          style="padding-left: 0.5rem"
+        >
+          <h3 style="font-weight: 600">{{ productStock.name }}</h3>
+          <div
+            *ngFor="let location of productStock.locations"
+            style="
+              display: flex;
+              flex-direction: column;
+              padding-bottom: 1rem;
+              margin-left: 1rem;
+            "
+          >
+            <label
+              >{{ location.location }} has {{ location.quantity }} units in
+              stock</label
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

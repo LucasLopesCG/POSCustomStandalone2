@@ -1,0 +1,41 @@
+<div style="min-width: 900px; max-height: 600px">
+  <div mat-dialog-title class="dialog-title bg-beige text-dark-green p-3">
+    <h2 *ngIf="isLockMode">SESSION LOCKED BY: {{ user.name }}</h2>
+    <h2 *ngIf="!isLockMode">REPLACE {{ user.name }} WITH ANOTHER CASHIER</h2>
+    <button
+      *ngIf="!isLockMode"
+      mat-icon-button
+      aria-label="close dialog"
+      mat-dialog-close
+      (click)="close()"
+      class="float-right"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div mat-dialog-content style="height: 25rem" class="p-3">
+    <div id="buttonDiv" class="button-group">
+      <label *ngIf="notGuru && !isLockMode" class="warning-label"
+        >Not a &#64;chronicGuru.com account.</label
+      >
+      <label *ngIf="notGuru && isLockMode" class="warning-label"
+        >Wrong Account. Please re-sign in as {{ user.email }}</label
+      >
+      <asl-google-signin-button type="icon" size="medium"
+        >Log in</asl-google-signin-button
+      >
+      <img class="img-responsive" src="assets/images/logo.png" />
+    </div>
+
+    <!-- <button
+      *ngIf="isLockMode"
+      mat-icon-button
+      aria-label="close dialog"
+      mat-dialog-close
+      (click)="close()"
+      class="float-right"
+    >
+      LOCKED, BUTTON ONLY PRESENT TO PREVENT deadlock
+    </button> -->
+  </div>
+</div>

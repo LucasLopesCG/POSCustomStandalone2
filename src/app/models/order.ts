@@ -4,7 +4,7 @@ import { orderStatusEnum } from "./orderStatusEnum";
 import { product } from "./product";
 
 export class order {
-  products?: Array<{ product: product; count: number }>;
+  products?: Array<{ product: product; count: number; note?: string }>;
   bxgoProducts?: Array<product>;
   comboProducts?: Array<product>;
   refundedProducts?: Array<product>;

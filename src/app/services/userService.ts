@@ -12,25 +12,12 @@ import { User } from "../models/user";
 
 import { HttpClient } from "@angular/common/http";
 import { order } from "../models/order";
+import { OdooService } from "./odoo.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class userService {
-  // declare and initialize the quote property
-  // which will be a BehaviorSubject
-  //   user = new BehaviorSubject({});
-
-  //   // expose the BehaviorSubject as an Observable
-  //   currentUser = this.user.asObservable();
-
-  //   // function to update the value of the BehaviorSubject
-  //   setCurrentUser(newUser: User){
-  //     this.user.next(newUser);
-  //     //this.currentUser = this.user.asObservable();
-  //      ("user got updated inside of userService");
-  //   }
-
   user = { name: " " };
   sessionDataArray: Array<order> = [];
   sessionCashTracker: number = 0;
@@ -48,6 +35,7 @@ export class userService {
   constructor() {
     this.sessionData$.subscribe((val) => {
       this.sessionDataArray = val;
+      //odooService.getTaxRates();
     });
     this.cashRegisterAmt$.subscribe((val) => {
       this.sessionCashTracker = val;
@@ -58,6 +46,7 @@ export class userService {
     // ("save data function called " + value + this.user.name);
     this.user = value;
     this.dataUser.next(this.user);
+    //this.odooService.getTaxRates();
   }
 
   public newSession() {

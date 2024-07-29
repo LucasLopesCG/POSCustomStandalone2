@@ -1,0 +1,101 @@
+<div style="min-width: 900px; max-height: 600px">
+  <div mat-dialog-title class="bg-beige">
+    <h2>SELECT ORDER TO CONTINUE:</h2>
+    <button aria-label="close dialog" mat-dialog-close (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div mat-dialog-content>
+    <div>
+      <!--Write info on what is present on current order-->
+      <div *ngIf="incompleteOrders && incompleteOrders.length > 0">
+        <div
+          *ngFor="let incompleteOrder of incompleteOrders; let i = index"
+          (click)="selectOrder(i)"
+          class="info-card"
+          [class.active]="incompleteOrder.order === selectedOrder"
+        >
+          <h2>DETAILS FOR ORDER: {{ incompleteOrder.nickName }}</h2>
+          <h2>PRODUCTS IN ORDER:</h2>
+          <div *ngFor="let products of incompleteOrder.order.products">
+            <!--Div for products-->
+            <div class="order-details">
+              <label>Product Name: {{ products.product.name }} </label>
+              <label>Product Count: {{ products.count }}</label>
+              <label>NOTES: {{ products.note }}</label>
+            </div>
+          </div>
+
+          <div
+            *ngIf="
+              incompleteOrder.refundedProducts &&
+              incompleteOrder.refundedProducts.length > 0
+            "
+          >
+            <!--Div for Refunds-->
+            <h2>REFUNDS IN ORDER:</h2>
+            <div
+              *ngFor="let products of incompleteOrder.order.refundedProducts"
+            >
+              <div class="order-details">
+                <label>Product Name: {{ products.name }} </label>
+                <label>Product Count: 1</label>
+              </div>
+            </div>
+            <label
+              >Tied to order #:
+              {{ incompleteOrder.order.refundOrderNumber }}</label
+            >
+          </div>
+
+          <div
+            *ngIf="
+              incompleteOrder.order.coupon && incompleteOrder.order.coupon[0]
+            "
+          >
+            <!--Div for COUPON-->
+            <h2>COUPON IN ORDER:</h2>
+            <div class="order-details">
+              <label
+                >Coupon Type: {{ incompleteOrder.order.coupon[0].couponType }}
+              </label>
+              <label
+                >Coupon Name:
+                {{
+                  incompleteOrder.order.coupon[0].couponDetail?.description
+                }}</label
+              >
+            </div>
+          </div>
+          <div *ngIf="incompleteOrder.order.customer">
+            <!--Div for CUSTOMER-->
+            <h2>CUSTOMER ASSIGNED TO ORDER:</h2>
+            <div class="order-details">
+              <label>NAME: {{ incompleteOrder.order.customer.name }} </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="confirm-or-deny-buttons">
+        <button
+          mat-icon-button
+          aria-label="confirm edit"
+          mat-dialog-close
+          (click)="resumeSelectedOrder()"
+        >
+          <mat-icon>check_circle</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="cancel edit"
+          mat-dialog-close
+          (click)="close()"
+        >
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
