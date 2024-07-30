@@ -70,7 +70,7 @@ export class customerService {
   }
 
   public addNewCustomer(val: customer) {
-    this.availableCustomersList.push(val);
+    this.availableCustomersList.unshift(val);
     this.availableCustomers.next(this.availableCustomersList);
   }
   public updateLastCustomer(id: number) {

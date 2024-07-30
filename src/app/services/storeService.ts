@@ -74,6 +74,7 @@ export class storeService {
   private happyHourFlag = new BehaviorSubject<boolean>(false);
   private categoryIcons = new BehaviorSubject<Array<string>>([]);
   private taxRateForStore = new BehaviorSubject<any>({});
+  private taxRateIdForStore = new BehaviorSubject<any>({});
   private usersForStore = new BehaviorSubject<any>([]);
   private storeId = new BehaviorSubject<number>(-1);
   private enableOdooCalls = new BehaviorSubject<boolean>(false);
@@ -104,6 +105,7 @@ export class storeService {
   happyHourFlag$ = this.happyHourFlag.asObservable();
   categoryIcons$ = this.categoryIcons.asObservable();
   taxRateForStore$ = this.taxRateForStore.asObservable();
+  taxRateIdForStore$ = this.taxRateIdForStore.asObservable();
   usersForStore$ = this.usersForStore.asObservable();
   storeId$ = this.storeId.asObservable();
   enableOdooCalls$ = this.enableOdooCalls.asObservable();
@@ -207,6 +209,7 @@ export class storeService {
     if (availableTaxRates && availableTaxRates.length > 0) {
       availableTaxRates.forEach((taxRate) => {
         if (taxRate.position_id[1] == location.location) {
+          this.setTaxRateIdForStore(taxRate.tax_dest_id[0]);
           stringToConvertToPercentage = taxRate.tax_dest_id[1];
           stringToConvertToPercentage =
             stringToConvertToPercentage.split("%")[0];
@@ -229,6 +232,9 @@ export class storeService {
 
   public setTaxRateForStore(val) {
     this.taxRateForStore.next(val);
+  }
+  public setTaxRateIdForStore(val) {
+    this.taxRateIdForStore.next(val);
   }
 
   public setProductsForStore(val) {

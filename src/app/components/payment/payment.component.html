@@ -1,18 +1,29 @@
 <div class="container">
   <div class="header">
-    <button (click)="backToOrder()">BACK TO ORDER</button>
+    <button (click)="backToOrder()" class="btn btn-danger">
+      BACK TO ORDER
+    </button>
   </div>
   <div class="left">
     <div class="total">
-      <p>Total: {{ totalCost | number: "1.2-2" }}</p>
-      <p>Paid: {{ paid | number: "1.2-2" }}</p>
-      <p>Change: {{ change | number: "1.2-2" }}</p>
+      <p>
+        <span style="font-weight: 600">Total:</span>
+        {{ totalCost | number: "1.2-2" }}
+      </p>
+      <p>
+        <span style="font-weight: 600">Paid:</span>
+        {{ paid | number: "1.2-2" }}
+      </p>
+      <p>
+        <span style="font-weight: 600">Change:</span>
+        {{ change | number: "1.2-2" }}
+      </p>
     </div>
     <div class="actions">
       <button (click)="payExactAmount()">Exact Amount</button>
       <!-- <button>Paid with Card NOT IMPLEMENTED</button> -->
       <div>
-        <label>Enter amount: </label>
+        <label>Enter amount given: </label>
         <input
           type="number"
           [(ngModel)]="amountVal"
@@ -22,15 +33,20 @@
       </div>
     </div>
     <div class="money">
+      <label>Or enter individual bills and coins given: </label>
       <div *ngFor="let money of moneyOptions">
         <button (click)="decreaseMoneyCount(money)">-</button>
-        {{ money.name }}: {{ money.count }}
+        <label>{{ money.name }}: {{ money.count }}</label>
         <button (click)="increaseMoneyCount(money)">+</button>
       </div>
+      <button
+        (click)="submitPayment()"
+        [disabled]="paid < totalCost"
+        class="btn btn-success"
+      >
+        Submit Payment
+      </button>
     </div>
-    <button (click)="submitPayment()" [disabled]="paid < totalCost">
-      Submit Payment
-    </button>
   </div>
   <div class="middle"></div>
   <div class="right">

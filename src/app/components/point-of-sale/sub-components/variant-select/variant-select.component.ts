@@ -38,7 +38,10 @@ export class VariantSelectComponent implements OnInit {
     //this.modalService.close();
   }
 
-  sanitizeImage(imageUrl: string | undefined) {
+  sanitizeImage(imageUrl) {
+    if (imageUrl == "false" || !imageUrl || imageUrl == false) {
+      return "assets/images/placeholder.png";
+    }
     var output = this.sanitizer.bypassSecurityTrustResourceUrl(
       "data:image/jpg;base64," + imageUrl,
     );

@@ -10,7 +10,14 @@
       <label>Customer has accrued: </label>
       <label>{{ pristineGBAmmount }} Guru Bucks</label>
     </div>
-    <div style="padding-bottom: 1rem">
+    <div
+      style="
+        padding-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+      "
+    >
       <button *ngIf="pristineGBAmmount >= 20" (click)="useRewards()">
         USE 20 GURU BUCKS FOR $1 DISCOUNT
       </button>
@@ -29,6 +36,8 @@
         <button
           mat-icon-button
           aria-label="confirm edit"
+          class="btn btn-success mr-3"
+          style="margin-right: 1rem"
           mat-dialog-close
           (click)="updateOrderWithGBUsed()"
         >
@@ -38,6 +47,7 @@
           mat-icon-button
           aria-label="cancel edit"
           mat-dialog-close
+          class="btn btn-danger"
           (click)="close()"
         >
           <mat-icon>cancel</mat-icon>

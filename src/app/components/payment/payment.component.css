@@ -7,25 +7,28 @@
   align-content: stretch;
   height: 100vh;
 }
+
 .left {
   flex: 1;
 }
+
 .middle {
   background-color: grey;
   width: 1px;
 }
+
 .right {
   flex: 1;
+  margin-top: 1rem;
 }
+
 .header {
-  background-color: #f0f0f0;
   padding: 10px;
-  border-bottom: 1px solid #ccc;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .header button {
-  background-color: #4caf50;
-  color: #fff;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -38,4 +41,35 @@
 
 .payment-lines {
   padding-bottom: 0.3rem;
+}
+
+.total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.actions div label {
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  margin-right: 0.5rem;
+}
+
+.money {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.money label {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
 }

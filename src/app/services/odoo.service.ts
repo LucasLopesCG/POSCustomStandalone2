@@ -23,6 +23,7 @@ export class OdooService implements OnInit {
   availablePaymentMethodIds: Array<number> = [];
   POSSessionStatesFinalArray: Array<any> = [];
   currentCashier: any = {};
+  selectedTaxId: any = {};
 
   private sessionId = new BehaviorSubject<number>(599);
   private configIds = new BehaviorSubject<any>({});
@@ -100,6 +101,9 @@ export class OdooService implements OnInit {
   ) {
     userService.dataUser$.subscribe((val) => {
       this.currentCashier = val;
+    });
+    this.storeService.taxRateIdForStore$.subscribe((val) => {
+      this.selectedTaxId = val;
     });
     this.storeService.availablePaymentMethods$.subscribe((val) => {
       this.availablePaymentMethodIds = val;
@@ -759,7 +763,7 @@ export class OdooService implements OnInit {
       }
       if (this.selectedLocation.location == storeLocationEnum.Orlando) {
         //config_id = 3;
-        fiscal_position_id = 5;
+        fiscal_position_id = 3;
         paymentMethodId = 8;
       }
       if (this.selectedLocation.location == storeLocationEnum.Sanford) {
@@ -783,6 +787,9 @@ export class OdooService implements OnInit {
               total_price: price * product.count,
               customer_note: product.note,
             };
+            if (!newLine.customer_note) {
+              newLine.customer_note = "";
+            }
             count++;
             lines.push(newLine);
           }
@@ -799,6 +806,9 @@ export class OdooService implements OnInit {
                 total_price: price * product.count,
                 customer_note: product.note,
               };
+              if (!newLine.customer_note) {
+                newLine.customer_note = "";
+              }
               count++;
               lines.push(newLine);
             }
@@ -813,6 +823,9 @@ export class OdooService implements OnInit {
             total_price: couponPrice,
             customer_note: product.note,
           };
+          if (!couponLine.customer_note) {
+            couponLine.customer_note = "";
+          }
           lines.push(couponLine);
         }
       });
@@ -895,10 +908,13 @@ export class OdooService implements OnInit {
       cashier: order.cashier,
       config_id: this.storeConfigId,
       fiscal_position_id: fiscal_position_id,
+      tax_id: [this.selectedTaxId],
       lines: lines,
     };
     if (order.customer) {
       odooStyleOrder.customerId = order.customer.id as number;
+    } else {
+      odooStyleOrder.customerId = "";
     }
     //console.log(odooStyleOrder);
     const body = JSON.stringify(odooStyleOrder);

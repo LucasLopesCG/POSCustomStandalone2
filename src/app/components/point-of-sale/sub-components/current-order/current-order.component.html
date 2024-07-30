@@ -29,7 +29,6 @@
             type="button"
             class="btn-close"
             (click)="removeItemFromOrder(product)"
-            [disabled]="product.count <= 1 || disableButtons"
           ></button>
           <button
             type="button"
@@ -415,7 +414,12 @@
         Pay Order
         <mat-icon> money</mat-icon>
       </button>
-      <button type="button" class="button-style" (click)="openSplitOrderModal()" *ngIf="">
+      <button
+        type="button"
+        class="button-style"
+        (click)="openSplitOrderModal()"
+        *ngIf=""
+      >
         Split Order
         <mat-icon> splitscreen</mat-icon>
       </button>

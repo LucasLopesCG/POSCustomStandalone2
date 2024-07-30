@@ -82,6 +82,20 @@ export class ChangeTaxRateModalComponent {
 
   updateTaxRate() {
     this.storeService.setTaxRateForStore(this.selectedTaxRate);
+    var stringNum = this.selectedTaxRate * 100 + "%";
+    var taxGroup: any = {};
+    this.availableTaxRates.forEach((taxRate) => {
+      if (
+        taxRate.display_name
+          .toLowerCase()
+          .includes(this.locationName.toLowerCase())
+      ) {
+        taxGroup = taxRate;
+      }
+    });
+    if (taxGroup.tax_dest_id[1].includes(stringNum)) {
+      this.storeService.setTaxRateIdForStore(taxGroup.tax_dest_id[0]);
+    }
     this.close();
   }
 

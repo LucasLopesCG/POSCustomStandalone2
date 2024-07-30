@@ -27,13 +27,12 @@
           </div>
           <button
             *ngIf="storeLoc.inUse && storeLoc.cashier != currentUser.name"
-            (click)="createNewSession(storeLoc)"
-            [disabled]="storeLoc.inUse"
+            (click)="resumeSession(storeLoc)"
           >
             <label *ngIf="!storeLoc.inUse">Login</label>
             <label
               *ngIf="storeLoc.inUse && storeLoc.cashier != currentUser.name"
-              >Register In Use</label
+              >Log into {{ storeLoc.cashier }}'s session</label
             >
           </button>
           <button

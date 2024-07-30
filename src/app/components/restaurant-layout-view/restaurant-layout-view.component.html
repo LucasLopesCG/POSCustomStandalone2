@@ -1,5 +1,5 @@
 <div *ngIf="orderStatus == orderStatusEnum.Ordering">
-  <div>
+  <div class="menu-display">
     <!-- <div
       class="POS-cashier-menu"
       *ngIf="
@@ -50,6 +50,9 @@
               </button>
               <button class="" (click)="openStoreCashierSettings()">
                 OPEN CASHIER DIALOG FOR CURRENT STORE
+              </button>
+              <button class="" (click)="openRestaurantLayoutChangeModal()">
+                CHANGE LAYOUT
               </button>
             </mat-menu>
           </ul>
