@@ -108,7 +108,9 @@ export class PointOfSaleComponent {
 
   openStoreCashierSettings(): void {
     //TODO: create StoreCashierSettingsComponent
-    this.dialog.open(CashierSettingsModalComponent);
+    this.dialog.open(CashierSettingsModalComponent, {
+      panelClass: "bg-beige",
+    });
   }
 
   openGenerateStoreReport(): void {

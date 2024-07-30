@@ -11,7 +11,11 @@
       <mat-icon>close</mat-icon>
     </button>
   </div>
-  <div mat-dialog-content style="height: 25rem" class="p-3">
+  <div
+    mat-dialog-content
+    style="height: 25rem; overflow: auto; background-color: white"
+    class="p-3"
+  >
     <div *ngIf="mode == 'displayDiscount'">
       <div *ngIf="storeDiscounts; else noDiscountSettings">
         <div class="happy-hour-card">

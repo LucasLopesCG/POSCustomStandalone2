@@ -5,6 +5,18 @@
   background-color: #f5f5dc;
 }
 
+.mat-mdc-dialog-surface {
+  background-color: white !important;
+}
+
+.mdc-dialog__surface {
+  background-color: white !important;
+}
+
+::before {
+  background-color: white !important;
+}
+
 [mat-dialog-title] h2 {
   font-size: 24px;
   margin: 0;
@@ -35,4 +47,8 @@
 
 .label {
   font-weight: 900;
+}
+
+.bg-beige {
+  background-color: beige;
 }

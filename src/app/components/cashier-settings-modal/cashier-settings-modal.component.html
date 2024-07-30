@@ -1,4 +1,11 @@
-<div style="min-width: 900px; max-height: 600px">
+<div
+  style="
+    min-width: 900px;
+    max-height: 600px;
+    overflow: auto;
+    background-color: white;
+  "
+>
   <div mat-dialog-title class="dialog-title bg-beige text-dark-green p-3">
     <h2>Modify Cashier(s)</h2>
     <button
@@ -11,7 +18,11 @@
       <mat-icon>close</mat-icon>
     </button>
   </div>
-  <div mat-dialog-content style="height: 25rem" class="p-3">
+  <div
+    mat-dialog-content
+    style="height: 25rem; background-color: white"
+    class="p-3"
+  >
     <div *ngIf="displayMode == 'Display'">
       <div *ngFor="let user of userList">
         <div class="cashier-card">
@@ -37,7 +48,7 @@
           </button>
         </div>
       </div>
-      <button type="button" (click)="newUser()" class="btn btn-success">
+      <button type="button" (click)="newUser()" class="btn btn-success mb-3">
         <mat-icon>fiber_new</mat-icon>
       </button>
     </div>
@@ -49,7 +60,6 @@
       </div>
       <div>
         <label class="label">Access Level: </label>
-
         <select class="form-control" [(ngModel)]="currentEditUser.access_level">
           <option *ngFor="let option of accessLevel | keyvalue">
             {{ option.value }}
@@ -89,7 +99,6 @@
       </div>
       <div>
         <label>Access Level: </label>
-
         <select class="" [(ngModel)]="newUserObject.access_level">
           <option *ngFor="let option of accessLevel | keyvalue">
             {{ option.value }}
@@ -103,7 +112,7 @@
         </label>
         <input type="text" [(ngModel)]="newUserObject.stores" />
       </div>
-      <button type="button" (click)="createUser()" class="btn btn-success">
+      <button type="button" (click)="createUser()" class="btn btn-success mb-3">
         <mat-icon>fiber_new</mat-icon>
       </button>
       <button
@@ -111,7 +120,7 @@
         aria-label="cancel new user Addition"
         mat-dialog-close
         (click)="cancelNewMode()"
-        class="btn btn-danger mr-2"
+        class="btn btn-danger mr-2 mb-3"
       >
         <mat-icon>cancel</mat-icon>
       </button>
@@ -125,7 +134,7 @@
       <button
         type="button"
         (click)="deleteUser(currentEditUser)"
-        class="btn btn-success"
+        class="btn btn-success mb-3"
       >
         <mat-icon>check_circle</mat-icon>
       </button>

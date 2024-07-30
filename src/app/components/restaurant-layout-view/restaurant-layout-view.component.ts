@@ -129,7 +129,9 @@ export class RestaurantLayoutViewComponent {
     });
   }
   openStoreCashierSettings() {
-    this.dialog.open(CashierSettingsModalComponent);
+    this.dialog.open(CashierSettingsModalComponent, {
+      panelClass: "bg-beige",
+    });
   }
   openCloseSessionModal() {
     this.dialog.open(CloseSessionModalComponent);

@@ -9,6 +9,7 @@
   justify-content: flex-start;
   align-items: stretch;
   align-content: stretch;
+  min-width: 35rem;
 }
 
 .bg-beige {
@@ -75,4 +76,36 @@
   display: flex;
   justify-content: space-between;
   margin-top: 0.5rem;
+}
+[mat-dialog-title] {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: #f5f5dc;
+}
+
+.mat-mdc-dialog-surface {
+  background-color: white !important;
+}
+
+.mdc-dialog__surface {
+  background-color: white !important;
+}
+
+::before {
+  background-color: white !important;
+}
+
+[mat-dialog-title] h2 {
+  font-size: 24px;
+  margin: 0;
+}
+
+/* Style the close button */
+[mat-dialog-title] button {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  right: 16px;
+  top: 16px;
 }

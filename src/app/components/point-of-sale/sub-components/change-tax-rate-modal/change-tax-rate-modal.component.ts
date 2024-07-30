@@ -52,7 +52,9 @@ export class ChangeTaxRateModalComponent {
     ) {
       var availableRates: any = [];
       this.configIds.forEach((configId) => {
-        if (configId.name.includes(this.locationName)) {
+        if (
+          configId.name.toLowerCase().includes(this.locationName.toLowerCase())
+        ) {
           var allowedTaxRates = configId.fiscal_position_ids;
           allowedTaxRates.forEach((taxRateId) => {
             this.availableTaxRates.forEach((availableTaxRate) => {
