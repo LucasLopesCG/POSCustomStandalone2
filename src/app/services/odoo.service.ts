@@ -829,6 +829,20 @@ export class OdooService implements OnInit {
           lines.push(couponLine);
         }
       });
+      if (order && order.bxgoProducts && order.bxgoProducts.length > 0) {
+        order.bxgoProducts.forEach((product) => {
+          var bxgoLine: any = {
+            product_id: product.id,
+            product_name: product.name + " Free due to BXGO",
+            quantity: 1,
+            price_unit: 0,
+            price_subtotal_incl: 0 * taxRate + 0,
+            total_price: 0,
+            customer_note: "Free due to BXGO",
+          };
+          lines.push(bxgoLine);
+        });
+      }
     }
     if (
       order &&

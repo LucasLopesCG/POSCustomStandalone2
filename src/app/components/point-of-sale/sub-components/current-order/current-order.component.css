@@ -64,6 +64,12 @@
   align-content: center;
 }
 
+.numpad-button {
+  background-color: white;
+  border-color: darkslategrey;
+  border-radius: 0px;
+}
+
 .coupon-section {
   padding-top: 5px;
   -moz-box-shadow: 3px 3px 5px 6px #ccc;
