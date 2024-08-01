@@ -740,10 +740,12 @@ export class OdooService implements OnInit {
     // }
     order.cashier = this.currentCashier.name;
     const odooUrl = this.middleManUrl + "/api/order-line"; // Replace with your Odoo instance URL
-
+    //debugger;
     var lines: Array<any> = [];
     var total = order.total as number;
     var taxRate = order.taxRate as number;
+    var totalPurchasePaid = order.totalPaid;
+    var totalPurchasePaidTax = order.totalPaidTax;
     var amountPaid = order.amountPaid as number;
     var amountTaxed = total - total / (1 + taxRate);
     //var config_id: number = 0;
@@ -912,11 +914,21 @@ export class OdooService implements OnInit {
     }
 
     //SEND OUT ORDER PROPER
+    if (
+      order.totalRefund &&
+      order.totalPaid &&
+      order.totalRefund >= order.totalPaid
+    ) {
+      order.amountPaid = order.totalPaid;
+      order.total = order.amountPaid;
+    }
     var odooStyleOrder: any = {
-      amount_tax: amountTaxed,
-      amount_total: total,
-      amount_paid: total,
-      amount_return: amountPaid - total,
+      amount_tax: (totalPurchasePaid as number) * taxRate,
+      amount_total:
+        (totalPurchasePaid as number) + (totalPurchasePaid as number) * taxRate,
+      amount_paid:
+        (totalPurchasePaid as number) + (totalPurchasePaid as number) * taxRate,
+      amount_return: (order.amountPaid as number) - (order.total as number),
       session_id: order.sessionId,
       name: "POS_CUSTOM_ORDER",
       cashier: order.cashier,
@@ -925,6 +937,7 @@ export class OdooService implements OnInit {
       tax_id: [this.selectedTaxId],
       lines: lines,
     };
+    //debugger;
     if (order.customer) {
       odooStyleOrder.customerId = order.customer.id as number;
     } else {
@@ -991,12 +1004,33 @@ export class OdooService implements OnInit {
    * @param offlineOrder
    */
   sendRefundOrder(order: order, offlineOrder: boolean = false) {
+    var fiscal_position_id: number = 0;
+    if (this.selectedLocation) {
+      if (this.selectedLocation.location == storeLocationEnum.Apopka) {
+        //config_id = 1;
+        fiscal_position_id = 2;
+      }
+      if (this.selectedLocation.location == storeLocationEnum.DeLand) {
+        //config_id = 4;
+        fiscal_position_id = 4;
+      }
+      if (this.selectedLocation.location == storeLocationEnum.Orlando) {
+        //config_id = 3;
+        fiscal_position_id = 3;
+      }
+      if (this.selectedLocation.location == storeLocationEnum.Sanford) {
+        //config_id = 2;
+        fiscal_position_id = 1;
+      }
+    }
     var odooStyleOrder: any = {};
     odooStyleOrder.id = order.refundOrderNumber;
     odooStyleOrder.cashier = order.cashier;
     odooStyleOrder.refundAmount = order.totalRefund as number;
     odooStyleOrder.refundAmount = odooStyleOrder.refundAmount * -1;
-    odooStyleOrder.session_id = order.sessionId as number;
+    (odooStyleOrder.config_id = this.storeConfigId),
+      (odooStyleOrder.fiscal_position_id = fiscal_position_id),
+      (odooStyleOrder.session_id = order.sessionId as number);
     odooStyleOrder.products = [];
     if (order && order.refundedProducts) {
       order.refundedProducts?.forEach((product) => {
@@ -1057,6 +1091,7 @@ export class OdooService implements OnInit {
     paymentMethodId,
     createPickings: boolean = false,
   ) {
+    var order2 = structuredClone(order);
     var pickingLineIds: Array<number> = [];
     const odooUrl = this.middleManUrl + "/api/order-pay"; // Replace with your Odoo instance URL
 
@@ -1066,6 +1101,7 @@ export class OdooService implements OnInit {
       amount: amount,
       orderId: order.orderNumber,
     };
+    //debugger;
     //console.log(odooStyleOrder);
     const body = JSON.stringify(odooStyleOrder);
 
@@ -1165,12 +1201,12 @@ export class OdooService implements OnInit {
                     .post(odooPickingValidateLinkUrl, linkBodyJSON)
                     .subscribe(
                       (val) => {
-                        //console.log("picking validated?");
-                        //this.validateOrder(order);
+                        console.log("picking validated?");
+                        this.validateOrder(order2);
                       },
                       (error) => {
-                        //console.log("picking validated via error?");
-                        this.validateOrder(order);
+                        console.log("picking validated via error?");
+                        this.validateOrder(order2);
                       },
                     );
                 },

@@ -1,4 +1,4 @@
-<div class="current-order-product-list">
+<div class="current-order-product-list" id="currentOrderProductList">
   <div *ngIf="currentOrderProducts.length > 0">
     <div
       *ngFor="let product of productGroupsWithCouponGroups; let i = index"
@@ -127,6 +127,7 @@
     currentOrder.refundedProducts &&
     currentOrder.refundedProducts.length > 0
   "
+  id="currentOrderRefundProductList"
 >
   <div *ngFor="let refund of currentOrder.refundedProducts">
     <div
@@ -139,6 +140,7 @@
   </div>
 </div>
 <div
+  id="couponSelectedList"
   class="coupon-section"
   *ngIf="selectedCoupon && selectedCoupon.couponDetail; else noCouponSelected"
 >
@@ -148,10 +150,10 @@
 </div>
 <ng-template #noCouponSelected></ng-template>
 
-<div class="button-group">
+<div class="button-group" id="topButtonGroup">
   <button
     type="button"
-    class="button-style"
+    class="button-style btn btn-warning"
     (click)="openRefundModal()"
     [disabled]="pastOrdersLoading"
   >
@@ -167,6 +169,8 @@
   <div style="display: flex; flex-direction: column">
     <button
       type="button"
+      class="btn btn-info"
+      style="margin-bottom: 0.5rem"
       (click)="openChooseCustomerModal()"
       [disabled]="customerLoading"
     >
@@ -189,7 +193,7 @@
     <button
       *ngIf="this.selectedCustomer && this.selectedCustomer.name"
       type="button"
-      class="button-style"
+      class="button-style btn btn-warning"
       (click)="clearSelectedCustomer()"
     >
       <label class="label-right-padding">Clear Customer</label>
@@ -205,8 +209,8 @@
     <button
       type="button"
       (click)="openChooseCoupon()"
-      class="button-style"
-      style="height: 100%; align-items: center"
+      class="button-style btn btn-success"
+      style="height: 100%; align-items: center; margin-bottom: 0.5rem"
     >
       <label class="label-right-padding">COUPON</label>
       <mat-icon> money_off</mat-icon>
@@ -221,7 +225,7 @@
       <button
         type="button"
         (click)="openGuruBucks()"
-        class="button-style"
+        class="button-style btn btn-success"
         style="height: 100%; align-items: center"
       >
         <label class="label-right-padding">GURU BUCKS</label>
@@ -231,7 +235,10 @@
   </div>
 </div>
 
-<div>
+<div
+  class="order-buttons-and-details-container"
+  id="orderButtonsAndDetailsContainer"
+>
   <!-- <p>
     TOTAL PRICE BEFORE TAXES AND COUPONS: {{ totalPrice | number: "1.2-2" }}
   </p>
@@ -274,48 +281,47 @@
     GURU BUCKS EARNED BY THIS ORDER BEING COMPLETED:
     {{ guruBucksEarned }}
   </p> -->
+  <div class="feature-buttons">
+    <button
+      type="button"
+      class="button-style btn btn-warning"
+      style="margin-bottom: 0.5rem; margin-right: 0.5rem"
+      (click)="changePriceList()"
+    >
+      Change Price List
+      <mat-icon>price_change</mat-icon>
+    </button>
+    <button
+      type="button"
+      class="button-style btn btn-warning"
+      style="margin-bottom: 0.5rem; margin-right: 0.5rem"
+      (click)="changeTaxRate()"
+    >
+      Change Tax Rate
+      <mat-icon> currency_exchange</mat-icon>
+    </button>
+    <button
+      type="button"
+      class="button-style btn btn-info"
+      style="margin-bottom: 0.5rem; margin-right: 0.5rem"
+      (click)="saveCurrentOrderForLater()"
+    >
+      Save Current Order
+      <mat-icon> save_alt</mat-icon>
+    </button>
+    <button
+      type="button"
+      class="button-style btn btn-info"
+      (click)="resumeSavedOrder()"
+      style="margin-bottom: 0.5rem; margin-right: 0.5rem"
+    >
+      Resume a Saved Order
+      <mat-icon> save_alt</mat-icon>
+    </button>
+  </div>
   <div class="button-group-layout">
-    <div class="feature-buttons" style="min-width: 10rem; margin-right: 0.5rem">
-      <button
-        type="button"
-        class="button-style btn btn-warning"
-        style="margin-bottom: 0.5rem"
-        (click)="changePriceList()"
-      >
-        Change Price List
-        <mat-icon>price_change</mat-icon>
-      </button>
-      <button
-        type="button"
-        class="button-style btn btn-warning"
-        style="margin-bottom: 0.5rem"
-        (click)="changeTaxRate()"
-      >
-        Change Tax Rate
-        <mat-icon> currency_exchange</mat-icon>
-      </button>
-      <button
-        type="button"
-        class="button-style btn btn-info"
-        style="margin-bottom: 0.5rem"
-        (click)="saveCurrentOrderForLater()"
-      >
-        Save Current Order
-        <mat-icon> save_alt</mat-icon>
-      </button>
-      <button
-        type="button"
-        class="button-style btn btn-info"
-        (click)="resumeSavedOrder()"
-        style="margin-bottom: 0.5rem"
-      >
-        Resume a Saved Order
-        <mat-icon> save_alt</mat-icon>
-      </button>
-    </div>
-
     <!--Numpad-->
-    <div class="numpad-main" style="margin-right: 0.5rem">
+    <div class="numpad-main" style="margin-right: 0.5rem; flex-grow: 1">
       <!--1-3-->
       <div class="numpad-row">
         <button
@@ -415,7 +421,9 @@
           (click)="attemptToSetSelectedGroupCount('0')"
           (keydown.96)="attemptToSetSelectedGroupCount('0')"
           (keydown.48)="attemptToSetSelectedGroupCount('0')"
-        ></button>
+        >
+          -
+        </button>
         <button
           type="button"
           class="btn numpad-button"
@@ -428,6 +436,7 @@
         <button
           type="button"
           class="btn numpad-button"
+          style="padding-left: 0px; padding-right: 7px"
           (click)="attemptToSetSelectedGroupCount('-')"
           (keydown.8)="attemptToSetSelectedGroupCount('-')"
         >
@@ -435,7 +444,7 @@
         </button>
       </div>
     </div>
-    <div class="pay-button">
+    <div class="pay-button" style="flex-grow: 0">
       <button
         type="button"
         class="button-style btn btn-success"

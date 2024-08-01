@@ -10,6 +10,8 @@ export class order {
   refundedProducts?: Array<product>;
   refundOrderNumber?: number;
   totalRefund?: number = 0;
+  totalPaid?: number = 0;
+  totalPaidTax?: number = 0;
   taxRate?: number;
   coupon?: Array<coupon>;
   orderNumber?: number;

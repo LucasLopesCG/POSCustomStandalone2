@@ -35,6 +35,8 @@ export class PaymentComponent {
   taxAmount: number = 0;
   paid: number = 0;
   currentOrder: order = {};
+  totalPaid: number = 0;
+  totalPaidTax: number = 0;
   refundTotal: number = 0;
   sessionId: number = 599;
   moneyOptions: Money[] = [
@@ -63,9 +65,12 @@ export class PaymentComponent {
       this.products = val.products;
       this.refundProducts = val.refundedProducts;
       this.refundOrderNumber = val.refundOrderNumber;
-      this.totalCost = val.total;
+      this.totalCost = Number(val.total.toFixed(2));
+      this.totalPaid = val.totalPaid;
+      this.totalPaidTax = this.totalPaid - this.totalPaid / (1 + val.taxRate);
       this.refundTotal = val.totalRefund;
       this.totalCost = this.totalCost - this.refundTotal;
+      this.totalCost = Number(this.totalCost.toFixed(2));
       this.taxAmount = this.totalCost - this.totalCost / (1 + val.taxRate);
       this.taxAmount = Number(this.taxAmount.toFixed(2));
       //this.calculateTotalCost();
@@ -77,6 +82,7 @@ export class PaymentComponent {
   }
 
   payExactAmount(): void {
+    console.log();
     this.amountVal = 0;
     this.paid = 0;
     this.moneyOptions.forEach((bill) => {
@@ -223,6 +229,7 @@ export class PaymentComponent {
     this.currentOrder.sessionId = this.sessionId;
     this.currentOrder.status = orderStatusEnum.Paid;
     this.currentOrder.total = this.totalCost;
+    this.currentOrder.totalPaidTax = this.totalPaidTax;
     this.storeService.submitOrder(this.currentOrder);
     if (this.currentOrder.products && this.currentOrder.products.length > 0)
       this.odooService.sendNewOrder(this.currentOrder);

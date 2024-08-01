@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="container-fluid" id="productListComponentContainer">
   <div
     *ngIf="isLoading; else ready"
     style="display: flex; align-items: center; justify-content: center"
@@ -17,9 +17,9 @@
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-md-12">
-        <div class="category-container">
+    <div class="row" id="categoryWrapperParentWrapper">
+      <div class="col-md-12" id="categoryContainerWrapper">
+        <div class="category-container" id="categoryContainer">
           <div
             class="category-card"
             *ngFor="let category of filteredCat"
@@ -49,9 +49,9 @@
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-md-12">
-        <div class="product-container">
+    <div class="row" id="productContainerParentWrapper">
+      <div class="col-md-12" id="productContainerWrapper">
+        <div class="product-container" id="productContainer">
           <ng-container
             *ngFor="let array of filteredProducts"
             class="product-container-content"

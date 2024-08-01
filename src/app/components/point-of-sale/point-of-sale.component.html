@@ -1,18 +1,28 @@
 <div *ngIf="orderStatus == orderStatusEnum.Ordering">
   <div>
-    <div class="header-menus">
+    <div class="header-menus" id="headerMenusStore">
       <div
-        class="POS-cashier-menu"
+        class="header-menu-margins"
         *ngIf="
           user.accessLevel == accessLevel.Admin ||
           user.accessLevel == accessLevel.SuperAdmin
         "
       >
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <div class="container-fluid">
-            <ul class="navbar-nav">
+        <nav
+          class="navbar navbar-expand-lg navbar-light bg-light no-padding-round-borders"
+          id="adminMenuStoreNav"
+        >
+          <div
+            class="container-fluid no-padding-round-borders"
+            id="adminMenuStoreDivWrapper"
+          >
+            <ul class="navbar-nav" id="adminMenuStoreUl">
               <!-- Dropdown -->
-              <button mat-button [matMenuTriggerFor]="belowMenu">
+              <button
+                mat-button
+                [matMenuTriggerFor]="belowMenu"
+                class="btn btn-info"
+              >
                 ADMIN MENU
               </button>
               <mat-menu #belowMenu="matMenu" yPosition="below">
@@ -27,12 +37,26 @@
           </div>
         </nav>
       </div>
-      <label>Current Cashier: {{ user.name }}</label>
-      <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-          <ul class="navbar-nav">
+      <label style="padding-right: 0.5rem; padding-left: 0.5rem"
+        >Current Cashier: {{ user.name }}</label
+      >
+      <nav
+        id="cashierMenuStore"
+        class="navbar navbar-expand-lg navbar-light bg-light no-padding-round-borders"
+      >
+        <div
+          class="container-fluid no-padding-round-borders"
+          id="cashierMenuStoreDivWrapper"
+        >
+          <ul class="navbar-nav" id="cashierMenuStoreUl">
             <!-- Dropdown -->
-            <button mat-button [matMenuTriggerFor]="belowMenu">MENU</button>
+            <button
+              mat-button
+              [matMenuTriggerFor]="belowMenu"
+              class="btn btn-info"
+            >
+              MENU
+            </button>
             <mat-menu #belowMenu="matMenu" yPosition="below">
               <button class="" (click)="openCloseSessionModal()">
                 CLOSE SESSION
@@ -52,9 +76,7 @@
               <button class="" (click)="openSwitchCashier()">
                 SWITCH CASHIER
               </button>
-              <button class="" (click)="openLockCashier()">
-                LOCK POS
-              </button>
+              <button class="" (click)="openLockCashier()">LOCK POS</button>
             </mat-menu>
           </ul>
         </div>
@@ -62,7 +84,7 @@
     </div>
   </div>
 
-  <div class="POS-main-display">
+  <div class="POS-main-display" id="storeOrderScreen">
     <app-current-order class="POS-section width40"></app-current-order>
     <div class="POS-section width60">
       <div *ngIf="happyHourFlag" class="happy-hour-flag">

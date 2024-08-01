@@ -35,7 +35,6 @@
 .main-container {
   overflow-y: visible;
   position: relative; /* Set parent to relative positioning */
-  width: 80rem;
   height: 80rem;
   background-color: lightgray;
 }
@@ -46,4 +45,13 @@
 
 .dark-green {
   color: #2e865f;
+}
+
+.edit-layout-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: stretch;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }

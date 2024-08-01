@@ -280,7 +280,7 @@ export class ProductListComponent implements AfterContentInit {
   }
 
   determineCategoryArray(odooProduct): Array<categoryEnum> {
-    debugger;
+    //debugger;
     var output: Array<categoryEnum> = [];
     if (odooProduct && odooProduct.categ_id && odooProduct.categ_id[1]) {
       switch (odooProduct.categ_id[1]) {

@@ -1,35 +1,5 @@
 <div *ngIf="orderStatus == orderStatusEnum.Ordering">
   <div class="menu-display">
-    <!-- <div
-      class="POS-cashier-menu"
-      *ngIf="
-        user.accessLevel == accessLevel.Admin ||
-        user.accessLevel == accessLevel.SuperAdmin
-      "
-    >
-      <label>ADMIN ACCESS ONLY</label>
-      <button class="" (click)="openStoreDiscountSettings()">
-        OPEN DISCOUNT SETTINGS FOR CURRENT STORE
-      </button>
-      <button class="" (click)="openStoreCashierSettings()">
-        OPEN CASHIER SETTINGS FOR CURRENT STORE
-      </button>
-      <button class="" (click)="openRestaurantLayoutChangeModal()">
-        CHANGE LAYOUT
-      </button>
-    </div>
-    <div class="POS-cashier-menu">
-      <label>GENERAL ACCESS</label>
-      <button class="" (click)="openCloseSessionModal()">CLOSE SESSION</button>
-      <button class="" (click)="openGenerateStoreReport()">
-        <button class="" (click)="openSwitchCashier()">SWITCH CASHIER</button>
-        <button class="" (click)="openLockCashier()">LOCK POS</button>
-        GENERATE SALES REPORT
-      </button>
-      <button (click)="openFileSelector()">IMPORT OFFLINE ORDERS</button>
-      <input type="file" hidden (change)="handleFileInput($event)" #fileInput />
-      <button class="" (click)="openSwitchCashier()">SWITCH CASHIER</button>
-    </div> -->
     <div
       class="POS-cashier-menu"
       *ngIf="
@@ -37,8 +7,10 @@
         user.accessLevel == accessLevel.SuperAdmin
       "
     >
-      <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
+      <nav
+        class="navbar navbar-expand-lg navbar-light bg-light no-padding-round-borders"
+      >
+        <div class="container-fluid no-x-padding">
           <ul class="navbar-nav">
             <!-- Dropdown -->
             <button mat-button [matMenuTriggerFor]="belowMenu">
@@ -60,8 +32,11 @@
       </nav>
     </div>
     <label>Current Cashier: {{ user.name }}</label>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="container-fluid">
+    <nav
+      class="navbar navbar-expand-lg navbar-light bg-light"
+      style="padding: 0"
+    >
+      <div class="container-fluid" style="padding: 0">
         <ul class="navbar-nav">
           <!-- Dropdown -->
           <button mat-button [matMenuTriggerFor]="belowMenu">MENU</button>
@@ -167,10 +142,12 @@
   <div *ngIf="mode == 'edit'">
     <app-restaurant-layout-edit></app-restaurant-layout-edit>
   </div>
-  <div *ngIf="mode == 'order'">
-    <button class="" (click)="returnToLayoutView()">MAIN MAP</button>
-    <div>
-      <label>CURRENTLY SERVING: {{ restaurantServiceLocation }}</label>
+  <div *ngIf="mode == 'order'" id="restaurant-order-screen">
+    <div class="restaurant-main-map-layout">
+      <button class="" (click)="returnToLayoutView()">MAIN MAP</button>
+      <div>
+        <label>CURRENTLY SERVING: {{ restaurantServiceLocation }}</label>
+      </div>
     </div>
     <div class="restaurant-main-display">
       <app-current-order class="restaurant-section width40"></app-current-order>

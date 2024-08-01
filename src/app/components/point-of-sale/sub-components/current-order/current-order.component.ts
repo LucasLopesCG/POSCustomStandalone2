@@ -48,6 +48,8 @@ export class CurrentOrderComponent {
   selectedCustomer: customer = {};
   selectedCoupon: coupon = {};
   totalPrice: number = 0;
+  totalPaid: number = 0;
+  totalPaidTaxes: number = 0;
   refundTotal: number = 0;
   totalCouponDiscount: number = 0;
   totalPriceAfterDiscounts: number = 0;
@@ -148,11 +150,14 @@ export class CurrentOrderComponent {
   }
 
   calculateFinalPrice() {
+    this.totalPaid = 0;
+    this.totalPaidTaxes = 0;
     this.refundTotal = 0;
     //STEP 1: Easy part, add up the cost of each product on the order
     if (this.currentOrderProducts.length > 0) {
       this.currentOrderProducts.forEach((product) => {
         this.totalPrice = this.totalPrice + (product.price as number);
+        this.totalPaid = this.totalPrice;
       });
     }
     //STEP 2: scan the selected coupon (if any)
@@ -351,6 +356,7 @@ export class CurrentOrderComponent {
     this.totalPriceAfterDiscounts =
       this.totalPriceAfterDiscounts - this.guruBucksUsed / 20;
     this.totalTaxAmount = this.totalPriceAfterDiscounts * this.taxRate;
+    this.totalPaidTaxes = this.totalPaid * this.taxRate;
     //this.orderTotal = this.totalPriceAfterDiscounts + this.totalTaxAmount - this.refundTotal;
     this.orderTotal = this.totalPriceAfterDiscounts + this.totalTaxAmount;
     this.orderTotal = Number(this.orderTotal.toFixed(2));
@@ -621,6 +627,7 @@ export class CurrentOrderComponent {
     this.currentOrder.total = this.orderTotal;
     this.currentOrder.totalCouponDiscount = this.totalCouponDiscount;
     this.currentOrder.totalRefund = this.refundTotal;
+    this.currentOrder.totalPaid = this.totalPaid;
     this.currentOrderService.goToPaymentStatus();
   }
 

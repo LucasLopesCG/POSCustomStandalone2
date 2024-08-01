@@ -125,9 +125,9 @@ input[type="number"] {
 }
 
 .width40 {
-  width: 40%;
+  max-width: 500px;
 }
 
 .width60 {
-  width: 60%;
+  width: calc(100%-500px);
 }
