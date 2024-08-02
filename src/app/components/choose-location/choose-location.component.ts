@@ -243,7 +243,6 @@ export class ChooseLocationComponent {
         console.log(val);
         //STEP 2. divide count by recordCount to get page count.
         var recordCount: number = 50;
-        var timesToCallPastOrders = Math.ceil(val / recordCount);
         var count: number = 0;
         if (!this.fetchPastOrdersFlag) {
           this.fetchPastOrdersFlag = true;
@@ -252,7 +251,7 @@ export class ChooseLocationComponent {
             this.pastOrderConfigIds,
             recordCount,
             count * recordCount,
-            timesToCallPastOrders,
+            4,
           );
         }
         //count++;
@@ -484,7 +483,7 @@ export class ChooseLocationComponent {
     this.currentOrderService.goToOrderStatus();
     this.currentOrderService.newOrder();
     //this.storeService.getPastOrdersFromStore();
-    this.odooService.setPastOrderConfigs(PastOrderConfigs);
+    //this.odooService.setPastOrderConfigs(PastOrderConfigs);
     //this.odooService.getPastOrdersForCustomers(PastOrderConfigs);
     this.odooService.getCustomers();
     var stockFilter: string = "";

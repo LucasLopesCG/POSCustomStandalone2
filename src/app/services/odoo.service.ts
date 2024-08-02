@@ -50,6 +50,7 @@ export class OdooService implements OnInit {
   private pastOrderConfigIds = new BehaviorSubject<Array<number>>([]);
   private pastOrderCount = new BehaviorSubject<any>({});
   private productStockInfo = new BehaviorSubject<any>({});
+  private pastOrdersSearchResults = new BehaviorSubject<any>([]);
 
   sessionId$ = this.sessionId.asObservable();
   configIds$ = this.configIds.asObservable();
@@ -76,6 +77,7 @@ export class OdooService implements OnInit {
   pastOrderConfigIds$ = this.pastOrderConfigIds.asObservable();
   pastOrderCount$ = this.pastOrderCount.asObservable();
   productStockInfo$ = this.productStockInfo.asObservable();
+  pastOrdersSearchResults$ = this.pastOrdersSearchResults.asObservable();
 
   selectedLocation: any = null;
   sessionIdVal;
@@ -650,6 +652,22 @@ export class OdooService implements OnInit {
       this.odooPastOrderArray.push(item);
     });
     this.pastOrders.next(this.odooPastOrderArray);
+  }
+
+  searchPastOrders(customerName, orderNum, date, date2) {
+    var fullAddress =
+      this.middleManUrl +
+      `/api/pastOrderSearch?customerName=${customerName}&orderNum=${orderNum}&date=${date}&date2=${date2}`;
+    console.log(fullAddress);
+    this.http.get(fullAddress).subscribe(
+      (response) => {
+        //console.log("Response:", response);
+        this.pastOrdersSearchResults.next(response);
+      },
+      (error) => {
+        //console.log("Error:", error);
+      },
+    );
   }
 
   /**

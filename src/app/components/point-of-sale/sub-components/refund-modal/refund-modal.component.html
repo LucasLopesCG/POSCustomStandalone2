@@ -17,6 +17,9 @@
               placeholder="Filter By..."
               (ngModelChange)="filterOrders()"
             />
+            <button type="button" (click)="goToSearchMode()">
+              Advanced Search
+            </button>
           </div>
         </div>
 
@@ -47,21 +50,22 @@
 
         <div *ngFor="let order of filteredOrders; let i = index">
           <div
-            (click)="showOrderDetail(order)"
+            (click)="showOrderDetail(order, 'regular')"
             *ngIf="beforePage() <= i && i < afterPage()"
             class="order-card"
           >
             <div><label class="label-info">Date:</label>{{ order.date }}</div>
             <div>
               <label class="label-info">Receipt Number:</label>
-              {{ order.receiptNumber }}
+              {{ order.orderNumber }}
             </div>
             <div>
               <label class="label-info">Order number:</label>{{ order.orderId }}
             </div>
 
-            <div *ngIf="order && order.customer && order.customer.name">
-              <label>Customer:</label>{{ order.customer.name }}
+            <div *ngIf="order && order.partner_id && order.partner_id[1]">
+              <label class="label-info">Customer:</label
+              >{{ order.partner_id[1] }}
             </div>
             <div>
               <label class="label-info">Cashier:</label>{{ order.cashier }}
@@ -185,13 +189,99 @@
       </div>
 
       <div class="button-group confirm confirm-or-deny-buttons">
-        <button type="button" (click)="returnToViewMode()">
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="returnToViewMode()"
+        >
           <mat-icon>home</mat-icon>
           Cancel
         </button>
-        <button type="button" (click)="goToRefundMode()">
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="goToRefundMode()"
+        >
           <mat-icon>Payments</mat-icon>
           Refund Selected Items
+        </button>
+      </div>
+    </div>
+    <div *ngIf="currentMode == 'search'">
+      <h2>Enter Search Parameters:</h2>
+      <div>
+        <label>Customer Name:</label>
+        <input
+          type="text"
+          [(ngModel)]="searchCustomer"
+          placeholder="Filter By..."
+        />
+      </div>
+      <div>
+        <label>Order Reference:</label>
+        <input
+          type="text"
+          [(ngModel)]="searchOrderRef"
+          placeholder="Filter By..."
+        />
+      </div>
+      <div>
+        <label>Date:</label>
+        <input
+          type="date"
+          [(ngModel)]="searchDate"
+          placeholder="Filter By..."
+        />
+      </div>
+      <div class="button-group confirm confirm-or-deny-buttons">
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="returnToViewMode()"
+        >
+          <mat-icon>home</mat-icon>
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="searchPastOrder()"
+        >
+          <mat-icon>Payments</mat-icon>
+          SEARCH
+        </button>
+      </div>
+    </div>
+    <div *ngIf="currentMode == 'search results'">
+      <div *ngFor="let order of searchOrders; let i = index">
+        <div (click)="showOrderDetail(order, 'search')" class="order-card">
+          <div><label class="label-info">Date:</label>{{ order.date }}</div>
+          <div>
+            <label class="label-info">Receipt Number:</label>
+            {{ order.orderNumber }}
+          </div>
+          <div>
+            <label class="label-info">Order number:</label>{{ order.orderId }}
+          </div>
+
+          <div *ngIf="order && order.customer && order.customer.name">
+            <label>Customer:</label>{{ order.customer.name }}
+          </div>
+          <div>
+            <label class="label-info">Cashier:</label>{{ order.cashier }}
+          </div>
+          <div><label class="label-info">Total:</label>{{ order.total }}</div>
+          <div><label class="label-info">Status:</label>PAID</div>
+        </div>
+      </div>
+      <div class="button-group confirm confirm-or-deny-buttons">
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="returnToViewMode()"
+        >
+          <mat-icon>home</mat-icon>
+          Return to Recent Past Orders
         </button>
       </div>
     </div>

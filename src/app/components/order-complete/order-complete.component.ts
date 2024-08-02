@@ -69,7 +69,7 @@ export class OrderCompleteComponent implements OnInit {
         !order.pickingId &&
         this.generateReceipt
       ) {
-        this.order.orderNumber = "POS_C_Order " + Date(); //order.orderNumber;
+        //this.order.orderNumber = "POS_C_Order " + Date(); //order.orderNumber;
         this.order.orderName = "POS_C_Order " + Date(); //order.orderNumber;
         this.order.note = "POS_CUSTOM: Order By: " + this.order.cashier;
         this.order.refunded_order_ids = [];
@@ -79,7 +79,8 @@ export class OrderCompleteComponent implements OnInit {
         this.generateReceipt = false;
         this.generatePdf(true);
         //Add this order to previous orders
-        this.previousOrders = [order].concat(this.previousOrders);
+        this.previousOrders.unshift(this.order);
+        //this.previousOrders = [order].concat(this.previousOrders);
         //this.previousOrders.push(order);
         this.storeService.setPastOrdersForStore(this.previousOrders);
         if (this.stockFilter != "")
@@ -131,10 +132,13 @@ export class OrderCompleteComponent implements OnInit {
     logo.src = "../../../assets/images/logo.png";
     doc.addImage(logo, "png", 10, 10, 30, 30);
     doc.setFont("barcode");
+    doc.setFontSize(12);
     doc.text(`${this.order.orderNumber}`, 50, 10);
     doc.setFont("Helvetica");
+    doc.setFontSize(8);
     doc.text(`Order Number: ${this.order.orderNumber}`, 50, 20);
-    doc.text(`Cashier: ${this.order.cashier}`, 50, 30);
+    doc.text(`Order ID: ${this.order.orderName}`, 50, 30);
+    doc.text(`Cashier: ${this.order.cashier}`, 50, 40);
     doc.setFontSize(6);
     const barcode = new Image();
     let total = 0;

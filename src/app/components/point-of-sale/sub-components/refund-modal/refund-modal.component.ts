@@ -8,6 +8,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { order } from "../../../../models/order";
 import { product } from "../../../../models/product";
+import { OdooService } from "../../../../services/odoo.service";
 
 @Component({
   selector: "app-refund-modal",
@@ -20,7 +21,7 @@ export class RefundModalComponent implements AfterViewInit {
   page: number = 0;
   maxPage: number = 1;
   maxPageCount: number = 1;
-  filteredOrders: Array<order> = [];
+  filteredOrders: Array<any> = [];
   currentOrder: order = {};
   currentMode: string = "all orders";
   selectedOrder: any = {};
@@ -29,12 +30,20 @@ export class RefundModalComponent implements AfterViewInit {
   previouslyRefundedItems: Array<any> = [];
   previousOrders: Array<order> = [];
   pristinePreviousOrders: Array<order> = [];
+  searchOrders: Array<order> = [];
+  pristineSearchOrders: Array<order> = [];
   searchString: string = "";
+  searchCustomer: string = "";
+  searchOrderRef: string = "";
+  searchDate: any = "";
+  searchOrderArray: Array<any> = [];
+  goBackMode: string = "";
   constructor(
     private currentOrderService: CurrentOrderService,
     private storeService: storeService,
     public dialogRef: MatDialogRef<VariantSelectComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private odooService: OdooService,
   ) {
     storeService.pastOrdersFromStore$.subscribe((val) => {
       var val2;
@@ -56,18 +65,31 @@ export class RefundModalComponent implements AfterViewInit {
     currentOrderService.currentOrder$.subscribe((val) => {
       this.currentOrder = val;
     });
+    odooService.pastOrdersSearchResults$.subscribe((val) => {
+      if (this.searchDate) {
+        val = val.filter((value) => {
+          return value.date.includes(this.searchDate.toString());
+        });
+      }
+      this.searchOrders = val;
+      this.pristineSearchOrders = structuredClone(val);
+      this.maxPageCount = Math.round(this.pristineSearchOrders.length / 50 - 1);
+      this.maxPage = this.maxPageCount;
+      //this.filterOrders();
+    });
   }
   ngAfterViewInit(): void {
     this.currentOrder.refundedProducts = [];
   }
 
-  showOrderDetail(event) {
+  showOrderDetail(event, mode: string) {
     /*
     //Go into "detail mode".
     //Show the products that are in the order.
     //Have individual buttons next to each item
     that allows user to remove an item from this order and into the "refund list" which should behave exactly like current-order
     */
+    this.goBackMode = mode;
     this.currentMode = "refund order";
     this.selectedOrder = structuredClone(event);
     this.pristineSelectedOrder = structuredClone(event);
@@ -88,9 +110,23 @@ export class RefundModalComponent implements AfterViewInit {
       });
     }
   }
+
+  goToSearchMode() {
+    this.currentMode = "search";
+  }
+
   returnToViewMode() {
-    this.currentMode = "all orders";
+    if (this.goBackMode == "regular") {
+      this.currentMode = "all orders";
+    } else {
+      if (this.currentMode == "search") {
+        this.currentMode = "all orders";
+      } else {
+        this.currentMode = "search results";
+      }
+    }
     this.selectedOrder = structuredClone(this.pristineSelectedOrder);
+
     //this.previousOrders = structuredClone(this.pristinePreviousOrders);
   }
 
@@ -185,6 +221,35 @@ export class RefundModalComponent implements AfterViewInit {
       return false;
     });
     //console.log(this.filteredOrders);
+  }
+
+  searchPastOrder() {
+    this.searchOrderArray = [];
+    console.log(this.searchCustomer);
+    console.log(this.searchOrderRef);
+    console.log(this.searchDate.toString());
+    var searchDateArray = this.searchDate.toString().split("-");
+    var date: string = "";
+    if (searchDateArray[0]) {
+      date = searchDateArray[0];
+    }
+    var date2: string = "";
+    if (searchDateArray[1] && searchDateArray[2]) {
+      date2 = searchDateArray[1] + "-" + searchDateArray[2];
+    }
+    var orderSearchObj = {
+      customerName: this.searchCustomer,
+      orderRef: this.searchOrderRef,
+      date: date,
+      date2: date2,
+    };
+    this.odooService.searchPastOrders(
+      orderSearchObj.customerName,
+      orderSearchObj.orderRef,
+      orderSearchObj.date,
+      orderSearchObj.date2,
+    );
+    this.currentMode = "search results";
   }
 
   goToPage(i: number) {
