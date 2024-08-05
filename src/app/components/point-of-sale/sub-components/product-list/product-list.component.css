@@ -99,6 +99,7 @@
 .right-side-align {
   display: flex;
   flex-direction: row-reverse;
+  padding-bottom: 1rem;
 }
 
 .product-card-info {

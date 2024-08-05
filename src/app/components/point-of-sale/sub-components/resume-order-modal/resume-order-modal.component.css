@@ -41,6 +41,12 @@
   flex-direction: column;
 }
 
+.modal-container {
+  min-width: 900px;
+  max-height: 600px;
+  background-color: #e5d0d0;
+}
+
 .order-details label {
   padding-bottom: 4px;
 }
