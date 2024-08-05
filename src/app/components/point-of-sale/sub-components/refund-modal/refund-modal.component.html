@@ -253,6 +253,10 @@
       </div>
     </div>
     <div *ngIf="currentMode == 'search results'">
+      {{ searchOrders.length }}
+      <div *ngIf="searchOrders.length && searchOrders.length == 0">
+        <mat-spinner class="small-spinner"></mat-spinner>
+      </div>
       <div *ngFor="let order of searchOrders; let i = index">
         <div (click)="showOrderDetail(order, 'search')" class="order-card">
           <div><label class="label-info">Date:</label>{{ order.date }}</div>
@@ -264,8 +268,8 @@
             <label class="label-info">Order number:</label>{{ order.orderId }}
           </div>
 
-          <div *ngIf="order && order.customer && order.customer.name">
-            <label>Customer:</label>{{ order.customer.name }}
+          <div *ngIf="order && order.partner_id && order.partner_id[1]">
+            <label class="label-info">Customer:</label>{{ order.partner_id[1] }}
           </div>
           <div>
             <label class="label-info">Cashier:</label>{{ order.cashier }}

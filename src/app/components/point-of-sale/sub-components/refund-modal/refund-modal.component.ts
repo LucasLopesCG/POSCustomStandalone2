@@ -9,11 +9,12 @@ import { FormsModule } from "@angular/forms";
 import { order } from "../../../../models/order";
 import { product } from "../../../../models/product";
 import { OdooService } from "../../../../services/odoo.service";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @Component({
   selector: "app-refund-modal",
   standalone: true,
-  imports: [FormsModule, CommonModule, MatIcon],
+  imports: [FormsModule, CommonModule, MatIcon, MatProgressSpinnerModule],
   templateUrl: "./refund-modal.component.html",
   styleUrl: "./refund-modal.component.css",
 })
@@ -30,7 +31,7 @@ export class RefundModalComponent implements AfterViewInit {
   previouslyRefundedItems: Array<any> = [];
   previousOrders: Array<order> = [];
   pristinePreviousOrders: Array<order> = [];
-  searchOrders: Array<order> = [];
+  searchOrders: Array<any> = [];
   pristineSearchOrders: Array<order> = [];
   searchString: string = "";
   searchCustomer: string = "";
@@ -121,7 +122,11 @@ export class RefundModalComponent implements AfterViewInit {
     } else {
       if (this.currentMode == "search") {
         this.currentMode = "all orders";
-      } else {
+      }
+      if (this.currentMode == "search results") {
+        this.currentMode = "all orders";
+      }
+      if (this.currentMode == "refund order") {
         this.currentMode = "search results";
       }
     }

@@ -13,8 +13,8 @@
     >
       <div *ngIf="availableCustomers.length > 0; else noCustomersOnFile">
         <!--FILTER GOES HERE-->
-        <div class="row">
-          <div class="col-md-12 right-side-align">
+        <div style="display: flex; flex-direction: row">
+          <div style="padding-right: 1rem; padding-bottom: 2rem">
             <input
               type="text"
               [(ngModel)]="searchString"
@@ -22,9 +22,25 @@
               (ngModelChange)="filterCustomers()"
             />
           </div>
+
+          <div>
+            <button
+              type="button"
+              color="primary"
+              class="create-customer-button"
+              (click)="createCustomer()"
+            >
+              <mat-icon>person_add</mat-icon> Create Customer
+            </button>
+          </div>
         </div>
         <div
-          style="display: flex; flex-direction: row; justify-content: center"
+          style="
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            padding-bottom: 2rem;
+          "
         >
           <button type="button" (click)="goToPage(0)">
             {{ 1 }}

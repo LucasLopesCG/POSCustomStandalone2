@@ -23,6 +23,7 @@
 /* Style the dialog content */
 [mat-dialog-content] {
   padding: 16px;
+  background-color: #e5d0d0;
   padding-bottom: 64px; /* Add padding to the bottom to separate from the create customer button */
 }
 

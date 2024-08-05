@@ -23,6 +23,14 @@
 
 .button-group {
   display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.product-in-order-button-group {
+  display: flex;
   flex-wrap: nowrap;
   align-content: center;
   align-items: center;

@@ -24,6 +24,11 @@
   margin: 0;
 }
 
+.small-spinner {
+  max-width: 30px;
+  max-height: 30px;
+}
+
 /* Style the close button */
 [mat-dialog-title] button {
   width: 40px;

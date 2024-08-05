@@ -3,22 +3,22 @@
     <button (click)="backToOrder()" class="btn btn-danger">
       BACK TO ORDER
     </button>
-  </div>
-  <div class="left">
     <div class="total">
-      <p>
+      <h2>
         <span style="font-weight: 600">Total:</span>
         {{ totalCost | number: "1.2-2" }}
-      </p>
-      <p>
+      </h2>
+      <h2>
         <span style="font-weight: 600">Paid:</span>
         {{ paid | number: "1.2-2" }}
-      </p>
-      <p>
+      </h2>
+      <h2>
         <span style="font-weight: 600">Change:</span>
         {{ change | number: "1.2-2" }}
-      </p>
+      </h2>
     </div>
+  </div>
+  <div class="left">
     <div class="actions">
       <button (click)="payExactAmount()">Exact Amount</button>
       <!-- <button>Paid with Card NOT IMPLEMENTED</button> -->
@@ -39,13 +39,6 @@
         <label>{{ money.name }}: {{ money.count }}</label>
         <button (click)="increaseMoneyCount(money)">+</button>
       </div>
-      <button
-        (click)="submitPayment()"
-        [disabled]="paid < totalCost"
-        class="btn btn-success"
-      >
-        Submit Payment
-      </button>
     </div>
   </div>
   <div class="middle"></div>
@@ -59,41 +52,52 @@
           !product.product.deductCountForCouponEntry;
           else showProductAndCouponVariant
         "
+        class="order-item-div-alignment"
       >
-        <label>{{ i + 1 }} -- </label>
-        <label
-          >{{ product.product.name }} ({{ product.count }}) x ${{
-            product.product.price | number: "1.2-2"
-          }}
-          = ${{
-            product.product.price * product.count | number: "1.2-2"
-          }}</label
+        <div>
+          <label>{{ i + 1 }} -- </label>
+          <label
+            >{{ product.product.name }} ({{ product.count }}) x ${{
+              product.product.price | number: "1.2-2"
+            }}
+          </label>
+        </div>
+        <label>
+          ${{ product.product.price * product.count | number: "1.2-2" }}</label
         >
       </div>
       <ng-template #showProductAndCouponVariant>
         <div *ngIf="product.count - 1 > 0">
-          <label>{{ i + 1 }} -- </label>
-          <label
-            >{{ product.product.name }} ({{ product.count - 1 }}) x ${{
-              product.product.price | number: "1.2-2"
-            }}
-            = ${{
+          <div class="order-item-div-alignment">
+            <label>{{ i + 1 }} -- </label>
+            <label
+              >{{ product.product.name }} ({{ product.count - 1 }}) x ${{
+                product.product.price | number: "1.2-2"
+              }}
+            </label>
+          </div>
+          <label>
+            ${{
               product.product.price * product.count | number: "1.2-2"
             }}</label
           >
         </div>
-        <div>
-          <label *ngIf="product.count - 1 > 0; else default"
-            >{{ i + 1 }}B --
-          </label>
-          <ng-template #default>
-            <label>{{ i + 1 }} -- </label>
-          </ng-template>
-          <label>
-            {{ product.product.name }} (1) x ${{
-              product.product.priceAfterCoupon | number: "1.2-2"
-            }}
-            = ${{ product.product.priceAfterCoupon * 1 | number: "1.2-2" }}
+        <div class="order-item-div-alignment">
+          <div>
+            <label *ngIf="product.count - 1 > 0; else default"
+              >{{ i + 1 }}B --
+            </label>
+            <ng-template #default>
+              <label>{{ i + 1 }} -- </label>
+            </ng-template>
+            <label>
+              {{ product.product.name }} (1) x ${{
+                product.product.priceAfterCoupon | number: "1.2-2"
+              }}
+            </label>
+          </div>
+          <label
+            >${{ product.product.priceAfterCoupon * 1 | number: "1.2-2" }}
           </label>
         </div>
       </ng-template>
@@ -103,29 +107,38 @@
       *ngFor="let product of refundProducts; let i = index"
       class="payment-lines"
     >
-      <div>
-        <label>{{ i + 1 }} -- </label>
-        <label
-          >REFUND: {{ product.name }} (1) x -${{
-            product.price | number: "1.2-2"
-          }}
-          = -${{ product.price | number: "1.2-2" }}</label
-        >
+      <div class="order-item-div-alignment">
+        <div>
+          <label>{{ i + 1 }} -- </label>
+          <label
+            >REFUND: {{ product.name }} (1) x -${{
+              product.price | number: "1.2-2"
+            }}
+          </label>
+        </div>
+        <label> = -${{ product.price | number: "1.2-2" }}</label>
       </div>
     </div>
     <div *ngIf="currentOrder.guruBucksUsed && currentOrder.guruBucksUsed > 0">
-      <label
-        >GURU BUCKS DOLLARS OFF ORDER: ${{
-          currentOrder.guruBucksUsed / 20
-        }}</label
-      >
+      <h2>
+        GURU BUCKS DOLLARS OFF ORDER: ${{ currentOrder.guruBucksUsed / 20 }}
+      </h2>
     </div>
 
     <div>
-      <label>Tax: </label><label>{{ taxAmount | number: "1.2-2" }}</label>
+      <h2>Tax: ${{ taxAmount | number: "1.2-2" }}</h2>
     </div>
     <div>
-      <label>Total: {{ totalCost | number: "1.2-2" }}</label>
+      <h2>Total: ${{ totalCost | number: "1.2-2" }}</h2>
+    </div>
+    <div>
+      <button
+        (click)="submitPayment()"
+        [disabled]="paid < totalCost"
+        class="btn btn-success"
+      >
+        Submit Payment
+      </button>
     </div>
   </div>
 </div>
