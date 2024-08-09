@@ -231,8 +231,9 @@ export class PaymentComponent {
     this.currentOrder.total = this.totalCost;
     this.currentOrder.totalPaidTax = this.totalPaidTax;
     this.storeService.submitOrder(this.currentOrder);
-    if (this.currentOrder.products && this.currentOrder.products.length > 0)
+    if (this.currentOrder.products && this.currentOrder.products.length > 0) {
       this.odooService.sendNewOrder(this.currentOrder);
+    }
     if (this.currentOrder.refundOrderNumber != undefined) {
       this.odooService.sendRefundOrder(this.currentOrder);
     }

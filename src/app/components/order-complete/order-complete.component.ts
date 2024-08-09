@@ -25,6 +25,7 @@ export class OrderCompleteComponent implements OnInit {
   stockFilter: string = "";
   selectedPriceList: number = 0;
   pastOrderConfigIds: Array<any> = [];
+  receiptCount: number = 0;
 
   constructor(
     private currentOrderService: CurrentOrderService,
@@ -64,11 +65,13 @@ export class OrderCompleteComponent implements OnInit {
     });
     this.odooService.orderInOdoo$.subscribe((order) => {
       if (
-        order &&
-        order.orderNumber > 0 &&
-        !order.pickingId &&
-        this.generateReceipt
+        (order &&
+          order.orderNumber > 0 &&
+          !order.pickingId &&
+          this.generateReceipt) ||
+        this.receiptCount == 2
       ) {
+        this.receiptCount = 1;
         //this.order.orderNumber = "POS_C_Order " + Date(); //order.orderNumber;
         this.order.orderName = "POS_C_Order " + Date(); //order.orderNumber;
         this.order.note = "POS_CUSTOM: Order By: " + this.order.cashier;
@@ -89,10 +92,14 @@ export class OrderCompleteComponent implements OnInit {
             this.selectedPriceList,
           );
       }
-      if (order && order.orderNumber && order.pickingId) {
+      if (
+        (order && order.orderNumber && order.pickingId) ||
+        this.receiptCount == 1
+      ) {
         this.order.orderNumber = order.orderNumber;
         this.generateReceipt = false;
         this.generatePdf(false);
+        this.receiptCount = 2;
         //Now look through each of the products inside of the return order and increase count for the product
         //this may mean creating a new productGroup if the product was out of stock.
         //This also means changing the contents of the refund orders.
@@ -108,7 +115,9 @@ export class OrderCompleteComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.receiptCount = 0;
+  }
 
   ngOnDestroy(): void {}
 
@@ -147,7 +156,10 @@ export class OrderCompleteComponent implements OnInit {
     if (mainReceipt) {
       for (const product of this.order.products) {
         doc.text(`${product.product.name} x ${product.count}`, 10, y);
-        doc.text(dots, 10, y);
+        let lenToAdd =
+          product.product.name.length + product.count.toString().length + 3;
+        console.log(lenToAdd);
+        doc.text(dots, 10 + lenToAdd, y);
         doc.text(
           `${(product.product.price * product.count).toFixed(2)}`,
           100,

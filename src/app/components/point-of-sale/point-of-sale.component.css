@@ -17,11 +17,11 @@
   align-items: stretch;
   align-content: stretch;
   background-color: beige;
-  height: 95vh;
 }
 
 .POS-section {
-  padding: 20px;
+  padding: 5px;
+  padding-top: 0px;
   margin: 10px;
   margin-left: 4px;
   margin-right: 4px;
