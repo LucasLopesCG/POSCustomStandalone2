@@ -34,9 +34,6 @@ export class CloseSessionModalComponent {
   ) {
     storeService.dataSelectedStoreLocation$.subscribe((val) => {
       this.selectedLocation = val;
-      // ("DATA SAVED: Selected location is:");
-      // (this.selectedLocation);
-      //Run logic here to gather information of the locations the user has access to:
     });
     offlineMode.orderList$.subscribe((val) => {
       this.disableButton = false;

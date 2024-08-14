@@ -88,12 +88,11 @@ export class ProductListComponent implements AfterContentInit {
   ) {
     //checks for happy hour being triggered every minute
     const seconds = 60; // Call function every 60 seconds
-    // setInterval(() => {
-    //   console.log("running minute check");
-    //   this.separateCouponsAndHappyHour();
-    //   this.createVariantGroups();
-    //   this.filterByCategory(this.selectedCategory);
-    // }, seconds * 1000);
+    setInterval(() => {
+      this.separateCouponsAndHappyHour();
+      this.createVariantGroups();
+      this.filterByCategory(this.selectedCategory);
+    }, seconds * 1000);
     odooService.combinedProductData$.subscribe((val) => {
       if (val && val.length > 0) {
         this.productsForCurrentLocationNoDiscounts = val;
@@ -105,11 +104,6 @@ export class ProductListComponent implements AfterContentInit {
         this.createVariantGroups();
         this.determineAvailableCategories();
         this.filterByCategory(this.selectedCategory);
-        // this.dataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        //   "data:image/jpg;base64," + this.blob,
-        // );
-        //this.dataUrl = this.sanitizeImage(this.blob);
-        //console.log(this.dataUrl);
       }
     });
     storeService.enableOdooCalls$.subscribe((val) => {
@@ -144,7 +138,6 @@ export class ProductListComponent implements AfterContentInit {
       this.categoryIconList = val;
     });
     storeService.productsForCurrentStore$.subscribe((val) => {
-      //console.log(val);
       this.productsForCurrentLocation = val;
       this.createVariantGroups();
       this.determineAvailableCategories();
@@ -340,14 +333,10 @@ export class ProductListComponent implements AfterContentInit {
           : "";
         if (curVariantGroup != currentProductGroupName) {
           curVariantGroup = currentProductGroupName;
-          // (
-          //"found new group name! Group name is: " + curVariantGroup,
-          //);
           if (currentVariantArray.length > 0) {
             // ("adding current variant array to final output!");
             finalOutput.push(currentVariantArray);
           }
-          //console.log("restting current variant Array");
           currentVariantArray = [];
         }
         currentVariantArray.push(product);
@@ -364,7 +353,6 @@ export class ProductListComponent implements AfterContentInit {
       this.productsSeparatedIntoVariants = finalOutput;
       this.storeService.setStoreStock(this.productsSeparatedIntoVariants);
       this.filteredProducts = finalOutput;
-      //console.log(this.productsSeparatedIntoVariants);
       this.filterProducts();
     }
   }

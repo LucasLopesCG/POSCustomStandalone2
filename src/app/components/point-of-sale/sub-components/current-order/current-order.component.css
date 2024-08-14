@@ -4,13 +4,15 @@
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
-  border-width: 2px;
+  /* border-width: 2px; */
   margin: 10px;
   padding: 10px;
-  border: 3px solid #000000;
-  border-radius: 10px;
+  /* border: 3px solid #000000;
+  border-radius: 10px; */
+  border-bottom: 1px solid lightgray;
   cursor: pointer;
   background-color: white;
+  width: 100%;
 }
 
 .active {
@@ -19,6 +21,17 @@
 
 .bxgo-product {
   background-color: chartreuse;
+}
+
+.product-name-font-size {
+  font-size: 18px;
+  font-weight: 800;
+}
+.product-count-price-font {
+  font-size: 14px;
+}
+.product-count-font {
+  font-weight: 800;
 }
 
 .button-group {
@@ -82,6 +95,14 @@
   border-radius: 0px;
 }
 
+.current-order-container {
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
 .coupon-section {
   padding-top: 5px;
   -moz-box-shadow: 3px 3px 5px 6px #ccc;
@@ -96,21 +117,24 @@
   margin-bottom: 10px;
 }
 
+.current-order-tax-total {
+  padding-right: 10px;
+  background-color: lightgrey;
+}
+
 .current-order-product-list {
-  min-height: 20rem;
-  max-height: 20vh;
-  padding-bottom: 10px;
+  height: 65vh;
   box-sizing: border-box;
   border: black;
-  /* border-radius: 5px; */
   border-width: 2px;
   margin: 5px;
-  /* padding: 2px; */
   border: 1px solid #000000;
-  /* border-radius: 10px; */
   cursor: pointer;
-  overflow-y: auto;
   background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 
 .small-spinner {

@@ -149,7 +149,6 @@ export class RefundModalComponent implements AfterViewInit {
     //2
     this.refundItems = [];
     this.currentOrder.refundOrderNumber = this.selectedOrder.orderId;
-    //console.log(this.currentOrder);
     this.selectedOrder = structuredClone(this.pristineSelectedOrder);
     this.previousOrders = structuredClone(this.pristinePreviousOrders);
     this.currentOrderService.refundSelected(this.currentOrder);
@@ -225,14 +224,10 @@ export class RefundModalComponent implements AfterViewInit {
         return true;
       return false;
     });
-    //console.log(this.filteredOrders);
   }
 
   searchPastOrder() {
     this.searchOrderArray = [];
-    console.log(this.searchCustomer);
-    console.log(this.searchOrderRef);
-    console.log(this.searchDate.toString());
     var searchDateArray = this.searchDate.toString().split("-");
     var date: string = "";
     if (searchDateArray[0]) {

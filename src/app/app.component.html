@@ -2,6 +2,10 @@
   <!-- <app-user-login></app-user-login> -->
   <app-google-log-in></app-google-log-in>
 </div>
-<ng-template #mainDisplay style="display: flex">
-  <app-choose-location></app-choose-location>
+<ng-template
+  #mainDisplay
+  class="no-overflow"
+  style="display: flex; overflow: hidden"
+>
+  <app-choose-location class="no-overflow"></app-choose-location>
 </ng-template>

@@ -76,7 +76,6 @@ export class CurrentOrderComponent {
   ) {
     storeService.dataSelectedStoreLocation$.subscribe((val) => {
       this.selectedStoreLocation = val;
-      console.log(this.selectedStoreLocation);
     });
     storeService.stockAtCurrentLocation$.subscribe((val) => {
       this.stockDividedIntoVariants = val;
@@ -404,10 +403,25 @@ export class CurrentOrderComponent {
    *
    */
   createProductGroupWithCouponInfo() {
+    //step 0-A:Copy productGroupWithCouponGroups so that notes can be carried over (if any)
+    var productGroupWithCouponGroupsCopy = structuredClone(
+      this.productGroupsWithCouponGroups,
+    );
     //step 1-A: check for product category discount coupon
     this.productGroupsWithCouponGroups = structuredClone(
       this.currentOrderGrouped,
     );
+    //Step 1-A-2:Add notes back into productGroupWithCouponGroups
+    productGroupWithCouponGroupsCopy.forEach((productGroupCopy) => {
+      this.productGroupsWithCouponGroups.forEach((productGroup) => {
+        if (
+          productGroupCopy.product.id == productGroup.product.id &&
+          productGroupCopy.product.name == productGroup.product.name
+        ) {
+          productGroup.note = productGroupCopy.note;
+        }
+      });
+    });
     var additionalGroups: Array<any> = [];
     if (
       this.currentOrder &&
@@ -452,7 +466,6 @@ export class CurrentOrderComponent {
           }
         });
       } else {
-        //console.log("All items that match coupon parameters will be changed");
         //all cases, so modify the productGroup.product.price value
         this.productGroupsWithCouponGroups.forEach((productGroup) => {
           if (productGroup.product.category) {
@@ -490,7 +503,6 @@ export class CurrentOrderComponent {
       var couponDetail = this.currentOrder.coupon[0]
         .couponDetail as couponDetail;
       if (couponDetail.singleItem) {
-        //console.log("Only a single product will be changed");
         this.productGroupsWithCouponGroups.forEach((productGroup) => {
           if (couponDetail.product) {
             couponDetail.product.forEach((hhItem) => {
@@ -559,11 +571,16 @@ export class CurrentOrderComponent {
   }
 
   addNoteToProductGroup(note, index) {
-    //console.log(note);
-    //console.log("THE NOTE ABOVE TO BE ADDED TO:");
-    //console.log(this.productGroupsWithCouponGroups[index]);
     this.currentOrder.products = this.productGroupsWithCouponGroups;
     //this.currentOrderService.setCurrentOrder(this.currentOrder);
+  }
+
+  showOrHideProductNote(product) {
+    if (product && product.note != undefined) {
+      product.note = undefined;
+    } else {
+      product.note = "";
+    }
   }
 
   removeCoupon() {
@@ -603,7 +620,6 @@ export class CurrentOrderComponent {
   }
 
   saveCurrentOrderForLater() {
-    //console.log(this.currentOrder);
     this.dialog.open(SaveOrResumeOrderModalComponent, { data: "NONE" });
   }
 
@@ -635,7 +651,6 @@ export class CurrentOrderComponent {
     this.selectedProductGroupIndex = num;
     this.selectedProductGroup =
       this.productGroupsWithCouponGroups[this.selectedProductGroupIndex];
-    //console.log(this.selectedProductGroup);
     this.selectedProductGroupCount = this.selectedProductGroup.count.toString();
     this.productList.forEach((product) => {
       if (product.id == this.selectedProductGroup.product.id) {
@@ -647,7 +662,6 @@ export class CurrentOrderComponent {
 
   attemptToSetSelectedGroupCount(stringToAdd) {
     if (stringToAdd != "-") {
-      //console.log(stringToAdd);
       var added = this.selectedProductGroupCount.concat(stringToAdd);
       var addedNum = +added;
       var groupCountNum = +this.selectedProductGroupCount;

@@ -111,7 +111,6 @@ export class ChooseLocationComponent {
         this.currentUser = val;
         this.odooService.getTaxRates();
         this.currentUser.name = this.currentUser.name.replace(/\s/g, "");
-        //console.log(val);
       }
     });
     odooService.taxRates$.subscribe((val) => {
@@ -147,11 +146,6 @@ export class ChooseLocationComponent {
         this.POSSessionStates = val;
         this.POSSessionStates.forEach((state) => {
           if (state.messagesToScan && state.messagesToScan.length > 1) {
-            //greater than 1 meaning that this has a chance of being a POSC session.
-            console.log(
-              "find the contents of the following messages to see if user was using the session",
-            );
-            console.log(state.messagesToScan);
             var count: number = 0;
             while (count < state.messagesToScan.length) {
               if (!this.scannedMessages.includes(state.messagesToScan[count])) {
@@ -240,7 +234,6 @@ export class ChooseLocationComponent {
     odooService.pastOrderCount$.subscribe((val) => {
       if (Number.isInteger(Number(val))) {
         //step 1, see how many orders there are!
-        console.log(val);
         //STEP 2. divide count by recordCount to get page count.
         var recordCount: number = 50;
         var count: number = 0;
@@ -292,7 +285,6 @@ export class ChooseLocationComponent {
             accessLevel: this.determineAccessLevel(element.access_level),
             locationAccess: this.determineLocations(element.stores),
           };
-          //console.log(updateUser);
           this.userService.setCurrentUser(updateUser);
         }
       });
@@ -453,8 +445,6 @@ export class ChooseLocationComponent {
     // (location);
     //the following logic makes an array of "configId's" that correspond to the current store (other cashier stations)
     //this is used to pull past orders limited to just the location.
-    console.log(location);
-    console.log(this.availableLocations);
     var PastOrderConfigs: Array<number> = [];
     this.availableLocations.forEach((loc) => {
       if (
@@ -466,7 +456,6 @@ export class ChooseLocationComponent {
         PastOrderConfigs.push(loc.configId);
       }
     });
-    console.log(PastOrderConfigs);
     this.odooService.setPastOrderConfigs(PastOrderConfigs);
     //this.odooService.getTaxRates();
     this.storeService.setCurrentStore(location);
@@ -476,16 +465,11 @@ export class ChooseLocationComponent {
     this.storeService.setCurrentRestaurantMode("view");
     //call wordpress service to get stores, locate the one we have selected and then use storeService to set discount for the stores based on what's pulled
     this.wordpressService.getAllStores();
-    //this.storeService.getDiscountsForStore(location);
 
-    //TO DO-REMOVE THIS!!! IT SHOULD INSTEAD USE THE ODOO SERVICE!!
-    //this.storeService.getProductsForStore(location);
     this.currentOrderService.goToOrderStatus();
     this.currentOrderService.newOrder();
-    //this.storeService.getPastOrdersFromStore();
-    //this.odooService.setPastOrderConfigs(PastOrderConfigs);
-    //this.odooService.getPastOrdersForCustomers(PastOrderConfigs);
     this.odooService.getCustomers();
+
     var stockFilter: string = "";
     var location2: any = location;
     switch (location2.location) {

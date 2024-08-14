@@ -82,7 +82,6 @@ export class PaymentComponent {
   }
 
   payExactAmount(): void {
-    console.log();
     this.amountVal = 0;
     this.paid = 0;
     this.moneyOptions.forEach((bill) => {

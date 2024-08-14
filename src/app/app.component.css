@@ -130,4 +130,9 @@ input[type="number"] {
 
 .width60 {
   width: calc(100%-500px);
+  background-color: #d8dadd;
+}
+
+.no-overflow {
+  overflow: hidden;
 }

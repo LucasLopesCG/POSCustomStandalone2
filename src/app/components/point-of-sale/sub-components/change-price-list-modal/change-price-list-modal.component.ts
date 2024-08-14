@@ -54,7 +54,6 @@ export class ChangePriceListModalComponent {
     });
   }
   selectePriceList(event) {
-    //console.log(event);
     this.selectedPriceListVal = event.id;
   }
   updateChosenPriceList() {

@@ -118,13 +118,7 @@ export class RestaurantLayoutEditComponent implements AfterViewInit {
         event.dropPoint.x - boundaryRect.left;
       this.layout.tables[index].location[1] =
         event.dropPoint.y - boundaryRect.top;
-      //console.log(this.layout);
     }
-    // this.layout.tables[index].location[0] =
-    //   event.dropPoint.x;
-    // this.layout.tables[index].location[1] =
-    //   event.dropPoint.y;
-    // console.log(this.layout);
   }
   dragBarEnd(event, index) {
     const parentRect =
@@ -146,9 +140,6 @@ export class RestaurantLayoutEditComponent implements AfterViewInit {
       this.layout.bars[index].location[1] =
         event.dropPoint.y - boundaryRect.top;
     }
-    // this.layout.bars[index].location[0] = event.dropPoint.x;
-    // this.layout.bars[index].location[1] = event.dropPoint.y;
-    //console.log(this.layout);
   }
   dragStoolEnd(event, index) {
     const parentRect =

@@ -1,6 +1,6 @@
 <div *ngIf="orderStatus == orderStatusEnum.Ordering">
   <div class="menu-display">
-    <div
+    <!-- <div
       class="POS-cashier-menu"
       *ngIf="
         user.accessLevel == accessLevel.Admin ||
@@ -12,7 +12,6 @@
       >
         <div class="container-fluid no-x-padding">
           <ul class="navbar-nav">
-            <!-- Dropdown -->
             <button mat-button [matMenuTriggerFor]="belowMenu">
               ADMIN MENU
             </button>
@@ -30,7 +29,7 @@
           </ul>
         </div>
       </nav>
-    </div>
+    </div> -->
     <label>Current Cashier: {{ user.name }}</label>
     <nav
       class="navbar navbar-expand-lg navbar-light bg-light"
@@ -39,25 +38,67 @@
       <div class="container-fluid" style="padding: 0">
         <ul class="navbar-nav">
           <!-- Dropdown -->
-          <button mat-button [matMenuTriggerFor]="belowMenu">MENU</button>
-          <mat-menu #belowMenu="matMenu" yPosition="below">
-            <button class="" (click)="openCloseSessionModal()">
-              CLOSE SESSION
-            </button>
-            <button class="" (click)="openGenerateStoreReport()">
-              GENERATE SALES REPORT
-            </button>
-            <button (click)="openFileSelector()">IMPORT OFFLINE ORDERS</button>
-            <input
-              type="file"
-              hidden
-              (change)="handleFileInput($event)"
-              #fileInput
-            />
-            <button class="" (click)="openSwitchCashier()">
-              SWITCH CASHIER
-            </button>
-            <button class="" (click)="openLockCashier()">LOCK POS</button>
+          <button class="btn" mat-button [matMenuTriggerFor]="belowMenu">
+            MENU
+          </button>
+          <mat-menu
+            #belowMenu="matMenu"
+            yPosition="below"
+            class="dropdown-options"
+          >
+            <div class="dropdown-options">
+              <button
+                class="hover-class"
+                (click)="openStoreDiscountSettings()"
+                *ngIf="
+                  user.accessLevel == accessLevel.Admin ||
+                  user.accessLevel == accessLevel.SuperAdmin
+                "
+              >
+                OPEN STORE DISCOUNTS
+              </button>
+              <button
+                class="hover-class"
+                (click)="openStoreCashierSettings()"
+                *ngIf="
+                  user.accessLevel == accessLevel.Admin ||
+                  user.accessLevel == accessLevel.SuperAdmin
+                "
+              >
+                OPEN CASHIER SETTINGS
+              </button>
+              <button
+                class="hover-class"
+                (click)="openRestaurantLayoutChangeModal()"
+                *ngIf="
+                  user.accessLevel == accessLevel.Admin ||
+                  user.accessLevel == accessLevel.SuperAdmin
+                "
+              >
+                CHANGE LAYOUT
+              </button>
+              <button class="hover-class" (click)="openGenerateStoreReport()">
+                SALES REPORT
+              </button>
+              <button class="hover-class" (click)="openFileSelector()">
+                IMPORT OFFLINE ORDERS
+              </button>
+              <input
+                type="file"
+                hidden
+                (change)="handleFileInput($event)"
+                #fileInput
+              />
+              <button class="hover-class" (click)="openSwitchCashier()">
+                SWITCH CASHIER
+              </button>
+              <button class="hover-class" (click)="openLockCashier()">
+                LOCK
+              </button>
+              <button class="hover-class" (click)="openCloseSessionModal()">
+                CLOSE SESSION
+              </button>
+            </div>
           </mat-menu>
         </ul>
       </div>

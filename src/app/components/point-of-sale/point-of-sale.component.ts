@@ -72,9 +72,6 @@ export class PointOfSaleComponent {
     });
     userService.dataUser$.subscribe((val) => {
       this.user = val;
-      // ("USER VALUE UPDATED!!");
-      // (this.user);
-      console.log(this.user);
     });
     storeService.happyHourFlag$.subscribe((val) => {
       this.happyHourFlag = val;

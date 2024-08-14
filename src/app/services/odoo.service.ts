@@ -1271,9 +1271,7 @@ export class OdooService implements OnInit {
       (val) => {
         this.taxRates.next(val);
       },
-      (error) => {
-        //console.log("COULD NOT GET TAX RATES");
-      },
+      (error) => {},
     );
   }
 
@@ -1284,9 +1282,7 @@ export class OdooService implements OnInit {
       (val) => {
         this.productStockInfo.next(val);
       },
-      (error) => {
-        //console.log("COULD NOT GET TAX RATES");
-      },
+      (error) => {},
     );
   }
 }

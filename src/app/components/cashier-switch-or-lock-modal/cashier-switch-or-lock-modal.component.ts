@@ -64,9 +64,6 @@ export class CashierSwitchOrLockModalComponent {
           }
         } else {
           if (user.email.includes("@chronicguru.com")) {
-            //this.isLoggedin = user != null;
-            //this.socialUser = user;
-
             var testUser: User = {};
             testUser.id = user.id;
             testUser.name = user.name;

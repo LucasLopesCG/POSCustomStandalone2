@@ -150,7 +150,6 @@ export class WordPressService {
       )
       .subscribe(
         (response) => {
-          //console.log(response);
           var response2: any = response;
           //now go through each guru_bucks record. Add up the points_balance for each record.
           if (response2.guru_bucks.length > 0) {
@@ -158,7 +157,6 @@ export class WordPressService {
               var gbBalance: number = +gb.points_balance;
               guruBucksTotal = (guruBucksTotal + gbBalance) as number;
             });
-            console.log(guruBucksTotal);
             this.customerService.updatecustomerWithWPUserId(
               response2.customer.user_id,
             );
@@ -180,10 +178,7 @@ export class WordPressService {
       id: order.customer.wpUserId,
       balance: order.guruBucksUsed * -1,
     };
-    this.http.post(url, gbUpdateBody).subscribe((response) => {
-      //console.log("got a message back?");
-      //console.log(response);
-    });
+    this.http.post(url, gbUpdateBody).subscribe((response) => {});
   }
 
   addGuruBucksToCustomer(order) {
@@ -192,9 +187,6 @@ export class WordPressService {
       id: order.customer.wpUserId,
       balance: order.total / order.taxRate + 1,
     };
-    this.http.post(url, gbUpdateBody).subscribe((response) => {
-      //console.log("got a message back?");
-      //console.log(response);
-    });
+    this.http.post(url, gbUpdateBody).subscribe((response) => {});
   }
 }

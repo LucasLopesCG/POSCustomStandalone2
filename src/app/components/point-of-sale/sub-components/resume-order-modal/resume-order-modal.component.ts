@@ -36,7 +36,6 @@ export class ResumeOrderModalComponent {
   }
 
   resumeSelectedOrder() {
-    console.log(this.selectedOrder);
     var clone = structuredClone(this.selectedOrder);
     //update the necessary things in order to make the order continue.
     //update customer

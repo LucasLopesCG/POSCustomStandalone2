@@ -158,7 +158,6 @@ export class OrderCompleteComponent implements OnInit {
         doc.text(`${product.product.name} x ${product.count}`, 10, y);
         let lenToAdd =
           product.product.name.length + product.count.toString().length + 3;
-        console.log(lenToAdd);
         doc.text(dots, 10 + lenToAdd, y);
         doc.text(
           `${(product.product.price * product.count).toFixed(2)}`,

@@ -19,6 +19,22 @@
   background-color: beige;
 }
 
+.navbar-nav {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+.hover-class:hover {
+  background-color: red;
+}
+
+.dropdown-options {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
 .POS-section {
   padding: 5px;
   padding-top: 0px;
@@ -26,9 +42,7 @@
   margin-left: 4px;
   margin-right: 4px;
   background-color: white;
-  border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  background-color: #e5d0d0;
 }
 
 .happy-hour-flag {
@@ -54,8 +68,6 @@
   align-items: flex-start;
   align-content: space-around;
   margin-bottom: 0.5rem;
-  background-color: #e5d0d0;
-  border-radius: 5px;
 }
 
 .POS-cashier-menu > label {
@@ -71,6 +83,7 @@
 
 .width60 {
   width: 70%;
+  background-color: #d8dadd;
 }
 
 .sidebarIconToggle {
@@ -83,7 +96,6 @@
 }
 
 .header-menus {
-  background-color: #e5d0d0;
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
@@ -110,7 +122,6 @@
 }
 
 .no-padding-round-borders {
-  border-radius: 5px;
   padding: 0;
 }
 

@@ -27,11 +27,9 @@ export class ProductStockInformationModalComponent {
     odooService.productStockInfo$.subscribe((val) => {
       this.productStockInfo = val;
       this.productStockFiltered = [];
-      console.log(val);
       if (this.productStockInfo && this.productStockInfo.length > 0) {
         //this.searchName = this.productStockInfo.name;
         this.productStockInfo.forEach((productGroup) => {
-          console.log(productGroup);
           var stock_quantities = Object.entries(
             productGroup.stock_quantities,
           ) as any;
@@ -52,13 +50,11 @@ export class ProductStockInformationModalComponent {
       this.productStockFiltered = this.groupProductsByName(
         this.productStockFiltered,
       );
-      console.log(this.productStockFiltered);
       var finalDisplayArray: Array<any> = [];
       this.productStockFiltered.forEach((productGroup) => {
         var arrayVal: any = {};
         arrayVal.name = productGroup.name;
         arrayVal.locations = [];
-        console.log(productGroup);
         var locationValuePair = Object.entries(productGroup.locations) as any;
         locationValuePair.forEach((val) => {
           var locationName: string = "";
