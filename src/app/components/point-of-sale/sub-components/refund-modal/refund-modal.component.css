@@ -29,15 +29,6 @@
   max-height: 30px;
 }
 
-/* Style the close button */
-[mat-dialog-title] button {
-  width: 40px;
-  height: 40px;
-  position: absolute;
-  right: 16px;
-  top: 16px;
-}
-
 .label-info {
   font-weight: 700;
 }

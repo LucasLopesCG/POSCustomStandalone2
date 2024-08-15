@@ -38,6 +38,7 @@ import { CommonModule } from "@angular/common";
 })
 export class GoogleLogInComponent implements OnInit {
   notGuru: boolean = false;
+  widthValue: number = 400;
   userService: userService;
   loginStatus: string = "";
   socialUser: any = {};

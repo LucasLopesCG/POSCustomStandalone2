@@ -94,17 +94,6 @@ export class ChooseLocationComponent {
     private wordpressService: WordPressService,
     private odooService: OdooService,
   ) {
-    //Need to re-adjust this logic, it's gotten too bloated and complicated.
-    /*
-    Step 0: Get availableStoreLocation from app.component
-    Step 1: Get current User (which comes from log in component)
-    Step 2: Get Tax rates for all the locations, try to fetch users
-    step 3:Get all users, try to fetch configId's for locations
-    step 4: Get all configIds for POS locations. Proceed to get POS status for each location
-    Step 5: when all posSessionStates have been fetched, proceed to determine available locations
-    
-
-    */
     userService.dataUser$.subscribe((val) => {
       //STEP 1
       if (val && val.name && !this.currentUser) {
@@ -464,7 +453,7 @@ export class ChooseLocationComponent {
     this.storeService.getPriceListForStore(location, this.availableTaxRates);
     this.storeService.setCurrentRestaurantMode("view");
     //call wordpress service to get stores, locate the one we have selected and then use storeService to set discount for the stores based on what's pulled
-    this.wordpressService.getAllStores();
+    //this.wordpressService.getAllStores();
 
     this.currentOrderService.goToOrderStatus();
     this.currentOrderService.newOrder();

@@ -1,13 +1,15 @@
-import { Injectable } from "@angular/core";
+import { Injectable, OnInit } from "@angular/core";
 import * as util from "util";
 import { BehaviorSubject } from "rxjs/internal/BehaviorSubject";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { customerService } from "./customerService";
+import { userService } from "./userService";
+import { debug } from "console";
 
 @Injectable({
   providedIn: "root",
 })
-export class WordPressService {
+export class WordPressService implements OnInit {
   private apiUrl =
     "https://woocommerce-1248616-4474056.cloudwaysapps.com/wp-json"; // Replace with your WordPress site URL
   // Database credentials
@@ -18,15 +20,32 @@ export class WordPressService {
 
   private wordpressUserList = new BehaviorSubject<any>({});
   private wordpressStoreList = new BehaviorSubject<any>({});
+  private announcements = new BehaviorSubject<any>({});
 
   // Observable string stream
   wordpressUserList$ = this.wordpressUserList.asObservable();
   wordpressStoreList$ = this.wordpressStoreList.asObservable();
+  announcements$ = this.announcements.asObservable();
 
   constructor(
     private http: HttpClient,
     private customerService: customerService,
-  ) {}
+    private userService: userService,
+  ) {
+    userService.dataUser$.subscribe((val) => {
+      // ("USER VALUE UPDATED!!");
+      // (this.user);
+      console.log(val);
+      //debugger;
+      if (!val) {
+        this.getAnnouncements();
+      }
+    });
+  }
+  ngOnInit(): void {
+    this.getAnnouncements();
+    //throw new Error("Method not implemented.");
+  }
 
   setWordPressUserList(val) {
     this.wordpressUserList.next(val);
@@ -53,6 +72,33 @@ export class WordPressService {
       .subscribe(
         (response) => {
           this.setWordPressUserList(response);
+        },
+        (error) => {
+          console.error("An error occurred:", error);
+        },
+      );
+
+    //return this.http.get(this.apiUrl + "/poscustom/v1/getallUsers");
+    //return this.http.get("/wp-json/poscustom/v1/getallUsers", { headers });
+  }
+
+  getAnnouncements() {
+    const username = "chronictest";
+    const password = "GuruGuru24";
+    const credentials = btoa(`${username}:${password}`);
+    const headers1 = new HttpHeaders({
+      Authorization: `Basic ${credentials}`,
+    });
+
+    let headers = {
+      Authorization: "Basic Y2hyb25pY3Rlc3Q6R3VydUd1cnUyNA==",
+    };
+
+    this.http
+      .get(this.apiUrl + "/poscustom/v1/stores/getAnnouncements", { headers })
+      .subscribe(
+        (response) => {
+          this.announcements.next(response);
         },
         (error) => {
           console.error("An error occurred:", error);

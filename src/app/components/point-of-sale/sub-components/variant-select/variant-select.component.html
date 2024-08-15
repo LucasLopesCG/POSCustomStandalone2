@@ -2,11 +2,12 @@
   <h2>{{ selectedVariantGroup[0].name.split("(")[0] }}</h2>
   <button
     mat-icon-button
-    aria-label="close dialog"
+    aria-label="cancel edit"
     mat-dialog-close
+    class="btn btn-danger mr-3"
     (click)="close()"
   >
-    <mat-icon>close</mat-icon>
+    <mat-icon>cancel</mat-icon>
   </button>
 </div>
 

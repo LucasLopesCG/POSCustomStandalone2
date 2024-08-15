@@ -9,6 +9,7 @@ import { order } from "../../models/order";
 import { orderStatusEnum } from "../../models/orderStatusEnum";
 import { userService } from "../../services/userService";
 import { OdooService } from "../../services/odoo.service";
+import { MatIcon } from "@angular/material/icon";
 
 interface GroupedProduct {
   name: string;
@@ -20,7 +21,7 @@ interface GroupedProduct {
 @Component({
   selector: "app-payment",
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, MatIcon],
   templateUrl: "./payment.component.html",
   styleUrl: "./payment.component.css",
 })

@@ -1,8 +1,13 @@
 <div class="container">
   <div class="header">
-    <button (click)="backToOrder()" class="btn btn-danger">
-      BACK TO ORDER
-    </button>
+    <div id="headerButtonAndTitle" class="header-button-and-title-container">
+      <button (click)="backToOrder()" class="btn btn-danger back-button">
+        <mat-icon>keyboard_double_arrow_left</mat-icon>
+        BACK TO ORDER
+      </button>
+      <h1>Payment</h1>
+      <div></div>
+    </div>
     <div class="total">
       <h2>
         <span style="font-weight: 600">Total:</span>

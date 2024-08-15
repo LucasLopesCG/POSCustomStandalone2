@@ -13,7 +13,7 @@ body {
 }
 
 [mat-dialog-content] {
-  background-color: #e5d0d0;
+  background-color: #d8dadd;
 }
 
 .confirm-or-deny-buttons {
@@ -24,4 +24,8 @@ body {
 
 :host :host {
   overflow: hidden;
+}
+
+.payment-screen-container {
+  background-color: #d8dadd;
 }

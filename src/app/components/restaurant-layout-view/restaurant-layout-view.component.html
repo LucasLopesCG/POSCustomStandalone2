@@ -201,7 +201,10 @@
     </div>
   </div>
 </div>
-<div *ngIf="orderStatus == orderStatusEnum.Paying">
+<div
+  *ngIf="orderStatus == orderStatusEnum.Paying"
+  class="payment-screen-container"
+>
   <app-payment></app-payment>
 </div>
 <div *ngIf="orderStatus == orderStatusEnum.Paid">

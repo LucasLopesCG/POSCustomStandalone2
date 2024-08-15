@@ -66,15 +66,6 @@
   margin: 0;
 }
 
-/* Style the close button */
-[mat-dialog-title] button {
-  width: 40px;
-  height: 40px;
-  position: absolute;
-  right: 16px;
-  top: 16px;
-}
-
 .money-display {
   display: flex;
   flex-direction: column;

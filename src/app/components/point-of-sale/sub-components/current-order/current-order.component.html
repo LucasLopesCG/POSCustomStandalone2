@@ -38,14 +38,14 @@
                 <div class="product-in-order-button-group">
                   <button
                     type="button"
-                    class="btn btn-info"
+                    class="btn btn-info right-margin-for-button"
                     (click)="showOrHideProductNote(product)"
                   >
                     <mat-icon>event_note</mat-icon>
                   </button>
                   <button
                     type="button"
-                    class="btn btn-danger"
+                    class="btn btn-danger right-margin-for-button"
                     (click)="decreaseItemCount(product.product)"
                     [disabled]="disableButtons"
                   >
@@ -54,7 +54,7 @@
 
                   <button
                     type="button"
-                    class="btn"
+                    class="btn right-margin-for-button"
                     (click)="removeItemFromOrder(product)"
                   >
                     <mat-icon>delete</mat-icon>

@@ -14,9 +14,17 @@ import {
   SocialAuthService,
   SocialAuthServiceConfig,
 } from "@abacritt/angularx-social-login";
+import {
+  HttpClientModule,
+  HttpClient,
+  HttpHeaders,
+} from "@angular/common/http";
 import { CredentialResponse, PromptMomentNotification } from "google-one-tap";
 import { WpApiModule, WpApiLoader, WpApiStaticLoader } from "wp-api-angular";
 import { Http } from "@angular/http";
+import { AnnouncementBoardComponent } from "./components/announcement-board/announcement-board.component";
+import { WordPressService } from "./services/wordpress.service";
+import { OdooService } from "./services/odoo.service";
 
 @Component({
   selector: "app-root",
@@ -27,6 +35,8 @@ import { Http } from "@angular/http";
     //RouterModule,
     GoogleLogInComponent,
     ChooseLocationComponent,
+    AnnouncementBoardComponent,
+    HttpClientModule,
   ],
 
   templateUrl: "./app.component.html",
@@ -38,8 +48,11 @@ export class AppComponent implements OnInit {
   user: any = {};
   //userService:userService
   constructor(
+    private http: HttpClient,
     private userService: userService,
+    private wordpressService: WordPressService,
     storeService: storeService,
+    //odooService: OdooService,
   ) {
     // userService.userSubject.asObservable().subscribe((content)=>{
     //   this.user=content
@@ -52,8 +65,10 @@ export class AppComponent implements OnInit {
       // (this.user);
       storeService.setAvailableStore(this.user.locationAccess);
     });
+    //wordpressService.getAnnouncements();
   }
   ngOnInit(): void {
+    this.wordpressService.getAnnouncements();
     // Subscribe the currentQuote property of quote service to get real time value
   }
 }

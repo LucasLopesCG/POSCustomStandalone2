@@ -1,0 +1,16 @@
+<div>
+  <h1>Announcements</h1>
+  <div *ngFor="let announcement of announcementList; let i = index">
+    <div id="mainBodyOfAnnouncement_{{ i }}">
+      <div id="announcementTitle_{{ i }}">
+        <h2>{{ announcement.title }}</h2>
+        <h3>{{ announcement.date }}</h3>
+      </div>
+      <div id="contentOfAnnouncement_{{ i }}">
+        <p *ngFor="let contentPiece of announcement.content.content">
+          {{ contentPiece }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

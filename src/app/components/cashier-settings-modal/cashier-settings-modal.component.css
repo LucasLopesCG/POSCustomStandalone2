@@ -22,15 +22,6 @@
   margin: 0;
 }
 
-/* Style the close button */
-[mat-dialog-title] button {
-  width: 40px;
-  height: 40px;
-  position: absolute;
-  right: 16px;
-  top: 16px;
-}
-
 .cashier-card {
   padding-bottom: 10px;
   box-sizing: border-box;

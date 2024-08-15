@@ -14,8 +14,14 @@
 
   <div mat-dialog-title>
     <h2>Create Session for {{ data.name }}</h2>
-    <button aria-label="close dialog" mat-dialog-close (click)="close()">
-      <mat-icon>close</mat-icon>
+    <button
+      mat-icon-button
+      aria-label="cancel edit"
+      mat-dialog-close
+      class="btn btn-danger mr-3"
+      (click)="close()"
+    >
+      <mat-icon>cancel</mat-icon>
     </button>
   </div>
   <div mat-dialog-content style="height: 25rem" class="p-3 card">

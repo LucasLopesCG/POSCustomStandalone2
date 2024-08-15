@@ -1,5 +1,9 @@
-<div *ngIf="!user || user.id == null || user.id == ''; else mainDisplay">
+<div
+  *ngIf="!user || user.id == null || user.id == ''; else mainDisplay"
+  class="login-announcements-display-container"
+>
   <!-- <app-user-login></app-user-login> -->
+  <app-announcement-board></app-announcement-board>
   <app-google-log-in></app-google-log-in>
 </div>
 <ng-template

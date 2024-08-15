@@ -137,6 +137,10 @@ export class OdooService implements OnInit {
   }
   ngOnInit(): void {}
 
+  // getAnnouncements() {
+  //   this.wordpressService.getAnnouncements();
+  // }
+
   getPOSConfigIds() {
     let headers = new HttpHeaders();
     headers.append("Content-Type", "application/json");

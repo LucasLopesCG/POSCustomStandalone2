@@ -16,6 +16,11 @@
 .img-responsive {
   width: 100%;
   height: auto;
-  max-width: 200px;
-  max-height: 200px;
+  /* max-width: 200px;
+  max-height: 200px; */
+}
+
+.large-image {
+  min-width: 33vh;
+  min-height: 33vh;
 }

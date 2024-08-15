@@ -1,14 +1,22 @@
 <div class="modal-container" style="">
   <div mat-dialog-title class="bg-beige">
     <h2>SELECT ORDER TO CONTINUE:</h2>
-    <button aria-label="close dialog" mat-dialog-close (click)="close()">
-      <mat-icon>close</mat-icon>
+    <button
+      mat-icon-button
+      aria-label="cancel edit"
+      mat-dialog-close
+      class="btn btn-danger mr-3"
+      (click)="close()"
+    >
+      <mat-icon>cancel</mat-icon>
     </button>
   </div>
   <div mat-dialog-content>
     <div>
       <!--Write info on what is present on current order-->
-      <div *ngIf="incompleteOrders && incompleteOrders.length > 0">
+      <div
+        *ngIf="incompleteOrders && incompleteOrders.length > 0; else noOrders"
+      >
         <div
           *ngFor="let incompleteOrder of incompleteOrders; let i = index"
           (click)="selectOrder(i)"
@@ -22,7 +30,9 @@
             <div class="order-details">
               <label>Product Name: {{ products.product.name }} </label>
               <label>Product Count: {{ products.count }}</label>
-              <label>NOTES: {{ products.note }}</label>
+              <label *ngIf="products.notes && products.notes.length > 0"
+                >NOTES: {{ products.note }}</label
+              >
             </div>
           </div>
 
@@ -67,7 +77,13 @@
               >
             </div>
           </div>
-          <div *ngIf="incompleteOrder.order.customer">
+          <div
+            *ngIf="
+              incompleteOrder.order.customer &&
+              incompleteOrder.order.customer.name &&
+              incompleteOrder.order.customer.name.length > 0
+            "
+          >
             <!--Div for CUSTOMER-->
             <h2>CUSTOMER ASSIGNED TO ORDER:</h2>
             <div class="order-details">
@@ -76,10 +92,16 @@
           </div>
         </div>
       </div>
+      <ng-template #noOrders>
+        <h2 style="text-align: center; margin-top: 1rem">
+          There are no orders to resume
+        </h2>
+      </ng-template>
     </div>
     <div>
       <div class="confirm-or-deny-buttons">
         <button
+          [disabled]="!selectedOrder.products"
           mat-icon-button
           aria-label="confirm edit"
           mat-dialog-close

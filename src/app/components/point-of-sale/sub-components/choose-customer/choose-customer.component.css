@@ -7,14 +7,6 @@
   padding: 16px;
 }
 
-[mat-dialog-title] button {
-  width: 40px;
-  height: 40px;
-  position: absolute;
-  right: 16px;
-  top: 16px;
-}
-
 [mat-dialog-title] h2 {
   font-size: 24px;
   margin: 0;
@@ -23,7 +15,7 @@
 /* Style the dialog content */
 [mat-dialog-content] {
   padding: 16px;
-  background-color: #e5d0d0;
+  background-color: #d8dadd;
   padding-bottom: 64px; /* Add padding to the bottom to separate from the create customer button */
 }
 
