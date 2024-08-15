@@ -5,8 +5,8 @@
         <mat-icon>keyboard_double_arrow_left</mat-icon>
         BACK TO ORDER
       </button>
-      <h1>Payment</h1>
-      <div></div>
+      <h1 class="payment-font-size">Payment</h1>
+      <div class="back-button"></div>
     </div>
     <div class="total">
       <h2>
@@ -23,62 +23,55 @@
       </h2>
     </div>
   </div>
-  <div class="left-and-right-container">
-    <div class="left">
-      <div class="actions">
-        <button (click)="payExactAmount()">Exact Amount</button>
-        <!-- <button>Paid with Card NOT IMPLEMENTED</button> -->
-        <div>
-          <label>Enter amount given: </label>
-          <input
-            type="number"
-            [(ngModel)]="amountVal"
-            placeholder="Enter amount..."
-            (ngModelChange)="setPaid()"
-          />
-        </div>
-      </div>
-      <div class="money">
-        <label>Or enter individual bills and coins given: </label>
-        <div *ngFor="let money of moneyOptions">
-          <button (click)="decreaseMoneyCount(money)">-</button>
-          <label>{{ money.name }}: {{ money.count }}</label>
-          <button (click)="increaseMoneyCount(money)">+</button>
-        </div>
-      </div>
-    </div>
-    <div class="right">
-      <div
-        *ngFor="let product of groupedProducts; let i = index"
-        class="payment-lines"
-      >
-        <div
-          *ngIf="
-            !product.product.deductCountForCouponEntry;
-            else showProductAndCouponVariant
-          "
-          class="order-item-div-alignment"
-        >
+  <div id="leftRightContainersAndFinish">
+    <div class="left-and-right-container">
+      <div class="left">
+        <div class="actions">
+          <button class="btn exact-change" (click)="payExactAmount()">
+            Exact Amount
+          </button>
+          <!-- <button>Paid with Card NOT IMPLEMENTED</button> -->
           <div>
-            <label>{{ i + 1 }} -- </label>
-            <label
-              >{{ product.product.name }} ({{ product.count }}) x ${{
-                product.product.price | number: "1.2-2"
-              }}
-            </label>
+            <label>Enter amount given: </label>
+            <input
+              type="number"
+              [(ngModel)]="amountVal"
+              placeholder="Enter amount..."
+              (ngModelChange)="setPaid()"
+            />
           </div>
-          <label>
-            ${{
-              product.product.price * product.count | number: "1.2-2"
-            }}</label
-          >
         </div>
-        <ng-template #showProductAndCouponVariant>
-          <div *ngIf="product.count - 1 > 0">
-            <div class="order-item-div-alignment">
+        <div class="money">
+          <label>Or enter individual bills and coins given: </label>
+          <div id="moneyContainer" class="money-container">
+            <div *ngFor="let money of moneyOptions" class="money-group">
+              <button (click)="decreaseMoneyCount(money)">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <label>{{ money.name }}: {{ money.count }}</label>
+              <button (click)="increaseMoneyCount(money)">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right">
+        <div
+          *ngFor="let product of groupedProducts; let i = index"
+          class="payment-lines"
+        >
+          <div
+            *ngIf="
+              !product.product.deductCountForCouponEntry;
+              else showProductAndCouponVariant
+            "
+            class="order-item-div-alignment"
+          >
+            <div>
               <label>{{ i + 1 }} -- </label>
               <label
-                >{{ product.product.name }} ({{ product.count - 1 }}) x ${{
+                >{{ product.product.name }} ({{ product.count }}) x ${{
                   product.product.price | number: "1.2-2"
                 }}
               </label>
@@ -89,64 +82,83 @@
               }}</label
             >
           </div>
+          <ng-template #showProductAndCouponVariant>
+            <div *ngIf="product.count - 1 > 0">
+              <div class="order-item-div-alignment">
+                <label>{{ i + 1 }} -- </label>
+                <label
+                  >{{ product.product.name }} ({{ product.count - 1 }}) x ${{
+                    product.product.price | number: "1.2-2"
+                  }}
+                </label>
+              </div>
+              <label>
+                ${{
+                  product.product.price * product.count | number: "1.2-2"
+                }}</label
+              >
+            </div>
+            <div class="order-item-div-alignment">
+              <div>
+                <label *ngIf="product.count - 1 > 0; else default"
+                  >{{ i + 1 }}B --
+                </label>
+                <ng-template #default>
+                  <label>{{ i + 1 }} -- </label>
+                </ng-template>
+                <label>
+                  {{ product.product.name }} (1) x ${{
+                    product.product.priceAfterCoupon | number: "1.2-2"
+                  }}
+                </label>
+              </div>
+              <label
+                >${{ product.product.priceAfterCoupon * 1 | number: "1.2-2" }}
+              </label>
+            </div>
+          </ng-template>
+        </div>
+
+        <div
+          *ngFor="let product of refundProducts; let i = index"
+          class="payment-lines"
+        >
           <div class="order-item-div-alignment">
             <div>
-              <label *ngIf="product.count - 1 > 0; else default"
-                >{{ i + 1 }}B --
-              </label>
-              <ng-template #default>
-                <label>{{ i + 1 }} -- </label>
-              </ng-template>
-              <label>
-                {{ product.product.name }} (1) x ${{
-                  product.product.priceAfterCoupon | number: "1.2-2"
+              <label>{{ i + 1 }} -- </label>
+              <label
+                >REFUND: {{ product.name }} (1) x -${{
+                  product.price | number: "1.2-2"
                 }}
               </label>
             </div>
-            <label
-              >${{ product.product.priceAfterCoupon * 1 | number: "1.2-2" }}
-            </label>
+            <label> = -${{ product.price | number: "1.2-2" }}</label>
           </div>
-        </ng-template>
-      </div>
+        </div>
+        <div
+          *ngIf="currentOrder.guruBucksUsed && currentOrder.guruBucksUsed > 0"
+        >
+          <h2>
+            GURU BUCKS DOLLARS OFF ORDER: ${{ currentOrder.guruBucksUsed / 20 }}
+          </h2>
+        </div>
 
-      <div
-        *ngFor="let product of refundProducts; let i = index"
-        class="payment-lines"
-      >
-        <div class="order-item-div-alignment">
-          <div>
-            <label>{{ i + 1 }} -- </label>
-            <label
-              >REFUND: {{ product.name }} (1) x -${{
-                product.price | number: "1.2-2"
-              }}
-            </label>
-          </div>
-          <label> = -${{ product.price | number: "1.2-2" }}</label>
+        <div>
+          <h2>Tax: ${{ taxAmount | number: "1.2-2" }}</h2>
+        </div>
+        <div>
+          <h2>Total: ${{ totalCost | number: "1.2-2" }}</h2>
         </div>
       </div>
-      <div *ngIf="currentOrder.guruBucksUsed && currentOrder.guruBucksUsed > 0">
-        <h2>
-          GURU BUCKS DOLLARS OFF ORDER: ${{ currentOrder.guruBucksUsed / 20 }}
-        </h2>
-      </div>
-
-      <div>
-        <h2>Tax: ${{ taxAmount | number: "1.2-2" }}</h2>
-      </div>
-      <div>
-        <h2>Total: ${{ totalCost | number: "1.2-2" }}</h2>
-      </div>
-      <div>
-        <button
-          (click)="submitPayment()"
-          [disabled]="paid < totalCost"
-          class="btn btn-success"
-        >
-          Submit Payment
-        </button>
-      </div>
+    </div>
+    <div id="button" class="submit-button">
+      <button
+        (click)="submitPayment()"
+        [disabled]="paid < totalCost"
+        class="btn btn-success success-size"
+      >
+        Submit Payment
+      </button>
     </div>
   </div>
 </div>

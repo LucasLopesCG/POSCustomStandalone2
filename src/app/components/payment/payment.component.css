@@ -2,25 +2,43 @@
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   align-content: stretch;
   height: 100vh;
+  max-width: 100%;
+  padding-top: 1rem;
 }
 
 .left-and-right-container {
   display: flex;
   flex-direction: row;
+  border: 3px solid grey;
+  padding: 1rem;
 }
 
 .left {
   margin-right: 4rem;
   flex: 1;
+  border: 3px solid grey;
+  padding: 1rem;
+}
+
+.exact-change {
+  border: 1px solid black;
+  background: green;
+  font-size: large;
+  font-weight: 600;
+  color: white;
 }
 
 .middle {
   background-color: grey;
   width: 1px;
+}
+
+.payment-font-size {
+  font-size: xx-large;
 }
 
 .right {
@@ -31,6 +49,10 @@
   flex-direction: column;
   align-items: stretch;
   width: 60vh;
+  border: 3px solid grey;
+  padding: 1rem;
+  max-height: 60vh;
+  overflow: auto;
 }
 
 .order-item-div-alignment {
@@ -53,11 +75,13 @@
   flex-wrap: nowrap;
   justify-content: space-between;
   align-content: space-between;
+  padding-bottom: 9rem;
 }
 
 .back-button {
   align-items: center;
   display: flex;
+  min-width: 200px;
 }
 
 .header button {
@@ -78,7 +102,9 @@
 .total {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  border: 3px solid grey;
+  padding: 1rem;
 }
 
 .actions {
@@ -104,4 +130,36 @@
   margin-bottom: 1rem;
   margin-right: 0.5rem;
   margin-left: 0.5rem;
+}
+
+.money-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.money-group {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  padding-bottom: 0.5rem;
+  border: 1px solid grey;
+  padding-top: 0.5rem;
+  align-items: center;
+  justify-items: center;
+  align-content: center;
+}
+
+.submit-button {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.success-size {
+  min-width: 500px;
+  min-height: 200px;
 }
