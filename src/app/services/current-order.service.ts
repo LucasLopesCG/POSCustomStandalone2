@@ -168,6 +168,10 @@ export class CurrentOrderService {
     this.storeService.increaseStockOfProduct(value);
   }
 
+  setProductsForOrder(products) {
+    this.productsForCurrentOrder.next(products);
+  }
+
   groupUpProducts(inputArray) {
     var currentProduct = "";
     var currentProductCountArray: Array<{ product: product; count: number }> =

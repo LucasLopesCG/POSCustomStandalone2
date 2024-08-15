@@ -6,14 +6,63 @@
     </button>
   </div>
   <div mat-dialog-content>
-    <div class="info-card">
-      <!--Write info on what is present on current order-->
+    <!--Create a split drag and drop location
+    that displays each product in the current order
+    ,second order has a field to be given a nickname
+    "splitAndMakeOrders" finalizes the process.-->
+    <div id="listContainer" class="lists-container">
+      <div class="example-container">
+        <h2>Original Order</h2>
+        <div
+          cdkDropList
+          #todoList="cdkDropList"
+          [cdkDropListData]="originalOrderProducts"
+          [cdkDropListConnectedTo]="[doneList]"
+          class="example-list"
+          (cdkDropListDropped)="drop($event)"
+        >
+          <div
+            class="example-box"
+            *ngFor="let item of originalOrderProducts"
+            cdkDrag
+          >
+            {{ item.name }}
+          </div>
+        </div>
+      </div>
+
+      <div class="example-container">
+        <h2>New Order</h2>
+        <div class="order-details">
+          <label>Assign a nickname to this order:</label>
+          <input type="text" [(ngModel)]="newOrderNickname" />
+        </div>
+        <div
+          cdkDropList
+          #doneList="cdkDropList"
+          [cdkDropListData]="newOrderProducts"
+          [cdkDropListConnectedTo]="[todoList]"
+          class="example-list"
+          (cdkDropListDropped)="drop($event)"
+        >
+          <div
+            class="example-box"
+            *ngFor="let item of newOrderProducts"
+            cdkDrag
+          >
+            {{ item.name }}
+          </div>
+        </div>
+      </div>
     </div>
+
     <div>
       <div class="confirm-or-deny-buttons">
         <button
           mat-icon-button
           aria-label="confirm edit"
+          class="btn btn-success mr-3"
+          style="margin-right: 1rem"
           mat-dialog-close
           (click)="splitAndMakeOrders()"
         >
@@ -22,6 +71,7 @@
         <button
           mat-icon-button
           aria-label="cancel edit"
+          class="btn btn-danger"
           mat-dialog-close
           (click)="close()"
         >

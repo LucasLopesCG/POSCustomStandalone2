@@ -238,6 +238,42 @@
     <div class="order-buttons-and-details-container" id="topButtonGroup">
       <div class="numpad-row">
         <button
+          *ngIf="this.selectedCustomer && this.selectedCustomer.name"
+          type="button"
+          class="numpad-button btn"
+          (click)="clearSelectedCustomer()"
+        >
+          <label class="label-right-padding">Clear Customer</label>
+
+          <mat-icon> person_remove</mat-icon>
+        </button>
+        <button
+          type="button"
+          (click)="openGuruBucks()"
+          *ngIf="
+            this.selectedCustomer &&
+            this.selectedCustomer.name &&
+            this.selectedCustomer.guruBucks
+          "
+          class="numpad-button btn"
+          style="height: 100%; align-items: center"
+        >
+          <label class="label-right-padding">GURU BUCKS</label>
+          <mat-icon> money_off</mat-icon>
+        </button>
+        <button
+          type="button"
+          (click)="openSplitOrderModal()"
+          [disabled]="
+            this.currentOrderProducts && this.currentOrderProducts.length < 2
+          "
+        >
+          SPLIT <mat-icon>call_split</mat-icon>
+        </button>
+      </div>
+
+      <div class="numpad-row">
+        <button
           type="button"
           class="numpad-button btn"
           (click)="openRefundModal()"
@@ -282,16 +318,6 @@
           </div>
           <!-- </ng-template> -->
         </button>
-        <button
-          *ngIf="this.selectedCustomer && this.selectedCustomer.name"
-          type="button"
-          class="numpad-button btn"
-          (click)="clearSelectedCustomer()"
-        >
-          <label class="label-right-padding">Clear Customer</label>
-
-          <mat-icon> person_remove</mat-icon>
-        </button>
 
         <!-- <div style="display: flex; flex-direction: column"> -->
         <button
@@ -305,20 +331,6 @@
           <mat-icon> money_off</mat-icon>
         </button>
         <!-- <div> -->
-        <button
-          type="button"
-          (click)="openGuruBucks()"
-          *ngIf="
-            this.selectedCustomer &&
-            this.selectedCustomer.name &&
-            this.selectedCustomer.guruBucks
-          "
-          class="numpad-button btn"
-          style="height: 100%; align-items: center"
-        >
-          <label class="label-right-padding">GURU BUCKS</label>
-          <mat-icon> money_off</mat-icon>
-        </button>
       </div>
 
       <!-- </div> -->
