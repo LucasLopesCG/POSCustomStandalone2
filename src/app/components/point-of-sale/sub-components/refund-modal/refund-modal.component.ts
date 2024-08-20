@@ -29,7 +29,7 @@ export class RefundModalComponent implements AfterViewInit {
   pristineSelectedOrder: order = {};
   refundItems: Array<product> = [];
   previouslyRefundedItems: Array<any> = [];
-  previousOrders: Array<order> = [];
+  previousOrders: Array<any> = [];
   pristinePreviousOrders: Array<order> = [];
   searchOrders: Array<any> = [];
   pristineSearchOrders: Array<order> = [];
@@ -47,14 +47,21 @@ export class RefundModalComponent implements AfterViewInit {
     private odooService: OdooService,
   ) {
     storeService.pastOrdersFromStore$.subscribe((val) => {
-      var val2;
+      var val2: Array<any> = [];
       val.forEach((order) => {
         if (order.orderName && order.orderName.includes("POS") && order.note) {
           var cashier = order.note.split(":");
           if (cashier && cashier[2]) order.cashier = cashier[2];
         }
       });
-      this.previousOrders = val;
+      val.forEach((order) => {
+        if (order.state == "draft" || order.state == "cancel") {
+          console.log("dont include the drafts");
+        } else {
+          val2.push(order);
+        }
+      });
+      this.previousOrders = val2;
       this.pristinePreviousOrders = structuredClone(val);
       this.maxPageCount = Math.round(
         this.pristinePreviousOrders.length / 50 - 1,
@@ -198,7 +205,7 @@ export class RefundModalComponent implements AfterViewInit {
     else {
       this.filteredOrders = this.previousOrders.filter((order) => {
         if (order) {
-          const orderCustomer = order.customer?.name?.toLowerCase() as string;
+          const orderCustomer = order.partner_id[1].toLowerCase() as string;
           const orderNumber = order.orderId?.toString().toLowerCase() as string;
           const searchString = this.searchString.toLowerCase();
 
