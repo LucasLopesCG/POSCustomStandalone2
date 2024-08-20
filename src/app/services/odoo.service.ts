@@ -51,6 +51,7 @@ export class OdooService implements OnInit {
   private pastOrderCount = new BehaviorSubject<any>({});
   private productStockInfo = new BehaviorSubject<any>({});
   private pastOrdersSearchResults = new BehaviorSubject<any>([]);
+  private draftOrders = new BehaviorSubject<any>([]);
 
   sessionId$ = this.sessionId.asObservable();
   configIds$ = this.configIds.asObservable();
@@ -78,6 +79,7 @@ export class OdooService implements OnInit {
   pastOrderCount$ = this.pastOrderCount.asObservable();
   productStockInfo$ = this.productStockInfo.asObservable();
   pastOrdersSearchResults$ = this.pastOrdersSearchResults.asObservable();
+  draftOrders$ = this.draftOrders.asObservable();
 
   selectedLocation: any = null;
   sessionIdVal;
@@ -163,99 +165,234 @@ export class OdooService implements OnInit {
     );
   }
 
-  getPOSStatusByIdOG(id: string) {
+  getDraftOrdersBySessionId(sessionId: string) {
     this.http
-      .get(this.middleManUrl + `/api/getPOSStatusById?id=${id}`)
-      .subscribe(
-        (response) => {
-          //console.log("Response:", response);
-          var matchFound: boolean = false;
-          if (this.POSStatusArray && this.POSStatusArray.length > 0) {
-            this.POSStatusArray.forEach((POSStatus) => {
-              if (POSStatus.id == id) {
-                matchFound = true;
-                if (response[0].state == "closed") {
-                  POSStatus.inUse = false;
-                  POSStatus.cashInRegister =
-                    response[0].cash_register_balance_end_real;
-                } else {
-                  POSStatus.inUse = true;
-                  POSStatus.sessionId = response[0].id;
+      .get(
+        this.middleManUrl +
+          `/api/getDraftOrdersBySessionId?sessionId=${sessionId}`,
+      )
+      .subscribe((response) => {
+        this.draftOrders.next(response);
+      });
+  }
 
-                  var messageContents: Array<any> = [];
-                  //this thing contains a list of message Ids, which I now need to load from the system.
-                  if (response[0].message_ids.length > 0) {
-                    response[0].message_ids.forEach((messageId) => {
-                      this.http
-                        .get(
-                          this.middleManUrl +
-                            `/api/getMessageById?id=${messageId}`,
-                        )
-                        .subscribe((response) => {
-                          var message = response[0].preview as string;
-                          //messageContents.push(response[0].preview as string);
-                          if (message.includes("POSC - Session opened by -")) {
-                            POSStatus.cashier = message
-                              .split("POSC - Session opened by -")[1]
-                              .replace(/\s/g, "");
-                          }
-                        });
-                    });
-                  }
-                }
-              }
-            });
-          }
-          if (!matchFound) {
-            var newStatus: any = {};
-            newStatus.id = id;
-            newStatus.defaultPriceList = response[0].pricelist_id;
-            newStatus.availablePriceLists = response[0].available_pricelist_ids;
-            newStatus.availableTaxRates = response[0].fiscal_position_ids;
-            newStatus.sessionId = response[0].id;
-            if (response[0].state == "closed") {
-              newStatus.inUse = false;
-              newStatus.cashInRegister =
-                response[0].cash_register_balance_end_real;
-            } else {
-              newStatus.cashInRegister =
-                response[0].cash_register_balance_start;
-              newStatus.order_ids = response[0].order_ids;
-              newStatus.inUse = true;
-              var flipFound: boolean = false;
-              var messageContents: Array<any> = [];
-              //this thing contains a list of message Ids, which I now need to load from the system.
-              if (response[0].message_ids.length > 0) {
-                response[0].message_ids.forEach((messageId) => {
-                  this.http
-                    .get(
-                      this.middleManUrl + `/api/getMessageById?id=${messageId}`,
-                    )
-                    .subscribe((response) => {
-                      var message = response[0].preview as string;
-                      //messageContents.push(response[0].preview as string);
-                      if (message.includes("POSC - Session Opened By -")) {
-                        newStatus.cashier = message
-                          .split("POSC - Session Opened By -")[1]
-                          .replace(/\s/g, "");
-                        flipFound = true;
-                      }
-                    });
-                });
-              }
+  createDraftOrder(order: order) {
+    order.sessionId = this.sessionIdVal;
+    // if (this.session_data == null) {
+    //   this.getAuth();
+    // }
+    order.cashier = this.currentCashier.name;
+    //debugger;
+    var lines: Array<any> = [];
+    var total = order.total as number;
+    var taxRate = order.taxRate as number;
+    var totalPurchasePaid = order.totalPaid;
+    var totalPurchasePaidTax = order.totalPaidTax;
+    var amountPaid = order.amountPaid as number;
+    var amountTaxed = total - total / (1 + taxRate);
+    //var config_id: number = 0;
+    var fiscal_position_id: number = 0;
+    var paymentMethodId: number = 0;
 
-              if (!flipFound) {
-                newStatus.cashier = response[0].user_id[1];
-              }
+    if (this.selectedLocation) {
+      if (this.selectedLocation.location == storeLocationEnum.Apopka) {
+        //config_id = 1;
+        fiscal_position_id = 2;
+        paymentMethodId = 1;
+      }
+      if (this.selectedLocation.location == storeLocationEnum.DeLand) {
+        //config_id = 4;
+        fiscal_position_id = 4;
+        paymentMethodId = 7;
+      }
+      if (this.selectedLocation.location == storeLocationEnum.Orlando) {
+        //config_id = 3;
+        fiscal_position_id = 3;
+        paymentMethodId = 8;
+      }
+      if (this.selectedLocation.location == storeLocationEnum.Sanford) {
+        //config_id = 2;
+        fiscal_position_id = 1;
+        paymentMethodId = 5;
+      }
+    }
+    if (order && order.products && order.products.length > 0) {
+      order.products.forEach((product) => {
+        var price = product.product.price as number;
+        if (!product.product.deductCountForCouponEntry) {
+          var count: number = 0;
+          while (count < product.count) {
+            var newLine: any = {
+              product_id: product.product.id,
+              product_name: product.product.name,
+              quantity: 1,
+              price_unit: price,
+              price_subtotal_incl: price * taxRate + price,
+              total_price: price * product.count,
+              customer_note: product.note,
+            };
+            if (!newLine.customer_note) {
+              newLine.customer_note = "";
             }
-            this.POSStatusArray.push(newStatus);
+            count++;
+            lines.push(newLine);
           }
-          this.POSSessionStates.next(this.POSStatusArray);
-        },
-        (error) => {
-          //console.log("Error:", error);
-        },
-      );
+        } else {
+          if (product.count - 1 > 0) {
+            var count: number = 0;
+            while (count < product.count - 1) {
+              var newLine: any = {
+                product_id: product.product.id,
+                product_name: product.product.name,
+                quantity: 1,
+                price_unit: price,
+                price_subtotal_incl: price * taxRate + price,
+                total_price: price * product.count,
+                customer_note: product.note,
+              };
+              if (!newLine.customer_note) {
+                newLine.customer_note = "";
+              }
+              count++;
+              lines.push(newLine);
+            }
+          }
+          var couponPrice = product.product.priceAfterCoupon as number;
+          var couponLine: any = {
+            product_id: product.product.id,
+            product_name: product.product.name,
+            quantity: 1,
+            price_unit: couponPrice,
+            price_subtotal_incl: couponPrice * taxRate + couponPrice,
+            total_price: couponPrice,
+            customer_note: product.note,
+          };
+          if (!couponLine.customer_note) {
+            couponLine.customer_note = "";
+          }
+          lines.push(couponLine);
+        }
+      });
+      if (order && order.bxgoProducts && order.bxgoProducts.length > 0) {
+        order.bxgoProducts.forEach((product) => {
+          var bxgoLine: any = {
+            product_id: product.id,
+            product_name: product.name + " Free due to BXGO",
+            quantity: 1,
+            price_unit: 0,
+            price_subtotal_incl: 0 * taxRate + 0,
+            total_price: 0,
+            customer_note: "Free due to BXGO",
+          };
+          lines.push(bxgoLine);
+        });
+      }
+    }
+    if (
+      order &&
+      order.coupon &&
+      order.coupon[0] &&
+      order.coupon[0].couponType &&
+      order.coupon[0].couponType == couponTypeEnum.amountOffOrder
+    ) {
+      var newLine: any = {
+        product_id: -1,
+        product_name: order.coupon[0].couponDetail?.description as string,
+        quantity: 1,
+        price_unit: order.coupon[0].couponDetail?.setPrice as number,
+        price_subtotal_incl:
+          (order.coupon[0].couponDetail?.setPrice as number) * taxRate +
+          (order.coupon[0].couponDetail?.setPrice as number),
+        total_price: order.coupon[0].couponDetail?.setPrice as number,
+      };
+      lines.push(newLine);
+    }
+
+    if (order && order.guruBucksUsed && order.guruBucksUsed > 0) {
+      var guruBucksLeft = order.guruBucksUsed;
+      // Go through each existing lines record and start removing dollars from the price_unit value.
+      //re-calculate the price_subtotal_incl and total_price fields.
+      //re-name the "product_name" field to include (X dollars off from guru bucks)
+      lines.forEach((line) => {
+        var dollarsOff: number = 0;
+        var productNameOriginal = line.product_name;
+        while (line.price_unit > 1 && guruBucksLeft >= 20) {
+          dollarsOff++;
+          guruBucksLeft = guruBucksLeft - 20;
+          line.price_unit = line.price_unit - 1;
+          line.price_subtotal_incl =
+            line.price_unit * taxRate + line.price_unit;
+          line.total_price = line.price_unit;
+          line.product_name =
+            productNameOriginal +
+            " ($" +
+            dollarsOff +
+            " Removed from product by Guru Bucks Rewards)";
+        }
+      });
+    }
+
+    //SEND OUT ORDER PROPER
+    if (
+      order.totalRefund &&
+      order.totalPaid &&
+      order.totalRefund >= order.totalPaid
+    ) {
+      order.amountPaid = order.totalPaid;
+      order.total = order.amountPaid;
+    }
+    var odooStyleOrder: any = {
+      amount_tax: (totalPurchasePaid as number) * taxRate,
+      amount_total:
+        (totalPurchasePaid as number) + (totalPurchasePaid as number) * taxRate,
+      amount_paid:
+        (totalPurchasePaid as number) + (totalPurchasePaid as number) * taxRate,
+      amount_return: (order.amountPaid as number) - (order.total as number),
+      session_id: order.sessionId,
+      name: "POS_CUSTOM_ORDER",
+      cashier: order.cashier,
+      config_id: this.storeConfigId,
+      fiscal_position_id: fiscal_position_id,
+      tax_id: [this.selectedTaxId],
+      lines: lines,
+    };
+    //debugger;
+    if (order.customer) {
+      odooStyleOrder.customerId = order.customer.id as number;
+    } else {
+      odooStyleOrder.customerId = "";
+    }
+    //console.log(odooStyleOrder);
+    const body = JSON.stringify(odooStyleOrder);
+    const odooUrl = this.middleManUrl + "/api/createDraftOrder"; // Replace with your Odoo instance URL
+
+    this.http.put(odooUrl, body).subscribe(
+      (response) => {
+        console.log(response);
+        console.log("draft order created");
+      },
+      (error) => {
+        console.error(error);
+        console.log("draft order creation error");
+      },
+    );
+  }
+
+  deleteDraftOrder(id: number) {
+    var bodyObj = { orderId: id };
+    const body = JSON.stringify(bodyObj);
+    const odooUrl = this.middleManUrl + "/api/deleteDraftOrder"; // Replace with your Odoo instance URL
+
+    this.http.post(odooUrl, body).subscribe(
+      (response) => {
+        console.log(response);
+        console.log("draft order delete");
+      },
+      (error) => {
+        console.error(error);
+        console.log("draft order deletion error");
+      },
+    );
   }
 
   getPOSStatusById(id: string) {

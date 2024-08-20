@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, Injectable, inject } from "@angular/core";
 import { CurrentOrderService } from "../../../../services/current-order.service";
 import { product } from "../../../../models/product";
 import { CommonModule } from "@angular/common";
@@ -27,6 +27,9 @@ import { SaveOrResumeOrderModalComponent } from "../save-or-resume-order-modal/s
 import { ResumeOrderModalComponent } from "../resume-order-modal/resume-order-modal.component";
 import { SplitOrderModalComponent } from "../split-order-modal/split-order-modal.component";
 
+@Injectable({
+  providedIn: "root",
+})
 @Component({
   selector: "app-current-order",
   standalone: true,

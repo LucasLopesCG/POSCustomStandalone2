@@ -8,6 +8,7 @@ import { storeService } from "../../../../services/storeService";
 import { CurrentOrderService } from "../../../../services/current-order.service";
 import { order } from "../../../../models/order";
 import { customerService } from "../../../../services/customerService";
+import { CurrentOrderComponent } from "../current-order/current-order.component";
 
 @Component({
   selector: "app-save-or-resume-order-modal",
@@ -25,6 +26,7 @@ export class SaveOrResumeOrderModalComponent {
     private customerService: customerService,
     private storeService: storeService,
     private currentOrderService: CurrentOrderService,
+    private currentOrderComponent: CurrentOrderComponent,
   ) {
     currentOrderService.currentOrder$.subscribe((val) => {
       this.currentOrder = val;
@@ -35,10 +37,22 @@ export class SaveOrResumeOrderModalComponent {
     //add current order to store service's back up of orders.
     //reset selected coupon and other pointers.
     //create a blank order.
-    this.storeService.addIncompleteOrder({
-      order: structuredClone(this.currentOrder),
-      nickName: structuredClone(this.orderNickname),
-    });
+    // this.storeService.addIncompleteOrder({
+    //   order: structuredClone(this.currentOrder),
+    //   nickName: structuredClone(this.orderNickname),
+    // });
+    this.odooService.createDraftOrder(this.currentOrder);
+    //utilize current-order functionality to return stock for each item in the order.
+    //create logic here to give back stock that was used for this order.
+    if (this.currentOrder.products && this.currentOrder.products.length > 0) {
+      this.currentOrder.products.forEach((productGroup) => {
+        var count: number = 0;
+        while (count < productGroup.count) {
+          count++;
+          this.currentOrderComponent.decreaseItemCount(productGroup.product);
+        }
+      });
+    }
     this.currentOrderService.selectCoupon({});
     this.currentOrderService.newOrder();
     //this.currentOrderService.

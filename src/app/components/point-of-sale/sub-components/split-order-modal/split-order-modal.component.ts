@@ -13,6 +13,8 @@ import {
 } from "@angular/cdk/drag-drop";
 import { CurrentOrderService } from "../../../../services/current-order.service";
 import { storeService } from "../../../../services/storeService";
+import { OdooService } from "../../../../services/odoo.service";
+import { CurrentOrderComponent } from "../current-order/current-order.component";
 
 @Component({
   selector: "app-split-order-modal",
@@ -30,6 +32,8 @@ export class SplitOrderModalComponent {
     public dialogRef: MatDialogRef<SplitOrderModalComponent>,
     private currentOrderService: CurrentOrderService,
     private storeService: storeService,
+    private odooService: OdooService,
+    private currentOrderComponent: CurrentOrderComponent,
   ) {
     currentOrderService.currentOrder$.subscribe((val) => {
       this.originalOrderProducts = [];
@@ -72,6 +76,15 @@ export class SplitOrderModalComponent {
         order: structuredClone(newOrder),
         nickName: structuredClone(this.newOrderNickname),
       });
+      this.odooService.createDraftOrder(newOrder);
+      //create logic here that adds products that are in this order back to the stock quantities.
+      newOrder.products.forEach((productGroup) => {
+        var count: number = 0;
+        while (count < productGroup.count) {
+          count++;
+          this.currentOrderComponent.decreaseItemCount(productGroup.product);
+        }
+      });
     }
     var newOriginalOrderProducts: Array<any> = [];
     if (this.originalOrderProducts && this.originalOrderProducts.length > 0) {
@@ -92,6 +105,13 @@ export class SplitOrderModalComponent {
       newOriginalOrderProducts.push({ product: productGroup, count: count });
       this.currentOrder.products = newOriginalOrderProducts;
       this.currentOrderService.setProductsForOrder(this.originalOrderProducts);
+      this.originalOrderProducts.forEach((productGroup) => {
+        var count: number = 0;
+        while (count < productGroup.count) {
+          count++;
+          this.currentOrderComponent.increaseItemCount(productGroup.product);
+        }
+      });
       this.currentOrderService.setCurrentOrder(this.currentOrder);
     }
     this.close();

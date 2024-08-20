@@ -32,6 +32,9 @@ import { Observable } from "rxjs/internal/Observable";
 import { Observer } from "rxjs/internal/types";
 import { ProductStockInformationModalComponent } from "../product-stock-information-modal/product-stock-information-modal.component";
 
+@Injectable({
+  providedIn: "root",
+})
 @Component({
   selector: "app-product-list",
   standalone: true,
@@ -73,11 +76,11 @@ export class ProductListComponent implements AfterContentInit {
   private dialog = inject(MatDialog);
   productsForCurrentLocation: Array<product> = [];
   productsForCurrentLocationNoDiscounts: Array<product> = [];
-  productsSeparatedIntoVariants: Array<Array<product>> = [];
+  public productsSeparatedIntoVariants: Array<any> = [];
   showOutOfStock = false;
   searchString: string = "";
   selectedVariantGroup: Array<product> = [];
-  filteredProducts: Array<Array<product>> = [];
+  public filteredProducts: Array<Array<product>> = [];
   dataUrl: any = "";
 
   constructor(
@@ -88,11 +91,11 @@ export class ProductListComponent implements AfterContentInit {
   ) {
     //checks for happy hour being triggered every minute
     const seconds = 60; // Call function every 60 seconds
-    setInterval(() => {
-      this.separateCouponsAndHappyHour();
-      this.createVariantGroups();
-      this.filterByCategory(this.selectedCategory);
-    }, seconds * 1000);
+    // setInterval(() => {
+    //   this.separateCouponsAndHappyHour();
+    //   this.createVariantGroups();
+    //   this.filterByCategory(this.selectedCategory);
+    // }, seconds * 1000);
     odooService.combinedProductData$.subscribe((val) => {
       if (val && val.length > 0) {
         this.productsForCurrentLocationNoDiscounts = val;
@@ -230,6 +233,7 @@ export class ProductListComponent implements AfterContentInit {
     if (category == "ALL") {
       this.selectedCategory = category;
       this.filteredProducts = this.productsSeparatedIntoVariants;
+      //this.storeService.setFilteredProducts
     } else {
       this.selectedCategory = categoryEnum[category];
       var output = this.productsSeparatedIntoVariants.filter((array) => {
@@ -365,12 +369,17 @@ export class ProductListComponent implements AfterContentInit {
     return output;
   }
 
-  addProductToOrder(event: any) {
+  public addProductToOrder(event: any) {
     //trigger logic to lower the count of the stock inside of the local track of product for the chosen product
     //call logic to add product to the current-order component's order array
     // (event);
     // ("pause and check!");
-    if (event.stock > 0) this.currentOrderService.addItemToOrder(event);
+    if (event.stock > 0) {
+      this.currentOrderService.addItemToOrder(event);
+      return true;
+    } else {
+      return false;
+    }
     //this.modalService.close();
   }
 

@@ -372,6 +372,7 @@ export class ChooseLocationComponent {
     this.storeService.setAvailablePaymentMethodIds(location.paymentMethodIds);
     this.storeService.setConfigId(location.configId);
     this.odooService.setSessionId(location.sessionId);
+    this.odooService.getDraftOrdersBySessionId(location.sessionId);
 
     this.selectLocation(location);
     this.userService.addToRegister(location.cashInRegister);
