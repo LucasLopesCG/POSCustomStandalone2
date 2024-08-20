@@ -178,6 +178,7 @@ export class OdooService implements OnInit {
 
   createDraftOrder(order: order) {
     order.sessionId = this.sessionIdVal;
+    //debugger;
     // if (this.session_data == null) {
     //   this.getAuth();
     // }

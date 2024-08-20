@@ -23,6 +23,7 @@ export class ResumeOrderModalComponent {
   incompleteOrdersOdoo: Array<any> = [];
   selectedOrder: any = {};
   TESTONLY: any = {};
+  availableCustomers: any = [];
   sessionId: number = 0;
   user: any = {};
   constructor(
@@ -37,6 +38,11 @@ export class ResumeOrderModalComponent {
     storeService.incompleteOrders$.subscribe((val) => {
       this.incompleteOrders = val;
     });
+    customerService.availableCustomers$.subscribe((val) => {
+      this.availableCustomers = val;
+
+      // (this.availableCustomers);
+    });
     odooService.sessionId$.subscribe((val) => {
       if (val && val > 0) this.sessionId = val;
       this.odooService.getDraftOrdersBySessionId(val.toString());
@@ -44,6 +50,7 @@ export class ResumeOrderModalComponent {
     odooService.draftOrders$.subscribe((val) => {
       if (val && val.length > 0) {
         this.incompleteOrdersOdoo = val;
+        this.incompleteOrdersOdoo = this.getFullCustomerInfoFromIds();
         this.incompleteOrdersOdoo = this.convertOdooOrderFormat();
         this.incompleteOrdersOdoo = this.removeOutOfStockOrders();
       }
@@ -56,6 +63,34 @@ export class ResumeOrderModalComponent {
     userService.dataUser$.subscribe((val) => {
       this.user = val;
     });
+  }
+
+  getFullCustomerInfoFromIds() {
+    var output: Array<any> = [];
+    // ;
+    this.incompleteOrdersOdoo.forEach((incompleteOrder) => {
+      var customerArray: Array<any> = [];
+      this.availableCustomers.forEach((customer) => {
+        if (
+          incompleteOrder &&
+          incompleteOrder.partner_id &&
+          customer.id == incompleteOrder.partner_id[0]
+        ) {
+          customerArray.push(customer);
+        }
+        //return false;
+      });
+      if (customerArray && customerArray.length > 0) {
+        incompleteOrder.customer = customerArray[0];
+      } else {
+        console.log("this order had no customer?");
+        console.log(incompleteOrder.customerId);
+      }
+      output.push(incompleteOrder);
+    });
+
+    // ;
+    return output;
   }
 
   removeOutOfStockOrders() {
@@ -136,6 +171,7 @@ export class ResumeOrderModalComponent {
         newResumeOrder.products = newProducts;
       }
       newResumeOrder.id = incompleteOrder.id;
+      newResumeOrder.customer = incompleteOrder.customer;
       output.push(newResumeOrder);
     });
     return output;

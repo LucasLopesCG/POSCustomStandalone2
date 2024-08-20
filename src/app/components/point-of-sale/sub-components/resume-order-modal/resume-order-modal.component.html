@@ -26,8 +26,12 @@
           class="info-card"
           [class.active]="incompleteOrder === selectedOrder"
         >
-        <button (click)="deleteDraft(incompleteOrder)"><mat-icon>cancel</mat-icon></button>
-          <h2>DETAILS FOR ORDER: {{ incompleteOrder.nickName }}</h2>
+          <button (click)="deleteDraft(incompleteOrder)">
+            <mat-icon>cancel</mat-icon>
+          </button>
+          <h2 *ngIf="incompleteOrder.order.customer">
+            CUSTOMER: {{ incompleteOrder.order.customer.complete_name }}
+          </h2>
           <h2>PRODUCTS IN ORDER:</h2>
           <div *ngFor="let products of incompleteOrder.order.products">
             <!--Div for products-->
