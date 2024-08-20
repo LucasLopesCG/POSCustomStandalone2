@@ -26,10 +26,19 @@
           class="info-card"
           [class.active]="incompleteOrder === selectedOrder"
         >
-          <button (click)="deleteDraft(incompleteOrder)">
-            <mat-icon>cancel</mat-icon>
-          </button>
-          <h2 *ngIf="incompleteOrder.order.customer">
+          <div
+            id="deleteDraftButtonContainer"
+            class="delete-draft-button-container"
+          >
+            <button
+              class="btn btn-danger mr-3"
+              style="margin-right: 1rem"
+              (click)="deleteDraft(incompleteOrder)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          <h2 *ngIf="incompleteOrder.order.customer.complete_name">
             CUSTOMER: {{ incompleteOrder.order.customer.complete_name }}
           </h2>
           <h2>PRODUCTS IN ORDER:</h2>
