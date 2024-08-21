@@ -85,6 +85,7 @@ export class storeService {
   private availablePaymentMethods = new BehaviorSubject<Array<number>>([]);
   private incompleteOrders = new BehaviorSubject<Array<any>>([]);
   private stockAtCurrentLocation = new BehaviorSubject<Array<any>>([]);
+  private mostRecentSubmittedOrder = new BehaviorSubject<any>({});
   /////////////////////////////////////////////////////////////////////////////////////
   private currentStoreLayout = new BehaviorSubject<any>({});
   private restaurantViewEditMode = new BehaviorSubject<any>({});
@@ -116,6 +117,7 @@ export class storeService {
   availablePaymentMethods$ = this.availablePaymentMethods.asObservable();
   incompleteOrders$ = this.incompleteOrders.asObservable();
   stockAtCurrentLocation$ = this.stockAtCurrentLocation.asObservable();
+  mostRecentSubmittedOrder$ = this.mostRecentSubmittedOrder.asObservable();
   /////////////////////////////////////////////////////////////////////////////////////
   currentStoreLayout$ = this.currentStoreLayout.asObservable();
   restaurantViewEditMode$ = this.restaurantViewEditMode.asObservable();
@@ -361,6 +363,7 @@ export class storeService {
       this.pastOrderArray = [order];
     }
     this.pastOrdersFromStore.next(this.pastOrderArray);
+    this.mostRecentSubmittedOrder.next(order);
   }
 
   public addCouponToCouponList(coupon: coupon) {

@@ -8,12 +8,14 @@ import helvetica from "./Helvetica 400-normal";
 import code128 from "./code128-normal";
 import { OdooService } from "../../services/odoo.service";
 import { storeService } from "../../services/storeService";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: "app-order-complete",
   templateUrl: "./order-complete.component.html",
   standalone: true,
-  imports: [SafePipe, NgxBarcode6Module],
+  imports: [SafePipe, NgxBarcode6Module, CommonModule, FormsModule],
 })
 export class OrderCompleteComponent implements OnInit {
   order: any;
@@ -26,6 +28,8 @@ export class OrderCompleteComponent implements OnInit {
   selectedPriceList: number = 0;
   pastOrderConfigIds: Array<any> = [];
   receiptCount: number = 0;
+  generateReturnReceipt: boolean = false;
+  generateRegularReceipt: boolean = false;
 
   constructor(
     private currentOrderService: CurrentOrderService,
@@ -80,7 +84,7 @@ export class OrderCompleteComponent implements OnInit {
           productGroup.product.refund_orderline_ids = [];
         });
         this.generateReceipt = false;
-        this.generatePdf(true);
+        //this.generatePdf(true);
         //Add this order to previous orders
         this.previousOrders.unshift(this.order);
         //this.previousOrders = [order].concat(this.previousOrders);
@@ -91,6 +95,9 @@ export class OrderCompleteComponent implements OnInit {
             this.stockFilter,
             this.selectedPriceList,
           );
+
+        this.orderInOdoo = true;
+        this.callGeneratePdf();
       }
       if (
         (order && order.orderNumber && order.pickingId) ||
@@ -98,7 +105,7 @@ export class OrderCompleteComponent implements OnInit {
       ) {
         this.order.orderNumber = order.orderNumber;
         this.generateReceipt = false;
-        this.generatePdf(false);
+        //this.generatePdf(false);
         this.receiptCount = 2;
         //Now look through each of the products inside of the return order and increase count for the product
         //this may mean creating a new productGroup if the product was out of stock.
@@ -111,12 +118,45 @@ export class OrderCompleteComponent implements OnInit {
             this.stockFilter,
             this.selectedPriceList,
           );
+        this.orderInOdoo = true;
+        this.callGeneratePdf();
+      }
+    });
+    this.storeService.mostRecentSubmittedOrder$.subscribe((order) => {
+      if (order.refundedProducts && order.refundedProducts.length > 0) {
+        this.generateReturnReceipt = true;
+        this.callGeneratePdf();
+        //this.generatePdf(false);
+      }
+      if (order.products && order.products.length > 0) {
+        this.generateRegularReceipt = true;
+        this.callGeneratePdf();
+        //this.generatePdf(true);
       }
     });
   }
 
   ngOnInit(): void {
     this.receiptCount = 0;
+  }
+
+  callGeneratePdf() {
+    if (this.orderInOdoo) {
+      if (
+        this.generateReturnReceipt &&
+        this.order.refundedProducts &&
+        this.order.refundedProducts.length > 0
+      ) {
+        this.generatePdf(false);
+      }
+      if (
+        this.generateRegularReceipt &&
+        this.order.products &&
+        this.order.products.length > 0
+      ) {
+        this.generatePdf(true);
+      }
+    }
   }
 
   ngOnDestroy(): void {}

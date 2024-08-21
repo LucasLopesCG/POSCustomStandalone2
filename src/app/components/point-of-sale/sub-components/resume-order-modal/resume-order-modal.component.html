@@ -38,7 +38,13 @@
               <mat-icon>delete</mat-icon>
             </button>
           </div>
-          <h2 *ngIf="incompleteOrder.order.customer.complete_name">
+          <h2
+            *ngIf="
+              incompleteOrder.order &&
+              incompleteOrder.order.customer &&
+              incompleteOrder.order.customer.complete_name
+            "
+          >
             CUSTOMER: {{ incompleteOrder.order.customer.complete_name }}
           </h2>
           <h2>PRODUCTS IN ORDER:</h2>
