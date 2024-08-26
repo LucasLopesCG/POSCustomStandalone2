@@ -27,7 +27,7 @@
 }
 
 .product-card {
-  margin: 4px;
+  margin: 1px;
   padding: 4px;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -61,11 +61,12 @@
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: hidden; */
-  height: 120px; /* adjust the height as needed */
+  min-height: 120px; /* adjust the height as needed */
   padding-bottom: 20px; /* add some space for the scrollbar */
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
+  justify-content: space-between;
 }
 
 .category-card {

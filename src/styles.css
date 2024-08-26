@@ -9,7 +9,7 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 .bg-beige {
-  background-color: beige;
+  background-color: #d8dadd;
 }
 
 [mat-dialog-content] {
@@ -28,4 +28,17 @@ body {
 
 .payment-screen-container {
   background-color: #d8dadd;
+}
+
+.mat-mdc-menu-panel {
+  background-color: white !important;
+  min-width: 15vh;
+}
+
+app-root {
+  overflow-y: hidden;
+}
+
+body {
+  background-color: blueviolet;
 }

@@ -18,13 +18,14 @@ export class AnnouncementBoardComponent implements OnInit {
   constructor(private wordpressService: WordPressService) {
     wordpressService.announcements$.subscribe((val) => {
       if (val && val.length > 0) {
+        this.announcementList = [];
         val.forEach((announcement) => {
           var newContent = JSON.parse(announcement.content);
           announcement.content = newContent;
+          this.announcementList.push(announcement);
         });
       }
       console.log(val);
-      this.announcementList = val;
     });
   }
   ngOnInit(): void {

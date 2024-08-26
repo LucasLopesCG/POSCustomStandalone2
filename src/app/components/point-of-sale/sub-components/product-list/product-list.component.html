@@ -8,36 +8,40 @@
   <ng-template #ready>
     <div class="row">
       <div class="col-md-12 right-side-align">
-        <input
+        <!-- <input
           type="text"
           [(ngModel)]="searchString"
           placeholder="Filter By..."
           (ngModelChange)="filterProducts()"
-        />
+        /> -->
       </div>
     </div>
 
     <div class="row" id="categoryWrapperParentWrapper">
       <div class="col-md-12" id="categoryContainerWrapper">
-        <div class="category-container" id="categoryContainer">
-          <div
-            class="category-card"
-            *ngFor="let category of filteredCat"
-            [class.active]="selectedCategory === category"
-            (click)="filterByCategory(category)"
-          >
-            <img class="img-category" src="assets/images/{{ category }}.png" />
-            <span>{{ category }}</span>
-          </div>
-          <div
-            class="category-card"
-            [class.active]="selectedCategory === 'ALL'"
-            (click)="filterByCategory('ALL')"
-          >
-            <img class="img-category" src="assets/images/AllCategories.png" />
-            <span>All Products</span>
-          </div>
-          <!-- <div
+        <div class="category-container" id="categoryAndFilterContainer">
+          <div id="categoryContainer" style="display: flex">
+            <div
+              class="category-card"
+              *ngFor="let category of filteredCat"
+              [class.active]="selectedCategory === category"
+              (click)="filterByCategory(category)"
+            >
+              <img
+                class="img-category"
+                src="assets/images/{{ category }}.png"
+              />
+              <span>{{ category }}</span>
+            </div>
+            <div
+              class="category-card"
+              [class.active]="selectedCategory === 'ALL'"
+              (click)="filterByCategory('ALL')"
+            >
+              <img class="img-category" src="assets/images/AllCategories.png" />
+              <span>All Products</span>
+            </div>
+            <!-- <div
             class="category-card"
             [class.active]="selectedCategory === 'New'"
             (click)="filterByCategory('New')"
@@ -45,6 +49,14 @@
             <img class="img-responsive" src="assets/images/NewCategory.png" />
             <span>All Products</span>
           </div> -->
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchString"
+            placeholder="Search Products"
+            (ngModelChange)="filterProducts()"
+            results="0"
+          />
         </div>
       </div>
     </div>

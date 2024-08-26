@@ -48,6 +48,10 @@ element-center {
   align-items: center;
   align-content: stretch;
 }
+
+.full-height {
+  height: 100vh;
+}
 .locations-container {
   display: flex;
   flex-direction: row;
@@ -90,11 +94,15 @@ element-center {
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 25vh;
-  background-color: #f5f5dc; /* Beige background */
-  margin-right: 30px;
+  background-color: white; /* Beige background */
+  margin-right: 16px;
 }
 .location-font-size {
   font-size: large;
+}
+
+.bold-store-font {
+  font-weight: 700;
 }
 
 .grid-layout {

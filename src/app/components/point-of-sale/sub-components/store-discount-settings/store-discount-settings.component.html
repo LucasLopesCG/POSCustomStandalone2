@@ -1,5 +1,5 @@
 <div class="modal-layout">
-  <div mat-dialog-title class="dialog-title bg-beige text-dark-green p-3">
+  <div mat-dialog-title class="dialog-title p-3">
     <h2>DISCOUNTS AND HAPPY HOUR SETTINGS</h2>
     <button
       mat-icon-button
@@ -11,11 +11,7 @@
       <mat-icon>cancel</mat-icon>
     </button>
   </div>
-  <div
-    mat-dialog-content
-    style="height: 25rem; overflow: auto; background-color: white"
-    class="p-3"
-  >
+  <div mat-dialog-content style="height: 25rem; overflow: auto" class="p-3">
     <div *ngIf="mode == 'displayDiscount'">
       <div *ngIf="storeDiscounts; else noDiscountSettings">
         <div class="happy-hour-card">
@@ -23,7 +19,7 @@
           <div
             *ngFor="let hh of storeDiscounts.happyHour; let i = index"
             class="mb-4 rounded border shadow-sm p-3"
-            style="background-color: cornsilk"
+            style=""
           >
             <div class="hh-and-coupon-labels">
               <label>Type: {{ hh.hhType }}</label>

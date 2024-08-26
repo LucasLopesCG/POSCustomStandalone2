@@ -50,7 +50,7 @@
 }
 
 .bg-beige {
-  background-color: #f5f5dc;
+  background-color: #d8dadd;
 }
 
 .dark-green {
@@ -82,7 +82,7 @@
   align-items: stretch;
   align-content: stretch;
   padding: 5px;
-  background-color: beige;
+  background-color: #d8dadd;
 }
 
 .restaurant-section {
@@ -143,4 +143,20 @@
 .no-x-padding {
   padding-right: 0px;
   padding-left: 0px;
+}
+
+.mat-mdc-menu-panel {
+  background-color: white !important;
+}
+
+.menu-button-margins {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+hr {
+  margin-right: 10px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  color: grey;
 }

@@ -95,6 +95,17 @@
   background-color: white;
   border-color: darkslategrey;
   border-radius: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.row3 {
+  width: 33%;
+}
+
+.row4 {
+  width: 25%;
 }
 
 .current-order-container {
@@ -175,4 +186,8 @@
 .order-buttons-and-details-container {
   margin-left: 1rem;
   margin-right: 1rem;
+}
+
+.product-order-button-icon-color {
+  color: #222222;
 }

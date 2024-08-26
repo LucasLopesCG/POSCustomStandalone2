@@ -1,72 +1,97 @@
-<div class="d-flex justify-content-center flex-column">
-  <div class="centered-spinner" *ngIf="isLoading; else userLoaded">
-    <mat-spinner></mat-spinner>
-  </div>
-  <ng-template #userLoaded>
-    <div *ngIf="availableLocations && this.selectedLocation == 'NONE'">
-      <div class="d-flex justify-content-between">
-        <div></div>
-        <h2 class="">Choose from one of your stores</h2>
-        <div>
-          <button  class ="btn btn-logout"(click)="Logout()">LogOut <mat-icon>logout</mat-icon></button>
-        </div>
-      </div>
-      <div class="grid-layout">
-        <div *ngFor="let storeLoc of availableLocations" class="location-card">
+<div
+  id="chooseLocationContainer"
+  style="display: block; height: 100vh; background-color: #d7dadd"
+>
+  <div
+    class="d-flex justify-content-center flex-column"
+    [class.full-height]="isLoading"
+  >
+    <div class="centered-spinner" *ngIf="isLoading; else userLoaded">
+      <mat-spinner></mat-spinner>
+    </div>
+    <ng-template #userLoaded>
+      <div *ngIf="availableLocations && this.selectedLocation == 'NONE'">
+        <div class="d-flex justify-content-between">
+          <div></div>
+          <h2 class="" style="padding-top: 20px">
+            Choose from one of your stores
+          </h2>
           <div>
-            <div class="info-row">
-              <label class="location-font-size">{{ storeLoc.name }}</label>
-            </div>
-            <div *ngIf="!storeLoc.inUse" class="info-row">
-              <label>Balance: </label>
-              <label>{{ storeLoc.cashInRegister | number: "1.2-2" }}</label>
-            </div>
-            <div *ngIf="storeLoc.inUse" class="info-row">
-              <label>In Use By: </label>
-              <label>{{ storeLoc.cashier }}</label>
-            </div>
-            <div id="buttonAndIconGroup" class="button-icon-container">
-              <div id="buttonGroup">
-                <button
-                  class="btn location-login-btn"
-                  *ngIf="storeLoc.inUse && storeLoc.cashier != currentUser.name"
-                  (click)="resumeSession(storeLoc)"
-                >
-                  <label>Login</label>
-                </button>
-                <button
-                  class="btn location-login-btn"
-                  *ngIf="!storeLoc.inUse"
-                  (click)="createNewSession(storeLoc)"
-                  [disabled]="storeLoc.inUse"
-                >
-                  <label>Login</label>
-                </button>
-                <button
-                  class="btn location-login-btn"
-                  *ngIf="storeLoc.inUse && storeLoc.cashier == currentUser.name"
-                  (click)="resumeSession(storeLoc)"
-                >
-                  <label>Resume Session</label>
-                </button>
+            <button
+              class="btn btn-logout"
+              (click)="Logout()"
+              style="display: flex"
+            >
+              LogOut <mat-icon>logout</mat-icon>
+            </button>
+          </div>
+        </div>
+        <div class="grid-layout">
+          <div
+            *ngFor="let storeLoc of availableLocations"
+            class="location-card"
+          >
+            <div>
+              <div class="info-row">
+                <label class="location-font-size bold-store-font">{{
+                  storeLoc.name
+                }}</label>
               </div>
-              <div id="imageGroup">
-                <mat-icon>storefront</mat-icon>
+              <div *ngIf="!storeLoc.inUse" class="info-row">
+                <label>Balance: $</label>
+                <label>{{ storeLoc.cashInRegister | number: "1.2-2" }}</label>
+              </div>
+              <div *ngIf="storeLoc.inUse" class="info-row">
+                <label class="bold-store-font">In Use By: </label>
+                <label class="bold-store-font">{{ storeLoc.cashier }}</label>
+              </div>
+              <div id="buttonAndIconGroup" class="button-icon-container">
+                <div id="buttonGroup">
+                  <button
+                    class="btn location-login-btn"
+                    *ngIf="
+                      storeLoc.inUse && storeLoc.cashier != currentUser.name
+                    "
+                    (click)="resumeSession(storeLoc)"
+                  >
+                    <label>Login</label>
+                  </button>
+                  <button
+                    class="btn location-login-btn"
+                    *ngIf="!storeLoc.inUse"
+                    (click)="createNewSession(storeLoc)"
+                    [disabled]="storeLoc.inUse"
+                  >
+                    <label>Login</label>
+                  </button>
+                  <button
+                    class="btn location-login-btn"
+                    *ngIf="
+                      storeLoc.inUse && storeLoc.cashier == currentUser.name
+                    "
+                    (click)="resumeSession(storeLoc)"
+                  >
+                    <label>Resume Session</label>
+                  </button>
+                </div>
+                <div id="imageGroup">
+                  <mat-icon>storefront</mat-icon>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </ng-template>
-</div>
-<div *ngIf="this.selectedLocation != 'NONE'">
-  <div *ngIf="this.selectedLocation.isRestaurant; else store">
-    <!-- <app-restaurant-table-selector></app-restaurant-table-selector> -->
-    <app-restaurant-layout-view></app-restaurant-layout-view>
+    </ng-template>
   </div>
+  <div *ngIf="this.selectedLocation != 'NONE'">
+    <div *ngIf="this.selectedLocation.isRestaurant; else store">
+      <!-- <app-restaurant-table-selector></app-restaurant-table-selector> -->
+      <app-restaurant-layout-view></app-restaurant-layout-view>
+    </div>
 
-  <ng-template #store>
-    <app-point-of-sale></app-point-of-sale>
-  </ng-template>
+    <ng-template #store>
+      <app-point-of-sale></app-point-of-sale>
+    </ng-template>
+  </div>
 </div>

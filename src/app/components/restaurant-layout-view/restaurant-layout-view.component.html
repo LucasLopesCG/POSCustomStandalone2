@@ -30,7 +30,6 @@
         </div>
       </nav>
     </div> -->
-    <label>Current Cashier: {{ user.name }}</label>
     <nav
       class="navbar navbar-expand-lg navbar-light bg-light"
       style="padding: 0"
@@ -48,40 +47,50 @@
           >
             <div class="dropdown-options">
               <button
-                class="hover-class"
+                class="hover-class menu-button-margins"
                 (click)="openStoreDiscountSettings()"
                 *ngIf="
                   user.accessLevel == accessLevel.Admin ||
                   user.accessLevel == accessLevel.SuperAdmin
                 "
               >
-                OPEN STORE DISCOUNTS
+                Open Discounts
               </button>
+              <hr />
               <button
-                class="hover-class"
+                class="hover-class menu-button-margins"
                 (click)="openStoreCashierSettings()"
                 *ngIf="
                   user.accessLevel == accessLevel.Admin ||
                   user.accessLevel == accessLevel.SuperAdmin
                 "
               >
-                OPEN CASHIER SETTINGS
+                Open Cashier Settings
               </button>
+              <hr />
               <button
-                class="hover-class"
+                class="hover-class menu-button-margins"
                 (click)="openRestaurantLayoutChangeModal()"
                 *ngIf="
                   user.accessLevel == accessLevel.Admin ||
                   user.accessLevel == accessLevel.SuperAdmin
                 "
               >
-                CHANGE LAYOUT
+                Change Layout
               </button>
-              <button class="hover-class" (click)="openGenerateStoreReport()">
-                SALES REPORT
+              <hr />
+              <button
+                class="hover-class menu-button-margins"
+                (click)="openGenerateStoreReport()"
+              >
+                Sales Report
               </button>
-              <button class="hover-class" (click)="openFileSelector()">
-                IMPORT OFFLINE ORDERS
+              <hr />
+              <button
+                class="hover-class menu-button-margins"
+                (click)="openFileSelector()"
+              >
+                Import Offline Orders
               </button>
               <input
                 type="file"
@@ -89,15 +98,28 @@
                 (change)="handleFileInput($event)"
                 #fileInput
               />
-              <button class="hover-class" (click)="openSwitchCashier()">
-                SWITCH CASHIER
+              <hr />
+              <button
+                class="hover-class menu-button-margins"
+                (click)="openSwitchCashier()"
+              >
+                Switch Cashier
               </button>
-              <button class="hover-class" (click)="openLockCashier()">
-                LOCK
+              <hr />
+              <button
+                class="hover-class menu-button-margins"
+                (click)="openLockCashier()"
+              >
+                Lock
               </button>
-              <button class="hover-class" (click)="openCloseSessionModal()">
+              <hr />
+              <button
+                class="hover-class menu-button-margins"
+                (click)="openCloseSessionModal()"
+              >
                 CLOSE SESSION
               </button>
+              <hr />
             </div>
           </mat-menu>
         </ul>

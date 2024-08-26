@@ -1,6 +1,9 @@
-<div>
-  <h1>Announcements</h1>
-  <div *ngFor="let announcement of announcementList; let i = index">
+<div class="announcement-background">
+  <h1 style="text-align: center; padding-top: 1rem">Announcements</h1>
+  <div
+    class="announcement"
+    *ngFor="let announcement of announcementList; let i = index"
+  >
     <div id="mainBodyOfAnnouncement_{{ i }}">
       <div id="announcementTitle_{{ i }}">
         <h2>{{ announcement.title }}</h2>

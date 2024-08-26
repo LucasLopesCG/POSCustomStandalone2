@@ -16,7 +16,7 @@
   justify-content: center;
   align-items: stretch;
   align-content: stretch;
-  background-color: beige;
+  background-color: #d8dadd;
 }
 
 .navbar-nav {
@@ -26,13 +26,19 @@
 }
 
 .hover-class:hover {
-  background-color: red;
+  background-color: lightgrey;
+}
+
+.menu-button-margins {
+  margin-right: 10px;
+  margin-left: 10px;
 }
 
 .dropdown-options {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
+  background-color: white;
 }
 
 .POS-section {
@@ -129,4 +135,15 @@
   margin-right: 0.5rem;
   margin-top: 0.2rem;
   margin-bottom: 0.2rem;
+}
+
+.mat-mdc-menu-panel {
+  background-color: white !important;
+}
+
+hr {
+  margin-right: 10px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  color: grey;
 }

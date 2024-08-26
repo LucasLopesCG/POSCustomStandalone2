@@ -139,6 +139,26 @@ input[type="number"] {
 
 .login-announcements-display-container {
   display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
+  align-items: flex-start;
+  justify-content: center;
+  align-content: stretch;
+  flex-wrap: wrap;
+  margin: auto;
+  margin-left: 20%;
+  margin-right: 20%;
+  /* padding-top: 15%; */
+  box-shadow: 3px 3px 3px 3px grey;
+  margin-top: 15%;
+}
+
+.announcement-board-container {
+  width: 50%;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  height: 60vh;
+  background-image: url("../assets/images/announcementsBackground.png");
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }

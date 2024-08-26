@@ -38,18 +38,22 @@
                 <div class="product-in-order-button-group">
                   <button
                     type="button"
-                    class="btn btn-info right-margin-for-button"
+                    class="btn right-margin-for-button"
                     (click)="showOrHideProductNote(product)"
                   >
-                    <mat-icon>event_note</mat-icon>
+                    <mat-icon class="product-order-button-icon-color"
+                      >event_note</mat-icon
+                    >
                   </button>
                   <button
                     type="button"
-                    class="btn btn-danger right-margin-for-button"
+                    class="btn right-margin-for-button"
                     (click)="decreaseItemCount(product.product)"
                     [disabled]="disableButtons"
                   >
-                    <mat-icon>remove</mat-icon>
+                    <mat-icon class="product-order-button-icon-color"
+                      >remove</mat-icon
+                    >
                   </button>
 
                   <button
@@ -57,16 +61,20 @@
                     class="btn right-margin-for-button"
                     (click)="removeItemFromOrder(product)"
                   >
-                    <mat-icon>delete</mat-icon>
+                    <mat-icon class="product-order-button-icon-color"
+                      >delete</mat-icon
+                    >
                   </button>
 
                   <button
                     type="button"
-                    class="btn btn-success"
+                    class="btn"
                     (click)="increaseItemCount(product.product)"
                     [disabled]="disableButtons"
                   >
-                    <mat-icon>add</mat-icon>
+                    <mat-icon class="product-order-button-icon-color"
+                      >add</mat-icon
+                    >
                   </button>
                 </div>
               </div>
@@ -234,19 +242,24 @@
     </div>
     <ng-template #noCouponSelected></ng-template>
   </div>
+
+  <!--Buttons start here-->
   <div id="currentOrderButtonsSection">
     <div class="order-buttons-and-details-container" id="topButtonGroup">
+      <!--clear customer, open guru bucks, split order-->
       <div class="numpad-row">
+        <!--clear customer-->
         <button
           *ngIf="this.selectedCustomer && this.selectedCustomer.name"
           type="button"
-          class="numpad-button btn"
+          class="numpad-button btn row3"
           (click)="clearSelectedCustomer()"
         >
           <label class="label-right-padding">Clear Customer</label>
 
           <mat-icon> person_remove</mat-icon>
         </button>
+        <!--Guru bucks-->
         <button
           type="button"
           (click)="openGuruBucks()"
@@ -255,15 +268,16 @@
             this.selectedCustomer.name &&
             this.selectedCustomer.guruBucks
           "
-          class="numpad-button btn"
-          style="height: 100%; align-items: center"
+          class="numpad-button btn row3"
         >
           <label class="label-right-padding">GURU BUCKS</label>
           <mat-icon> money_off</mat-icon>
         </button>
+        <!--split order-->
         <button
           type="button"
           (click)="openSplitOrderModal()"
+          class="numpad-button btn row3"
           [disabled]="
             this.currentOrderProducts && this.currentOrderProducts.length < 2
           "
@@ -272,10 +286,11 @@
         </button>
       </div>
 
+      <!--refund, customer,coupon-->
       <div class="numpad-row">
         <button
           type="button"
-          class="numpad-button btn"
+          class="numpad-button btn row3"
           (click)="openRefundModal()"
           [disabled]="pastOrdersLoading"
         >
@@ -291,7 +306,7 @@
 
         <button
           type="button"
-          class="numpad-button btn"
+          class="numpad-button btn row3"
           (click)="openChooseCustomerModal()"
           [disabled]="customerLoading"
         >
@@ -323,183 +338,61 @@
         <button
           type="button"
           (click)="openChooseCoupon()"
-          class="numpad-button btn"
+          class="numpad-button btn row3"
           [disabled]="!this.selectedCustomer || !this.selectedCustomer.name"
-          style="height: 100%; align-items: center"
         >
           <label class="label-right-padding">COUPON</label>
           <mat-icon> money_off</mat-icon>
         </button>
         <!-- <div> -->
       </div>
-
-      <!-- </div> -->
-      <!-- </div> -->
-    </div>
-
-    <div
-      class="order-buttons-and-details-container"
-      id="orderButtonsAndDetailsContainer"
-    >
+      <!--change price list, change tax rate, save draft, resume draft-->
       <div class="numpad-row">
+        <!--change price list-->
         <button
           type="button"
-          class="numpad-button btn"
+          class="numpad-button btn row4"
           (click)="changePriceList()"
         >
           Price List
           <mat-icon>price_change</mat-icon>
         </button>
+        <!--change tax rate-->
         <button
           type="button"
-          class="numpad-button btn"
+          class="numpad-button btn row4"
           (click)="changeTaxRate()"
         >
           Taxes
           <mat-icon> currency_exchange</mat-icon>
         </button>
+        <!--save draft-->
         <button
           type="button"
-          class="numpad-button btn"
+          class="numpad-button btn row4"
           (click)="saveCurrentOrderForLater()"
         >
           Save
           <mat-icon> save_alt</mat-icon>
         </button>
+        <!--resume draft order-->
         <button
           type="button"
-          class="numpad-button btn"
+          class="numpad-button btn row4"
           (click)="resumeSavedOrder()"
         >
           Resume
           <mat-icon> save_alt</mat-icon>
         </button>
       </div>
+    </div>
+
+    <div
+      class="order-buttons-and-details-container"
+      id="orderButtonsAndDetailsContainer"
+    >
       <div class="button-group-layout">
-        <!--Numpad-->
-        <div class="numpad-main" style="margin-right: 0.5rem; flex-grow: 1">
-          <!--1-3-->
-          <div class="numpad-row">
-            <button
-              type="button"
-              class="btn numpad-button"
-              (click)="attemptToSetSelectedGroupCount('1')"
-              (keydown.97)="attemptToSetSelectedGroupCount('1')"
-              (keydown.49)="attemptToSetSelectedGroupCount('1')"
-            >
-              1
-            </button>
-            <button
-              type="button"
-              class="btn numpad-button"
-              (click)="attemptToSetSelectedGroupCount('2')"
-              (keydown.98)="attemptToSetSelectedGroupCount('2')"
-              (keydown.50)="attemptToSetSelectedGroupCount('2')"
-            >
-              2
-            </button>
-            <button
-              type="button"
-              class="btn numpad-button"
-              (click)="attemptToSetSelectedGroupCount('3')"
-              (keydown.99)="attemptToSetSelectedGroupCount('3')"
-              (keydown.51)="attemptToSetSelectedGroupCount('3')"
-            >
-              3
-            </button>
-          </div>
-          <!--4-6-->
-          <div class="numpad-row">
-            <button
-              type="button"
-              class="btn numpad-button"
-              (click)="attemptToSetSelectedGroupCount('4')"
-              (keydown.100)="attemptToSetSelectedGroupCount('4')"
-              (keydown.52)="attemptToSetSelectedGroupCount('4')"
-            >
-              4
-            </button>
-            <button
-              type="button"
-              class="btn numpad-button"
-              (click)="attemptToSetSelectedGroupCount('5')"
-              (keydown.101)="attemptToSetSelectedGroupCount('5')"
-              (keydown.53)="attemptToSetSelectedGroupCount('5')"
-            >
-              5
-            </button>
-            <button
-              type="button"
-              class="btn numpad-button"
-              (click)="attemptToSetSelectedGroupCount('6')"
-              (keydown.102)="attemptToSetSelectedGroupCount('6')"
-              (keydown.54)="attemptToSetSelectedGroupCount('6')"
-            >
-              6
-            </button>
-          </div>
-          <!--7-9-->
-          <div class="numpad-row">
-            <button
-              type="button"
-              class="btn numpad-button"
-              (click)="attemptToSetSelectedGroupCount('7')"
-              (keydown.103)="attemptToSetSelectedGroupCount('7')"
-              (keydown.55)="attemptToSetSelectedGroupCount('7')"
-            >
-              7
-            </button>
-            <button
-              type="button"
-              class="btn numpad-button"
-              (click)="attemptToSetSelectedGroupCount('8')"
-              (keydown.104)="attemptToSetSelectedGroupCount('8')"
-              (keydown.56)="attemptToSetSelectedGroupCount('8')"
-            >
-              8
-            </button>
-            <button
-              type="button"
-              class="btn numpad-button"
-              (click)="attemptToSetSelectedGroupCount('9')"
-              (keydown.105)="attemptToSetSelectedGroupCount('9')"
-              (keydown.57)="attemptToSetSelectedGroupCount('9')"
-            >
-              9
-            </button>
-          </div>
-          <!--0 AND . -->
-          <div class="numpad-row">
-            <button
-              type="button"
-              class="btn numpad-button"
-              disabled
-              (click)="attemptToSetSelectedGroupCount('0')"
-              (keydown.96)="attemptToSetSelectedGroupCount('0')"
-              (keydown.48)="attemptToSetSelectedGroupCount('0')"
-            >
-              -
-            </button>
-            <button
-              type="button"
-              class="btn numpad-button"
-              (click)="attemptToSetSelectedGroupCount('0')"
-              (keydown.96)="attemptToSetSelectedGroupCount('0')"
-              (keydown.48)="attemptToSetSelectedGroupCount('0')"
-            >
-              0
-            </button>
-            <button
-              type="button"
-              class="btn numpad-button"
-              style="padding-left: 0px; padding-right: 7px"
-              (click)="attemptToSetSelectedGroupCount('-')"
-              (keydown.8)="attemptToSetSelectedGroupCount('-')"
-            >
-              <mat-icon>backspace</mat-icon>
-            </button>
-          </div>
-        </div>
+        <!--Payment button-->
         <div class="pay-button" style="flex-grow: 0">
           <button
             type="button"
@@ -526,6 +419,129 @@
             Split Order
             <mat-icon> splitscreen</mat-icon>
           </button>
+        </div>
+        <!--Numpad-->
+        <div class="numpad-main" style="flex-grow: 1; width: 75%">
+          <!--1-3-->
+          <div class="numpad-row">
+            <button
+              type="button"
+              class="btn numpad-button row3"
+              (click)="attemptToSetSelectedGroupCount('1')"
+              (keydown.97)="attemptToSetSelectedGroupCount('1')"
+              (keydown.49)="attemptToSetSelectedGroupCount('1')"
+            >
+              1
+            </button>
+            <button
+              type="button"
+              class="btn numpad-button row3"
+              (click)="attemptToSetSelectedGroupCount('2')"
+              (keydown.98)="attemptToSetSelectedGroupCount('2')"
+              (keydown.50)="attemptToSetSelectedGroupCount('2')"
+            >
+              2
+            </button>
+            <button
+              type="button"
+              class="btn numpad-button row3"
+              (click)="attemptToSetSelectedGroupCount('3')"
+              (keydown.99)="attemptToSetSelectedGroupCount('3')"
+              (keydown.51)="attemptToSetSelectedGroupCount('3')"
+            >
+              3
+            </button>
+          </div>
+          <!--4-6-->
+          <div class="numpad-row">
+            <button
+              type="button"
+              class="btn numpad-button row3"
+              (click)="attemptToSetSelectedGroupCount('4')"
+              (keydown.100)="attemptToSetSelectedGroupCount('4')"
+              (keydown.52)="attemptToSetSelectedGroupCount('4')"
+            >
+              4
+            </button>
+            <button
+              type="button"
+              class="btn numpad-button row3"
+              (click)="attemptToSetSelectedGroupCount('5')"
+              (keydown.101)="attemptToSetSelectedGroupCount('5')"
+              (keydown.53)="attemptToSetSelectedGroupCount('5')"
+            >
+              5
+            </button>
+            <button
+              type="button"
+              class="btn numpad-button row3"
+              (click)="attemptToSetSelectedGroupCount('6')"
+              (keydown.102)="attemptToSetSelectedGroupCount('6')"
+              (keydown.54)="attemptToSetSelectedGroupCount('6')"
+            >
+              6
+            </button>
+          </div>
+          <!--7-9-->
+          <div class="numpad-row">
+            <button
+              type="button"
+              class="btn numpad-button row3"
+              (click)="attemptToSetSelectedGroupCount('7')"
+              (keydown.103)="attemptToSetSelectedGroupCount('7')"
+              (keydown.55)="attemptToSetSelectedGroupCount('7')"
+            >
+              7
+            </button>
+            <button
+              type="button"
+              class="btn numpad-button row3"
+              (click)="attemptToSetSelectedGroupCount('8')"
+              (keydown.104)="attemptToSetSelectedGroupCount('8')"
+              (keydown.56)="attemptToSetSelectedGroupCount('8')"
+            >
+              8
+            </button>
+            <button
+              type="button"
+              class="btn numpad-button row3"
+              (click)="attemptToSetSelectedGroupCount('9')"
+              (keydown.105)="attemptToSetSelectedGroupCount('9')"
+              (keydown.57)="attemptToSetSelectedGroupCount('9')"
+            >
+              9
+            </button>
+          </div>
+          <!--0 AND . -->
+          <div class="numpad-row">
+            <button
+              type="button"
+              class="btn numpad-button row3"
+              disabled
+              (click)="attemptToSetSelectedGroupCount('0')"
+              (keydown.96)="attemptToSetSelectedGroupCount('0')"
+              (keydown.48)="attemptToSetSelectedGroupCount('0')"
+            >
+              -
+            </button>
+            <button
+              type="button"
+              class="btn numpad-button row3"
+              (click)="attemptToSetSelectedGroupCount('0')"
+              (keydown.96)="attemptToSetSelectedGroupCount('0')"
+              (keydown.48)="attemptToSetSelectedGroupCount('0')"
+            >
+              0
+            </button>
+            <button
+              type="button"
+              class="btn numpad-button row3"
+              (click)="attemptToSetSelectedGroupCount('-')"
+              (keydown.8)="attemptToSetSelectedGroupCount('-')"
+            >
+              <mat-icon>backspace</mat-icon>
+            </button>
+          </div>
         </div>
       </div>
     </div>
