@@ -1,6 +1,7 @@
 import { coupon } from "./coupon";
 import { customer } from "./customer";
 import { orderStatusEnum } from "./orderStatusEnum";
+import { payment } from "./payment";
 import { product } from "./product";
 
 export class order {
@@ -13,6 +14,7 @@ export class order {
   totalPaid?: number = 0;
   totalPaidTax?: number = 0;
   taxRate?: number;
+  paymentDetails?: Array<payment> = [];
   coupon?: Array<coupon>;
   orderNumber?: number;
   orderId?: number;

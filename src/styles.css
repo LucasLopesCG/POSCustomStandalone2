@@ -14,7 +14,7 @@ body {
 }
 
 [mat-dialog-content] {
-  background-color: #d8dadd;
+  background-color: white;
 }
 
 .confirm-or-deny-buttons {
@@ -38,4 +38,12 @@ body {
 
 app-root {
   overflow-y: hidden;
+}
+
+.close-button-span {
+  font-weight: 800;
+  background-color: #d8dadd;
+  min-width: 34px;
+  min-height: 34px;
+  font-size: 24px;
 }

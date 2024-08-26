@@ -51,11 +51,12 @@
           </div> -->
           </div>
           <input
-            type="text"
+            type="search"
             [(ngModel)]="searchString"
             placeholder="Search Products"
             (ngModelChange)="filterProducts()"
             results="0"
+            class="filter-details"
           />
         </div>
       </div>

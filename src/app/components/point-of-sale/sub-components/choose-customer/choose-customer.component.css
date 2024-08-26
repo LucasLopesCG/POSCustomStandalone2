@@ -3,6 +3,7 @@
 /* Style the dialog title */
 [mat-dialog-title] {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   padding: 16px;
 }
@@ -15,7 +16,7 @@
 /* Style the dialog content */
 [mat-dialog-content] {
   padding: 16px;
-  background-color: #d8dadd;
+  background-color: white;
   padding-bottom: 64px; /* Add padding to the bottom to separate from the create customer button */
 }
 
