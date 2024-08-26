@@ -138,17 +138,23 @@ input[type="number"] {
 }
 
 .login-announcements-display-container {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  align-content: stretch;
   flex-wrap: wrap;
   margin: auto;
   margin-left: 20%;
   margin-right: 20%;
-  /* padding-top: 15%; */
+}
+
+.inner-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  align-content: stretch;
+  padding-top: 15%;
+}
+
+.box-shadow {
   box-shadow: 3px 3px 3px 3px grey;
-  margin-top: 15%;
+  background-color: white;
 }
 
 .announcement-board-container {
