@@ -5,19 +5,40 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatIcon } from "@angular/material/icon";
 import { CurrentOrderService } from "../../../../services/current-order.service";
 import { OdooService } from "../../../../services/odoo.service";
+import {
+  MatCell,
+  MatColumnDef,
+  MatHeaderCell,
+  MatHeaderRow,
+  MatRow,
+  MatTable,
+} from "@angular/material/table";
 
 @Component({
   selector: "app-product-stock-information-modal",
   standalone: true,
-  imports: [FormsModule, CommonModule, MatIcon],
+  imports: [
+    FormsModule,
+    CommonModule,
+    MatIcon,
+    MatTable,
+    MatColumnDef,
+    MatHeaderCell,
+    MatHeaderRow,
+    MatCell,
+    MatHeaderRow,
+    MatRow,
+  ],
   templateUrl: "./product-stock-information-modal.component.html",
   styleUrl: "./product-stock-information-modal.component.css",
 })
 export class ProductStockInformationModalComponent {
+  columns: Array<any> = [];
   productStockInfo: any = {};
   productStockFiltered: any = {};
   productStockInfoFinal: any = {};
   searchName: string = "";
+  isLoading: boolean = true;
   constructor(
     public dialogRef: MatDialogRef<ProductStockInformationModalComponent>,
     private odooService: OdooService,
@@ -74,6 +95,11 @@ export class ProductStockInformationModalComponent {
         finalDisplayArray.push(arrayVal);
       });
       this.productStockInfoFinal = finalDisplayArray;
+      this.columns = [
+        "productName",
+        ...this.getLocations(this.productStockInfoFinal),
+      ];
+      this.isLoading = false; // Set loading to false after processing data
     });
   }
   close() {
@@ -103,5 +129,20 @@ export class ProductStockInformationModalComponent {
       name,
       locations: productMap[name],
     }));
+  }
+
+  getLocations(productStockInfoFinal: any[]): string[] {
+    const locationsSet = new Set<string>();
+    productStockInfoFinal.forEach((productStock) =>
+      productStock.locations.forEach((location) =>
+        locationsSet.add(location.location),
+      ),
+    );
+    return Array.from(locationsSet);
+  }
+
+  getQuantity(productStock: any, location: string): number {
+    const loc = productStock.locations.find((loc) => loc.location === location);
+    return loc ? loc.quantity : null;
   }
 }

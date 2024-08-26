@@ -28,9 +28,13 @@
           </div> -->
             <div
               class="product-card"
+              style="position: relative"
               *ngIf="product && product.stock && product.stock > 0"
             >
-              <div (click)="addProductToOrder(product)">
+              <div
+                (click)="addProductToOrder(product)"
+                style="position: relative"
+              >
                 <img
                   class="img-responsive"
                   [src]="sanitizeImage(product.image)"
@@ -38,6 +42,13 @@
                 <h4>{{ product.name }}</h4>
                 <p>Price: {{ product.price | number: "1.2-2" }}</p>
                 <p>Stock: {{ product.stock }}</p>
+                <span
+                  class="qty-tag"
+                  [class.green-tag]="product.stock > 9"
+                  [class.yellow-tag]="product.stock <= 9"
+                >
+                  {{ product.stock }}</span
+                >
               </div>
             </div>
           </ng-container>

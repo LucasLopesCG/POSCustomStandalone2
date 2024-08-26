@@ -36,3 +36,25 @@
   font-size: 24px;
   margin: 0;
 }
+
+.qty-tag {
+  position: absolute;
+  top: 2px;
+  left: 1px;
+  width: auto;
+  vertical-align: top;
+  color: #fff;
+  line-height: 9px;
+  background: none repeat scroll 0% 0% #7f82ac;
+  padding: 10px 10px;
+  border-radius: 4px;
+  display: flex;
+}
+
+.green-tag {
+  background-color: green;
+}
+
+.yellow-tag {
+  background-color: #ffbc00;
+}
