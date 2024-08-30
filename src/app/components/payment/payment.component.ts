@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import { storeService } from "../../services/storeService";
 import { CurrentOrderService } from "../../services/current-order.service";
 import { product } from "../../models/product";
@@ -10,6 +10,10 @@ import { orderStatusEnum } from "../../models/orderStatusEnum";
 import { userService } from "../../services/userService";
 import { OdooService } from "../../services/odoo.service";
 import { MatIcon } from "@angular/material/icon";
+import { payment } from "../../models/payment";
+import { MatDialog } from "@angular/material/dialog";
+import { customerService } from "../../services/customerService";
+import { ChooseCustomerComponent } from "../point-of-sale/sub-components/choose-customer/choose-customer.component";
 
 interface GroupedProduct {
   name: string;
@@ -26,6 +30,7 @@ interface GroupedProduct {
   styleUrl: "./payment.component.css",
 })
 export class PaymentComponent {
+  private dialog = inject(MatDialog);
   amountVal: number = 0;
   displayMode: string = "payment";
   products: any = [];
@@ -55,11 +60,22 @@ export class PaymentComponent {
     { name: "1c", count: 0, value: 0.01 },
   ];
 
+  activePaymentMethod: payment = {};
+  activePaymentMethodIndex: number = -1;
+  paymentsArray: Array<payment> = [];
+  availablePaymentMethods: Array<any> = [];
+  availablePaymentMethodsIds: Array<number> = [];
+  selectedCustomer: any = {};
+  plusOrMinus: string = "+";
+  activePaymentMethodDisplayAmount: string = "";
+  orderPaymentsSummary: Array<any> = [];
+
   constructor(
     private storeService: storeService,
     private currentOrderService: CurrentOrderService,
     private userService: userService,
     private odooService: OdooService,
+    private customerService: customerService,
   ) {
     currentOrderService.currentOrder$.subscribe((val) => {
       this.currentOrder = val;
@@ -76,10 +92,136 @@ export class PaymentComponent {
       this.taxAmount = Number(this.taxAmount.toFixed(2));
       //this.calculateTotalCost();
       this.groupProducts();
+      this.orderPaymentsSummary = val.paymentDetails;
+      if (!this.orderPaymentsSummary) {
+        this.orderPaymentsSummary = [];
+      }
+      this.calculateDisplayAmounts();
+    });
+    customerService.selectedCustomer$.subscribe((val) => {
+      this.selectedCustomer = val;
+      this.currentOrder.customer = val;
     });
     odooService.sessionId$.subscribe((val) => {
       if (val) this.sessionId = val;
     });
+    storeService.availablePaymentMethods$.subscribe((val) => {
+      if (val) {
+        this.availablePaymentMethods = [];
+        this.availablePaymentMethodsIds = val;
+        this.availablePaymentMethodsIds.forEach((id) => {
+          this.odooService.getPaymentMethodDetailById(id);
+        });
+      }
+    });
+    odooService.paymentMethodDetail$.subscribe((val) => {
+      if (val) {
+        if (this.availablePaymentMethodsIds.includes(parseFloat(val[0]))) {
+          this.availablePaymentMethods.push({
+            id: val[0],
+            name: val[1][0].name,
+            paymentAmount: 0,
+          });
+          this.activePaymentMethod = this.availablePaymentMethods[0];
+        }
+      }
+    });
+  }
+
+  calculateDisplayAmounts() {
+    this.totalPaid = 0;
+    this.refundTotal = 0;
+    this.orderPaymentsSummary.forEach((payment) => {
+      this.totalPaid = this.totalPaid + payment.paymentAmount;
+    });
+    this.refundTotal = this.totalPaid - this.totalCost;
+    if (this.refundTotal < 0) {
+      this.refundTotal = 0;
+    }
+  }
+
+  addDigitToCurrentPaymentMethod(digit: string) {
+    var amtString = this.activePaymentMethodDisplayAmount;
+    if (amtString == "0") amtString = "";
+    amtString = amtString + digit;
+    this.activePaymentMethodDisplayAmount = amtString;
+    this.activePaymentMethod.paymentAmount = parseFloat(amtString);
+    this.availablePaymentMethods[this.activePaymentMethodIndex] =
+      this.activePaymentMethod;
+  }
+
+  removeRightMostCharacter() {
+    var amount = this.activePaymentMethod.paymentAmount as number;
+    var amtString = amount.toString();
+    amtString = amtString.slice(0, -1);
+    this.activePaymentMethodDisplayAmount = amtString;
+    this.activePaymentMethod.paymentAmount = parseFloat(amtString);
+    this.availablePaymentMethods[this.activePaymentMethodIndex] =
+      this.activePaymentMethod;
+  }
+
+  addPeriodToCurrentPaymentMethod() {
+    var amount = this.activePaymentMethod.paymentAmount as number;
+    var amtString = amount.toString();
+    if (amtString.includes(".")) {
+    } else {
+      amtString = amtString + ".";
+    }
+    this.activePaymentMethodDisplayAmount = amtString;
+    this.activePaymentMethod.paymentAmount = parseFloat(amtString);
+    this.availablePaymentMethods[this.activePaymentMethodIndex] =
+      this.activePaymentMethod;
+  }
+
+  switchPlusOrMinus() {
+    if (this.plusOrMinus == "+") {
+      this.plusOrMinus = "-";
+    } else {
+      this.plusOrMinus = "+";
+    }
+  }
+
+  addAmountToCurrentPaymentMethod(amtChange: number) {
+    this.activePaymentMethod.paymentAmount =
+      (this.activePaymentMethod.paymentAmount as number) + amtChange;
+    this.activePaymentMethodDisplayAmount =
+      this.activePaymentMethod.paymentAmount.toString();
+    this.availablePaymentMethods[this.activePaymentMethodIndex] =
+      this.activePaymentMethod;
+  }
+
+  setActivePaymentMethod(payment, index) {
+    //if the current paymentAmount is higher than 0, add a payment into the summary!
+    if (
+      this.activePaymentMethod.paymentAmount &&
+      this.activePaymentMethod.paymentAmount > 0
+    ) {
+      var clone = structuredClone(this.activePaymentMethod);
+      this.orderPaymentsSummary.push(clone);
+      this.currentOrder.paymentDetails = this.orderPaymentsSummary;
+    }
+    this.activePaymentMethod.paymentAmount = 0;
+    this.availablePaymentMethods[this.activePaymentMethodIndex] =
+      this.activePaymentMethod;
+
+    //Reset of OG activePaymentMethod complete, summaryPaymentAdded. Set new activePaymentMethod and index values.
+    this.activePaymentMethod = payment;
+    this.activePaymentMethodIndex = index;
+    this.activePaymentMethodDisplayAmount = (
+      this.activePaymentMethod.paymentAmount as number
+    ).toString();
+    this.currentOrderService.setCurrentOrder(this.currentOrder);
+  }
+
+  openChooseCustomerModal() {
+    //this.customerService.getCustomers();
+    this.dialog.open(ChooseCustomerComponent, { data: "NONE" });
+  }
+
+  removePayment(i: number) {
+    this.orderPaymentsSummary.splice(i, 1);
+    this.currentOrder.paymentDetails = this.orderPaymentsSummary;
+    this.currentOrderService.setCurrentOrder(this.currentOrder);
   }
 
   payExactAmount(): void {
@@ -230,6 +372,7 @@ export class PaymentComponent {
     this.currentOrder.status = orderStatusEnum.Paid;
     this.currentOrder.total = this.totalCost;
     this.currentOrder.totalPaidTax = this.totalPaidTax;
+    this.currentOrder.paymentDetails = this.paymentsArray;
     this.storeService.submitOrder(this.currentOrder);
     if (this.currentOrder.products && this.currentOrder.products.length > 0) {
       this.odooService.sendNewOrder(this.currentOrder);

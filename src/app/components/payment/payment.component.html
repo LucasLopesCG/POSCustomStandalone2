@@ -1,4 +1,4 @@
-<div class="container">
+<!-- <div class="container">
   <div class="header">
     <div id="headerButtonAndTitle" class="header-button-and-title-container">
       <button (click)="backToOrder()" class="btn btn-danger back-button">
@@ -6,7 +6,28 @@
         BACK TO ORDER
       </button>
       <h1 class="payment-font-size">Payment</h1>
-      <div class="back-button"></div>
+      <div class="back-button">
+        <button
+          type="button"
+          class="numpad-button btn row3"
+          (click)="openChooseCustomerModal()"
+        >
+          <div class="button-style">
+            <label
+              *ngIf="!this.selectedCustomer.name"
+              class="label-right-padding"
+              >CUSTOMER</label
+            >
+
+            <label
+              *ngIf="this.selectedCustomer && this.selectedCustomer.name"
+              class="label-right-padding"
+              >{{ this.selectedCustomer.name }}</label
+            >
+            <mat-icon> person_pin</mat-icon>
+          </div>
+        </button>
+      </div>
     </div>
     <div class="total">
       <h2>
@@ -25,14 +46,26 @@
   </div>
   <div id="leftRightContainersAndFinish">
     <div class="left-and-right-container">
+      <div class="payment-methods-container">
+        <h2>Payment Methods:</h2>
+        <div *ngFor="let paymentMethod of availablePaymentMethods">
+          <div
+            class="payment-method-card"
+            [class.activePaymentMethod]="activePaymentMethod == paymentMethod"
+            (click)="setActivePaymentMethod(paymentMethod)"
+          >
+            <label>{{ paymentMethod.name }}</label>
+            <label> Amount: ${{ paymentMethod.amount }}</label>
+          </div>
+        </div>
+      </div>
       <div class="left">
         <div class="actions">
           <button class="btn exact-change" (click)="payExactAmount()">
             Exact Amount
           </button>
-          <!-- <button>Paid with Card NOT IMPLEMENTED</button> -->
           <div>
-            <label>Enter amount given: </label>
+            <label>Enter amount: </label>
             <input
               type="number"
               [(ngModel)]="amountVal"
@@ -41,7 +74,10 @@
             />
           </div>
         </div>
-        <div class="money">
+        <div
+          class="money"
+          *ngIf="activePaymentMethod == availablePaymentMethods[0]"
+        >
           <label>Or enter individual bills and coins given: </label>
           <div id="moneyContainer" class="money-container">
             <div *ngFor="let money of moneyOptions" class="money-group">
@@ -159,6 +195,377 @@
       >
         Submit Payment
       </button>
+    </div>
+  </div>
+</div> -->
+
+<div class="container">
+  <!--Should be flex-row-->
+  <div
+    id="backButtonPaymentTitleAndCustomerButton"
+    class="header-button-and-title-container"
+  >
+    <button (click)="backToOrder()" class="btn btn-danger back-button">
+      <mat-icon>keyboard_double_arrow_left</mat-icon>
+      BACK TO ORDER
+    </button>
+    <h1 class="payment-font-size">Payment</h1>
+    <div class="back-button"></div>
+  </div>
+  <div id="paymentScreenMainDisplay" class="main-display-container">
+    <div
+      id="paymentMethodsAndSummaryOfPaymentsSection"
+      class="width25 payments-section-layout"
+    >
+      <div class="payment-methods-container">
+        <div>
+          <h2>Payment Methods:</h2>
+          <div
+            *ngFor="let paymentMethod of availablePaymentMethods; let i = index"
+          >
+            <div
+              class="payment-method-card"
+              [class.activePaymentMethod]="activePaymentMethod == paymentMethod"
+              (click)="setActivePaymentMethod(paymentMethod, i)"
+            >
+              <label class="paymentMethodLabel">{{ paymentMethod.name }}</label>
+              <label class="paymentMethodLabel">
+                Amount: ${{ paymentMethod.paymentAmount }}</label
+              >
+            </div>
+          </div>
+        </div>
+        <div id="summaryOfPaymentsSection">
+          <h2>Summary</h2>
+          <div *ngFor="let summaryItem of orderPaymentsSummary; let i = index">
+            <div class="summary-payment-card">
+              <label class="paymentMethodLabel">{{ summaryItem.name }}</label>
+              <label class="paymentMethodLabel">
+                ${{ summaryItem.paymentAmount }}</label
+              >
+
+              <button
+                type="button"
+                class="btn right-margin-for-button"
+                (click)="removePayment(i)"
+              >
+                <mat-icon class="delete-button-icon-color">delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="submitButtonContainer">
+        <button
+          (click)="submitPayment()"
+          [disabled]="totalPaid < totalCost"
+          class="btn btn-success success-size"
+        >
+          Submit Payment
+        </button>
+      </div>
+    </div>
+    <div
+      id="paymentAmountSection"
+      class="width50 payment-amount-section-container"
+    >
+      <div class="display-amount-for-payment-method">
+        ${{ activePaymentMethodDisplayAmount }}
+      </div>
+      <div id="numpadMain" class="numpad-main">
+        <div id="row123plus5" class="numpad-row">
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="addDigitToCurrentPaymentMethod('1')"
+            (keydown.97)="addDigitToCurrentPaymentMethod('1')"
+            (keydown.49)="addDigitToCurrentPaymentMethod('1')"
+          >
+            1
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="addDigitToCurrentPaymentMethod('2')"
+            (keydown.98)="addDigitToCurrentPaymentMethod('2')"
+            (keydown.50)="addDigitToCurrentPaymentMethod('2')"
+          >
+            2
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="addDigitToCurrentPaymentMethod('3')"
+            (keydown.99)="addDigitToCurrentPaymentMethod('3')"
+            (keydown.51)="addDigitToCurrentPaymentMethod('3')"
+          >
+            3
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            *ngIf="plusOrMinus == '+'"
+            (click)="addAmountToCurrentPaymentMethod(5)"
+          >
+            +5
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            *ngIf="plusOrMinus == '-'"
+            (click)="addAmountToCurrentPaymentMethod(-5)"
+          >
+            -5
+          </button>
+        </div>
+        <div id="row456plus10" class="numpad-row">
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="addDigitToCurrentPaymentMethod('4')"
+            (keydown.100)="addDigitToCurrentPaymentMethod('4')"
+            (keydown.52)="addDigitToCurrentPaymentMethod('4')"
+          >
+            4
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="addDigitToCurrentPaymentMethod('5')"
+            (keydown.101)="addDigitToCurrentPaymentMethod('5')"
+            (keydown.53)="addDigitToCurrentPaymentMethod('5')"
+          >
+            5
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="addDigitToCurrentPaymentMethod('6')"
+            (keydown.102)="addDigitToCurrentPaymentMethod('6')"
+            (keydown.54)="addDigitToCurrentPaymentMethod('6')"
+          >
+            6
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            *ngIf="plusOrMinus == '+'"
+            (click)="addAmountToCurrentPaymentMethod(10)"
+          >
+            +10
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            *ngIf="plusOrMinus == '-'"
+            (click)="addAmountToCurrentPaymentMethod(-10)"
+          >
+            -10
+          </button>
+        </div>
+        <div id="row789plus50" class="numpad-row">
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="addDigitToCurrentPaymentMethod('7')"
+            (keydown.103)="addDigitToCurrentPaymentMethod('7')"
+            (keydown.55)="addDigitToCurrentPaymentMethod('7')"
+          >
+            7
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="addDigitToCurrentPaymentMethod('8')"
+            (keydown.104)="addDigitToCurrentPaymentMethod('8')"
+            (keydown.56)="addDigitToCurrentPaymentMethod('8')"
+          >
+            8
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="addDigitToCurrentPaymentMethod('9')"
+            (keydown.105)="addDigitToCurrentPaymentMethod('9')"
+            (keydown.57)="addDigitToCurrentPaymentMethod('9')"
+          >
+            9
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            *ngIf="plusOrMinus == '+'"
+            (click)="addAmountToCurrentPaymentMethod(50)"
+          >
+            +50
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            *ngIf="plusOrMinus == '-'"
+            (click)="addAmountToCurrentPaymentMethod(-50)"
+          >
+            -50
+          </button>
+        </div>
+        <div id="plusMinus0PeriodBackspace" class="numpad-row">
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="switchPlusOrMinus()"
+          >
+            +/-
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="addDigitToCurrentPaymentMethod('0')"
+            (keydown.96)="addDigitToCurrentPaymentMethod('0')"
+            (keydown.48)="addDigitToCurrentPaymentMethod('0')"
+          >
+            0
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="addPeriodToCurrentPaymentMethod()"
+            (keydown.190)="addPeriodToCurrentPaymentMethod()"
+            (keydown.110)="addPeriodToCurrentPaymentMethod()"
+          >
+            .
+          </button>
+          <button
+            type="button"
+            class="btn numpad-button row4"
+            (click)="removeRightMostCharacter()"
+            (keydown.8)="removeRightMostCharacter()"
+          >
+            <mat-icon>backspace</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="orderSummary" class="right width25">
+      <button
+        type="button"
+        class="numpad-button btn row3"
+        style="margin-bottom: 1rem"
+        (click)="openChooseCustomerModal()"
+      >
+        <div class="button-style">
+          <label *ngIf="!this.selectedCustomer.name" class="label-right-padding"
+            >CUSTOMER</label
+          >
+
+          <label
+            *ngIf="this.selectedCustomer && this.selectedCustomer.name"
+            class="label-right-padding"
+            >{{ this.selectedCustomer.name }}</label
+          >
+          <mat-icon> person_pin</mat-icon>
+        </div>
+      </button>
+      <div id="allProductsAndRefunds">
+        <div
+          *ngFor="let product of groupedProducts; let i = index"
+          class="payment-lines"
+        >
+          <div
+            *ngIf="
+              !product.product.deductCountForCouponEntry;
+              else showProductAndCouponVariant
+            "
+            class="order-item-div-alignment"
+          >
+            <div>
+              <label>{{ i + 1 }} -- </label>
+              <label
+                >{{ product.product.name }} ({{ product.count }}) x ${{
+                  product.product.price | number: "1.2-2"
+                }}
+              </label>
+            </div>
+            <label>
+              ${{
+                product.product.price * product.count | number: "1.2-2"
+              }}</label
+            >
+          </div>
+          <ng-template #showProductAndCouponVariant>
+            <div *ngIf="product.count - 1 > 0">
+              <div class="order-item-div-alignment">
+                <label>{{ i + 1 }} -- </label>
+                <label
+                  >{{ product.product.name }} ({{ product.count - 1 }}) x ${{
+                    product.product.price | number: "1.2-2"
+                  }}
+                </label>
+              </div>
+              <label>
+                ${{
+                  product.product.price * product.count | number: "1.2-2"
+                }}</label
+              >
+            </div>
+            <div class="order-item-div-alignment">
+              <div>
+                <label *ngIf="product.count - 1 > 0; else default"
+                  >{{ i + 1 }}B --
+                </label>
+                <ng-template #default>
+                  <label>{{ i + 1 }} -- </label>
+                </ng-template>
+                <label>
+                  {{ product.product.name }} (1) x ${{
+                    product.product.priceAfterCoupon | number: "1.2-2"
+                  }}
+                </label>
+              </div>
+              <label
+                >${{ product.product.priceAfterCoupon * 1 | number: "1.2-2" }}
+              </label>
+            </div>
+          </ng-template>
+        </div>
+        <div
+          *ngFor="let product of refundProducts; let i = index"
+          class="payment-lines"
+        >
+          <div class="order-item-div-alignment">
+            <div>
+              <label>{{ i + 1 }} -- </label>
+              <label
+                >REFUND: {{ product.name }} (1) x -${{
+                  product.price | number: "1.2-2"
+                }}
+              </label>
+            </div>
+            <label> = -${{ product.price | number: "1.2-2" }}</label>
+          </div>
+        </div>
+      </div>
+      <div id="orderCostDetails">
+        <div
+          *ngIf="currentOrder.guruBucksUsed && currentOrder.guruBucksUsed > 0"
+        >
+          <h2>
+            GURU BUCKS DOLLARS OFF ORDER: ${{ currentOrder.guruBucksUsed / 20 }}
+          </h2>
+        </div>
+
+        <div>
+          <h2>Tax: ${{ taxAmount | number: "1.2-2" }}</h2>
+        </div>
+        <div>
+          <h2>Total: ${{ totalCost | number: "1.2-2" }}</h2>
+        </div>
+        <div>
+          <h2>Paid: ${{ totalPaid | number: "1.2-2" }}</h2>
+        </div>
+        <div>
+          <h2>Refund: ${{ refundTotal | number: "1.2-2" }}</h2>
+        </div>
+      </div>
     </div>
   </div>
 </div>

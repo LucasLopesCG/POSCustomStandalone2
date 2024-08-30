@@ -85,6 +85,7 @@ export class ChooseLocationComponent {
   POSSessionStatesFinal: Array<any> = [];
   scannedMessages: Array<number> = [];
   fetchPastOrdersFlag: boolean = false;
+  openSessionNotes: string = "";
   constructor(
     private storeService: storeService,
     private currentOrderService: CurrentOrderService,
@@ -407,15 +408,16 @@ export class ChooseLocationComponent {
       data: location,
     });
     createSessionModal.afterClosed().subscribe((result) => {
-      if (result == "cancel") {
+      if (result.state == "cancel") {
         //do nothing
-      } else if (this.isStringNumber(result)) {
-        var amt = parseFloat(result);
+      } else if (this.isStringNumber(result.state)) {
+        var amt = parseFloat(result.state);
         this.odooService.createSession(
           location.configId,
           6,
           amt,
           this.currentUser.name,
+          result.message,
         );
         this.storeService.setConfigId(location.configId);
         this.selectLocation(location);

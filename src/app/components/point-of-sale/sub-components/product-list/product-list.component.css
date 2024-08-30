@@ -99,6 +99,35 @@
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); /* add a subtle shadow */
 }
 
+.inner-triangle {
+  border-left: 35px solid transparent;
+  border-right: 35px solid #d7dadd;
+  border-bottom: 35px solid transparent;
+  height: 0;
+  width: 0;
+  position: absolute;
+  right: 0px;
+  z-index: 2;
+}
+
+.info-position {
+  position: absolute;
+  right: 10px;
+  z-index: 3;
+  color: white;
+}
+
+.outer-triangle {
+  border-left: 22px solid transparent;
+  border-right: 22px solid white;
+  border-bottom: 22px solid transparent;
+  height: 0;
+  width: 0;
+  position: absolute;
+  right: 0px;
+  z-index: 1;
+}
+
 .right-side-align {
   display: flex;
   flex-direction: row-reverse;

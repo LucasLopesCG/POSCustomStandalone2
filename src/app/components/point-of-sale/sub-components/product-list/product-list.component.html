@@ -79,6 +79,17 @@
               "
             >
               <div style="position: relative">
+                <div
+                  class="info-position"
+                  (click)="queryStoresForStock(array[0])"
+                >
+                  i
+                </div>
+                <div
+                  class="inner-triangle"
+                  (click)="queryStoresForStock(array[0])"
+                ></div>
+                <div class="outer-triangle"></div>
                 <div style="position: relative">
                   <img
                     (click)="addProductToOrder(array[0])"
@@ -93,11 +104,11 @@
                     src="assets/images/info6.png"
                     (click)="queryStoresForStock(array[0])"
                   /> -->
-                  <mat-icon
+                  <!-- <mat-icon
                     class="info-button"
                     (click)="queryStoresForStock(array[0])"
                     >info</mat-icon
-                  >
+                  > -->
                 </div>
 
                 <div
@@ -125,6 +136,17 @@
                 *ngIf="totalProductCount(array) > 0"
                 style="position: relative"
               >
+                <div
+                  class="info-position"
+                  (click)="queryStoresForStock(array[0])"
+                >
+                  i
+                </div>
+                <div
+                  class="inner-triangle"
+                  (click)="queryStoresForStock(array[0])"
+                ></div>
+                <div class="outer-triangle"></div>
                 <div style="position: relative">
                   <img
                     class="img-responsive"
@@ -133,11 +155,11 @@
                     crossorigin="anonymous"
                     *ngIf="array[0].image != 'false'"
                   />
-                  <mat-icon
+                  <!-- <mat-icon
                     class="info-button"
                     (click)="queryStoresForStock(array[0])"
                     >info</mat-icon
-                  >
+                  > -->
                 </div>
 
                 <div

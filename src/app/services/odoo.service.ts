@@ -52,6 +52,8 @@ export class OdooService implements OnInit {
   private productStockInfo = new BehaviorSubject<any>({});
   private pastOrdersSearchResults = new BehaviorSubject<any>([]);
   private draftOrders = new BehaviorSubject<any>([]);
+  private sessionOrderCount = new BehaviorSubject<number>(0);
+  private paymentMethodDetail = new BehaviorSubject<any>({});
 
   sessionId$ = this.sessionId.asObservable();
   configIds$ = this.configIds.asObservable();
@@ -80,6 +82,8 @@ export class OdooService implements OnInit {
   productStockInfo$ = this.productStockInfo.asObservable();
   pastOrdersSearchResults$ = this.pastOrdersSearchResults.asObservable();
   draftOrders$ = this.draftOrders.asObservable();
+  sessionOrderCount$ = this.sessionOrderCount.asObservable();
+  paymentMethodDetail$ = this.paymentMethodDetail.asObservable();
 
   selectedLocation: any = null;
   sessionIdVal;
@@ -142,6 +146,34 @@ export class OdooService implements OnInit {
   // getAnnouncements() {
   //   this.wordpressService.getAnnouncements();
   // }
+
+  getSessionOrderCountById(id: number) {
+    this.http
+      .get(this.middleManUrl + `/api/getSessionOrderCountById?id=${id}`)
+      .subscribe(
+        (response) => {
+          console.log("Response:", response);
+          this.sessionOrderCount.next(response[0]);
+        },
+        (error) => {
+          console.log("Error:", error);
+        },
+      );
+  }
+
+  getPaymentMethodDetailById(id: number) {
+    this.http
+      .get(this.middleManUrl + `/api/getPaymentMethodDetailById?id=${id}`)
+      .subscribe(
+        (response) => {
+          console.log("Response:", response);
+          this.paymentMethodDetail.next(response);
+        },
+        (error) => {
+          console.log("Error:", error);
+        },
+      );
+  }
 
   getPOSConfigIds() {
     let headers = new HttpHeaders();
@@ -487,7 +519,7 @@ export class OdooService implements OnInit {
     this.POSSessionStatesFinal.next(this.POSSessionStatesFinalArray);
   }
 
-  createSession(configId, userId, cashStart, cashier) {
+  createSession(configId, userId, cashStart, cashier, sessionOpenNotes = "") {
     const odooUrl = this.middleManUrl + "/api/createPOSSession"; // Replace with your Odoo instance URL
     var odooSession: any = {
       configId: configId,
@@ -503,6 +535,9 @@ export class OdooService implements OnInit {
         //console.log(response);
         this.sessionId.next(responseNum);
         this.addPOSMessageToSession(responseNum, cashier);
+        if (sessionOpenNotes && sessionOpenNotes.length > 0) {
+          this.addMessageToPOSSession(responseNum, sessionOpenNotes);
+        }
         // update the customer on local side to have this newly created id, saving a get call
       },
       (error) => {
@@ -538,7 +573,27 @@ export class OdooService implements OnInit {
     );
   }
 
-  closeSession(sessionId, amt) {
+  addMessageToPOSSession(sessionId, message) {
+    const odooUrl = this.middleManUrl + "/api/createSessionMessage"; // Replace with your Odoo instance URL
+    var odooSession: any = {
+      body: message,
+      sessionId: sessionId,
+    };
+    const body = JSON.stringify(odooSession);
+    this.http.put(odooUrl, body).subscribe(
+      (response) => {
+        //console.log(response);
+      },
+      (error) => {
+        console.error(error);
+      },
+    );
+  }
+
+  closeSession(sessionId, amt, closingNotes) {
+    if (closingNotes && closingNotes.length > 0) {
+      this.addMessageToPOSSession(sessionId, closingNotes);
+    }
     const odooUrl = this.middleManUrl + "/api/closeSession"; // Replace with your Odoo instance URL
     var odooSession: any = {
       id: sessionId,
@@ -1253,13 +1308,17 @@ export class OdooService implements OnInit {
   ) {
     var order2 = structuredClone(order);
     var pickingLineIds: Array<number> = [];
-    const odooUrl = this.middleManUrl + "/api/order-pay"; // Replace with your Odoo instance URL
+    var odooUrl = this.middleManUrl + "/api/order-pay"; // Replace with your Odoo instance URL
+    if (createPickings) {
+      odooUrl = odooUrl + "V2";
+    }
 
     var odooStyleOrder: any = {
       config_id: config_id,
       paymentMethodId: paymentMethodId,
       amount: amount,
       orderId: order.orderNumber,
+      payments: order.paymentDetails,
     };
     //debugger;
     //console.log(odooStyleOrder);

@@ -25,6 +25,8 @@ export class CloseSessionModalComponent {
   cashCloseAmount: number = 0;
   expectedCashAmt: number = 0;
   sessionId: number = -1;
+  sessionCloseNotes: string = "";
+  sessionOrderCount: number = -99;
   constructor(
     public dialogRef: MatDialogRef<CloseSessionModalComponent>,
     private storeService: storeService,
@@ -43,7 +45,15 @@ export class CloseSessionModalComponent {
       }
     });
     odooService.sessionId$.subscribe((val) => {
-      if (val) this.sessionId = val;
+      if (val) {
+        this.sessionId = val;
+        this.odooService.getSessionOrderCountById(this.sessionId);
+      }
+    });
+    odooService.sessionOrderCount$.subscribe((val) => {
+      if (val) {
+        this.sessionOrderCount = val;
+      }
     });
     userService.cashRegisterAmt$.subscribe((val) => {
       this.expectedCashAmt = val;
@@ -52,7 +62,7 @@ export class CloseSessionModalComponent {
 
   closeSession(amt) {
     //send out signal to close the session.
-    this.odooService.closeSession(this.sessionId, amt);
+    this.odooService.closeSession(this.sessionId, amt, this.sessionCloseNotes);
     this.storeService.setCurrentStore(storeLocationEnum.none);
     this.odooService.getPOSConfigIds();
     this.close();

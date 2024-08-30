@@ -30,12 +30,21 @@
       <label class="">Cash in Register: </label>
       <input [(ngModel)]="cashAmt" class="form-control" />
     </div>
+    <div class="money-display" style="padding-top: 1rem">
+      <label>Opening Notes:</label>
+    </div>
+    <input
+      type="text"
+      [(ngModel)]="sessionOpenNotes"
+      class="form-control"
+      style="margin-bottom: 1rem"
+    />
     <div>
       <button
         mat-icon-button
         aria-label="confirm edit"
         mat-dialog-close
-        (click)="close(cashAmt)"
+        (click)="close(cashAmt, sessionOpenNotes)"
       >
         <mat-icon>check_circle</mat-icon>
       </button>

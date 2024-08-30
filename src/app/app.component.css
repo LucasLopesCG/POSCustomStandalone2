@@ -162,7 +162,7 @@ input[type="number"] {
   padding-right: 1rem;
   padding-left: 1rem;
   height: 60vh;
-  background-image: url("../assets/images/announcementsBackground.png");
+  /* background-image: url("../assets/images/announcementsBackground.png"); */
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;

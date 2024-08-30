@@ -11,6 +11,7 @@
   </button>
 </div>
 <div mat-dialog-content style="height: 25rem" class="p-3">
+  {{ sessionOrderCount }}
   <div class="close-session-card">
     <h2>Record total cash amount within your register:</h2>
     <input [(ngModel)]="cashCloseAmount" class="form-control" />
@@ -25,6 +26,15 @@
         {{ cashCloseAmount - expectedCashAmt | number: "1.2-2" }}</label
       >
     </div>
+    <div class="money-display" style="padding-top: 1rem">
+      <label>Closing Session Notes:</label>
+    </div>
+    <input
+      type="text"
+      [(ngModel)]="sessionCloseNotes"
+      class="form-control"
+      style="margin-bottom: 1rem"
+    />
     <button
       mat-icon-button
       aria-label="confirm edit"

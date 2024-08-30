@@ -16,13 +16,14 @@ import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 export class CreateSessionModalComponent {
   storeLocation: storeLocationEnum = storeLocationEnum.none;
   cashAmt: number = 0;
+  sessionOpenNotes: string = "";
   constructor(
     public dialogRef: MatDialogRef<CreateSessionModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.cashAmt = data.cashInRegister;
   }
-  close(state: string | number = "cancel") {
-    this.dialogRef.close(state);
+  close(state: string | number = "cancel", message: string = "") {
+    this.dialogRef.close({ state: state, message: message });
   }
 }
